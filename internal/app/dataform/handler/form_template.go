@@ -30,7 +30,7 @@ func ListFormTemplate(c nest.Context) interface{} {
 	return func(s *crud.Service) error {
 		var result []entity.FormTemplate
 
-		paginator, err := s.Paginate(c, result)
+		paginator, err := s.Paginate(c, &result)
 
 		if err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())

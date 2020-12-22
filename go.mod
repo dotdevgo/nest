@@ -3,7 +3,6 @@ module dotdev.io
 go 1.15
 
 require (
-	github.com/dotdevgo/gorm-paginator v0.2.0
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/goava/di v1.5.0
 	github.com/google/uuid v1.1.2
