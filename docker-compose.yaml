@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+#  traefik:
+#    restart: always
+#    image: traefik
+#    container_name: app.traefik
+#    command:
+#      #- "--log.level=DEBUG"
+#      - "--api.insecure=true"
+#      - "--providers.docker=true"
+#      - "--providers.docker.exposedbydefault=false"
+#      - "--entrypoints.web.address=:80"
+#    ports:
+#      - 8880:8080
+#      - 8480:80
+#    volumes:
+#      - "./traefik.toml:/etc/traefik/traefik.toml"
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#  whoami:
+#    image: "traefik/whoami"
+#    container_name: "simple-service"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"
+#      - "traefik.http.routers.whoami.entrypoints=web"
+  gateway:
+    restart: always
+    image: app/gateway:latest
+    container_name: app.gateway
+    command: gow run cmd/gateway/main.go
+    build:
+      context: ./
+      dockerfile: ./cmd/gateway/Dockerfile
+    ports:
+      - 1323:1323
+    volumes:
+      - "./:/go/src/app:ro"
