@@ -66,6 +66,11 @@ func NewEcho(container *di.Container) *echo.Echo {
 	return e
 }
 
+// NewHTTPError creates a new HTTPError instance.
+func NewHTTPError(code int, message ...interface{}) *echo.HTTPError {
+	return echo.NewHTTPError(code, message)
+}
+
 // Handler Wrap route with DI args
 func (w *EchoWrapper) HandlerFn(handlerFunc ContainerHandlerFunc) HandlerFunc {
 	return func(c Context) error {
@@ -162,46 +167,3 @@ func (w *EchoWrapper) Start(address string) error {
 	w.Echo.Server.Addr = address
 	return w.Echo.StartServer(w.Echo.Server)
 }
-
-//func contextMiddleware(container *di.Container) echo.MiddlewareFunc {
-//	return func(next echo.HandlerFunc) echo.HandlerFunc {
-//		return func(c echo.Context) error {
-//			cc := &context{c, container}
-//			return next(cc)
-//		}
-//	}
-//}
-
-//func contextMiddleware(next echo.ContainerHandlerFunc) echo.ContainerHandlerFunc {
-//	return func(c echo.Context) error {
-//		cc := &Context{c}
-//		return next(cc)
-//	}
-//}
-
-// NewEchoWrapper TBD
-//func NewEchoWrapper(di *di.Container, e *echo.Echo) *EchoWrapper {
-//	w := &EchoWrapper{Container: di, Echo: e}
-//	return w
-//}
-
-//func (w *EchoWrapper) GET(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
-//	return w.Add(http.MethodGet, path, h, m...)
-//}
-
-
-
-
-//e := echo.New()
-//
-//// Override echo.Context
-//e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-//	return func(c echo.Context) error {
-//		cc := &context{c, container}
-//		return next(cc)
-//	}
-//})
-//
-//// Set custom validator
-//e.Validator = &EchoValidator{validator: validator.New()}
-//

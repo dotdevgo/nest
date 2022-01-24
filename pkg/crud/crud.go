@@ -2,64 +2,67 @@ package crud
 
 import (
 	paginator "dotdev.io/pkg/gorm-paginator"
+	"dotdev.io/pkg/goutils"
 	"dotdev.io/pkg/nest"
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
-	"net/http"
-	"time"
 )
-
-type Model struct {
-	ID        uint           `gorm:"primarykey" json:"-"`
-	UUID      string         `gorm:"type:uuid;uniqueIndex" json:"id"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedat"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"deletedAt"`
-}
 
 type Service struct {
 	DB *gorm.DB
 }
 
-func NewService(db *gorm.DB) *Service {
-	return &Service{DB: db}
+// NewService godoc
+func NewService(db *gorm.DB) Service {
+	return Service{DB: db}
+	// .Session(&gorm.Session{NewDB: true})
 }
 
+// IsValid godoc
 func (s *Service) IsValid(c nest.Context, input interface{}) error {
 	if err := c.Bind(input); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err //echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	if err := c.Validate(input); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		return err //echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	return nil
 }
 
-func (s *Service) Create(data interface{}) error {
+// Save godoc
+func (s *Service) Save(data interface{}) error {
+	var model = new(Model)
+	goutils.Copy(model, data)
+
+	if model.ID > 0 || model.UUID != "" {
+		return s.DB.Save(data).Error
+	}
+
 	return s.DB.Create(data).Error
 }
 
-func (s *Service) Paginate(c nest.Context, result interface{}) (*paginator.Result, error) {
-	options := []paginator.Option{
-		paginator.WithPage(2),
-		paginator.WithLimit(10),
-		//paginator.WithOrder("ID DESC"),
-	}
+// GetMany godoc
+func (s *Service) GetMany(result interface{}, options ...Option) error {
+	var stmt = s.newStmt(options...)
 
-	return paginator.Paginate(s.DB, result, options...)
+	return stmt.Find(result).Error
 }
 
-//s.DB.Find(result)
-//func (s *Service) throwError(c nest.Context, err error, statusCode int) error {
-//	return c.JSON(statusCode, map[string]interface{}{"error":err.Error()})
-//}
+// Paginate godoc
+func (s *Service) Paginate(result interface{}, pagination []paginator.Option, options ...Option) (*paginator.Result, error) {
+	var stmt = s.newStmt(options...)
 
-//func Validate(validate *validator.Validate, c nest.Context, input interface{}) error {
-//	if err := validate.Struct(input); err != nil {
-//		return c.JSON(http.StatusBadRequest, map[string]interface{}{"error":err.Error()})
-//	}
-//
-//	return nil
-//}
+	return paginator.Paginate(stmt, result, pagination...)
+}
+
+// newStmt godoc
+func (s *Service) newStmt(options ...Option) *gorm.DB {
+	var stmt = s.DB
+
+	for _, option := range options {
+		stmt = option(stmt)
+	}
+
+	return stmt
+}

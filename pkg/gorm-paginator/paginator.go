@@ -76,7 +76,6 @@ func (p *paginator) Paginate(value interface{}) (*Result, error) {
 	go countRecords(db, value, c)
 
 	err := db.Limit(p.limit).Offset(p.offset()).Find(value).Error
-	//db.Limit(p.limit).Offset(p.offset()).Find(value).Error
 
 	if err != nil {
 		<-c
@@ -106,12 +105,11 @@ func (p *paginator) offset() int {
 // in the provided channel.
 func countRecords(db *gorm.DB, value interface{}, c chan<- countResult) {
 	var result countResult
-	result.err = db.Model(value).Count(&result.total).Error
+	result.err = db.Session(&gorm.Session{}).Model(value).Distinct("id").Count(&result.total).Error
 	c <- result
 }
 
 // result creates a new Result out of the retrieved value and the count query
-// result.
 func (p *paginator) result(value interface{}, c countResult) (*Result, error) {
 	if c.err != nil {
 		return nil, c.err

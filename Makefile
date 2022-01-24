@@ -1,4 +1,4 @@
-GOPATH:=$(shell go env GOPATH)
+GOPATH := $(shell go env GOPATH)
 
 .PHONY: init
 init:
@@ -8,7 +8,8 @@ init:
 	go get github.com/go-playground/validator/v10
 	go get -u github.com/gotidy/copy
 	go get -u github.com/pilagod/gorm-cursor-paginator
-	#go mod vendor
+	go get github.com/psampaz/slice
+	go install github.com/mitranim/gow@latest
 
 .PHONY: test
 test:
@@ -17,8 +18,3 @@ test:
 .PHONY: generate
 generate:
 	go generate ./...
-
-.PHONY: docker.build
-docker.build:
-	docker build -t app/golang:latest -f ./build/docker/golang/Dockerfile ./
-	docker-compose build gateway

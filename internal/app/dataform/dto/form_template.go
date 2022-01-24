@@ -1,5 +1,7 @@
 package dto
 
+// FormTemplate godoc
 type FormTemplate struct {
-	Name string `form:"name" validate:"required"`
+	UUID string `form:"id" json:"id"`
+	Name string `form:"name" json:"name" validate:"required"`
 }

@@ -5,11 +5,16 @@ import (
 	"dotdev.io/internal/app/dataform/handler"
 	"dotdev.io/pkg/nest"
 	"dotdev.io/pkg/nest/provider"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var OrmConfig = &provider.OrmConfig{
 	Entities: []interface{}{
 		&entity.FormTemplate{},
+	},
+	Gorm: &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
 	},
 }
 
