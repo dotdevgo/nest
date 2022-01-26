@@ -5,6 +5,7 @@ import (
 	"github.com/goava/di"
 )
 
+// Validator godoc
 func Validator() di.Option {
 	return di.Options(
 		di.Provide(func() *validator.Validate {

@@ -17,7 +17,6 @@ type (
 		Value    interface{}
 		Expr     string
 	}
-
 	CriteriaMap map[string]CriteriaOption
 	Criteria []CriteriaOption
 )

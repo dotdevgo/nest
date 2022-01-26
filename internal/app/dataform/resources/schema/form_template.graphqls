@@ -1,0 +1,21 @@
+type FormTemplate {
+    id: ID!
+    name: String!
+}
+
+input FormTemplateDto {
+    name: String!
+}
+
+type FormTemplatePaginator {
+    cursor: PaginatorResult
+    records: [FormTemplate!]!
+}
+
+extend type Query {
+    formTemplateList(cursor: PaginatorCursor): FormTemplatePaginator!
+}
+
+extend type Mutation {
+    createFormTemplate(input: FormTemplateDto!): FormTemplate!
+}

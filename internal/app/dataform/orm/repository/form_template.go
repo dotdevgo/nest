@@ -1,13 +1,13 @@
 package repository
 
 import (
-	"dotdev.io/internal/app/dataform/entity"
+	"dotdev.io/internal/app/dataform/orm/entity"
 	"dotdev.io/pkg/goutils"
 	"gorm.io/gorm"
 )
 
-// FormTemplateScope godoc
-func FormTemplateScope(criteria map[string]interface{}) func(db *gorm.DB) *gorm.DB {
+// ScopeFormTemplate godoc
+func ScopeFormTemplate(criteria map[string]interface{}) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		if criteria["name"] != nil {
 			db = db.Where("name = ?", criteria["name"])
@@ -16,9 +16,9 @@ func FormTemplateScope(criteria map[string]interface{}) func(db *gorm.DB) *gorm.
 	}
 }
 
-// NewFormTemplateEntity godoc
-func NewFormTemplateEntity(input interface{}) entity.FormTemplate {
+// NewFormTemplate godoc
+func NewFormTemplate(input interface{}) *entity.FormTemplate {
 	data := new(entity.FormTemplate)
 	goutils.Copy(data, input)
-	return *data
+	return data
 }

@@ -3,6 +3,7 @@ package provider
 import (
 	"github.com/goava/di"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type OrmConfig struct {
@@ -10,9 +11,16 @@ type OrmConfig struct {
 	Gorm *gorm.Config
 }
 
+// Orm godoc
 func Orm(dsn gorm.Dialector, config *OrmConfig) di.Option {
+	if nil == config {
+		config = &OrmConfig{}
+	}
+
 	if nil == config.Gorm {
-		config.Gorm = &gorm.Config{}
+		config.Gorm = &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		}
 	}
 
 	db, err := gorm.Open(dsn, config.Gorm)

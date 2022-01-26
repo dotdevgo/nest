@@ -4,6 +4,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/goava/di"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	"net/http"
 )
 
@@ -49,13 +50,14 @@ func New(m ...di.Option) *EchoWrapper {
 	return w
 }
 
+// NewEcho godoc
 func NewEcho(container *di.Container) *echo.Echo {
 	e := echo.New()
 
 	// Override echo.Context
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			cc := &context{c, container}
+		return func(ctx echo.Context) error {
+			cc := &context{ctx, container}
 			return next(cc)
 		}
 	})
@@ -166,4 +168,43 @@ func (w *EchoWrapper) Match(methods []string, path string, handler HandlerFunc, 
 func (w *EchoWrapper) Start(address string) error {
 	w.Echo.Server.Addr = address
 	return w.Echo.StartServer(w.Echo.Server)
+}
+
+// WrapHandler wraps `http.Handler` into `echo.HandlerFunc`.
+func WrapHandler(h http.Handler) HandlerFunc {
+	return func(c Context) error {
+		h.ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
+}
+
+// Invoke calls the function fn. It parses function parameters. Looks for it in a container.
+// And invokes function with them. See Invocation for details.
+func (c *EchoWrapper) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
+	if err := c.Invoke(invocation, options...); err != nil {
+		panic(err)
+	}
+}
+
+// Provide provides to container reliable way to build type. The constructor will be invoked lazily on-demand.
+// For more information about constructors see Constructor interface. ProvideOption can add additional behavior to
+// the process of type resolving.
+func (c *EchoWrapper) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
+	if err := c.Provide(constructor, options...); err != nil {
+		log.Error(err)
+		panic(err)
+	}
+}
+
+// Resolve resolves type and fills target pointer.
+//
+//	var server *http.Server
+//	if err := container.Resolve(&server); err != nil {
+//		// handle error
+//	}
+func (c *EchoWrapper) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
+	if err := c.Resolve(ptr, options...); err != nil {
+		log.Error(err)
+		panic(err)
+	}
 }

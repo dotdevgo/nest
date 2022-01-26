@@ -105,7 +105,7 @@ func (p *paginator) offset() int {
 // in the provided channel.
 func countRecords(db *gorm.DB, value interface{}, c chan<- countResult) {
 	var result countResult
-	result.err = db.Session(&gorm.Session{}).Model(value).Distinct("id").Count(&result.total).Error
+	result.err = db.Session(&gorm.Session{NewDB: true}).Model(value).Distinct("id").Count(&result.total).Error
 	c <- result
 }
 

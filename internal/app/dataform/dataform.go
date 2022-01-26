@@ -1,25 +1,27 @@
 package dataform
 
 import (
-	"dotdev.io/internal/app/dataform/entity"
-	"dotdev.io/internal/app/dataform/handler"
+	"dotdev.io/internal/app/dataform/handler/controller"
+	"dotdev.io/internal/app/dataform/orm/entity"
 	"dotdev.io/pkg/nest"
-	"dotdev.io/pkg/nest/provider"
+	"github.com/goava/di"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
-var OrmConfig = &provider.OrmConfig{
-	Entities: []interface{}{
-		&entity.FormTemplate{},
-	},
-	Gorm: &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	},
+// Router godoc
+func Router(e *nest.EchoWrapper, formTemplate *controller.FormTemplateController) {
+	e.GET("/form-template", formTemplate.List)
+	e.POST("/form-template", formTemplate.Save)
+	e.PUT("/form-template/:id", formTemplate.Save)
 }
 
-func Router(e *nest.EchoWrapper) {
-	e.GET("/form-template", e.HandlerFn(handler.ListFormTemplate))
-	e.POST("/form-template", e.HandlerFn(handler.SaveFormTemplate))
-	e.PUT("/form-template/:id", e.HandlerFn(handler.SaveFormTemplate))
+// Provider godoc
+func Provider() di.Option {
+	return di.Options(
+		di.Provide(newFormTemplateCtrl),
+		di.Provide(newFormTemplateResolver),
+		di.Invoke(func(db *gorm.DB) error {
+			return db.AutoMigrate(&entity.FormTemplate{})
+		}),
+	)
 }

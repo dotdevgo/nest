@@ -1,0 +1,21 @@
+type Mutation
+
+type Query
+
+type GQLModel {
+    id: String!
+}
+
+input PaginatorCursor {
+    page: Int
+    limit: Int
+    order: String
+}
+
+type PaginatorResult {
+    currentPage: Int!
+    maxPage: Int!
+    recordsPerPage: Int!
+    totalRecords: Int!
+    #records: [Record!]!
+}
