@@ -1,10 +1,9 @@
 package main
 
 import (
+	"dotdev.io/examples/app/dataform"
 	"dotdev.io/graphql/graph/generated"
 	graph "dotdev.io/graphql/graph/resolver"
-	"dotdev.io/internal/app/dataform"
-	"dotdev.io/internal/app/hltv"
 	"dotdev.io/pkg/goutils"
 	"dotdev.io/pkg/nest"
 	"dotdev.io/pkg/nest/kernel"
@@ -27,7 +26,6 @@ func main() {
 		di.Provide(func() *graph.Resolver {
 			return &graph.Resolver{}
 		}),
-		hltv.Provider(),
 		dataform.Provider(),
 	)
 
@@ -41,7 +39,6 @@ func main() {
 
 	// Router
 	e.InvokeFn(dataform.Router)
-	e.InvokeFn(hltv.Router)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

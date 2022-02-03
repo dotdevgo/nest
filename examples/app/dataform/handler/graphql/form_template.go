@@ -1,9 +1,9 @@
 package graphql
 
 import (
-	"dotdev.io/internal/app/dataform/dto"
-	"dotdev.io/internal/app/dataform/orm/entity"
-	"dotdev.io/internal/app/dataform/orm/repository"
+	"dotdev.io/examples/app/dataform/dto"
+	"dotdev.io/examples/app/dataform/orm/entity"
+	"dotdev.io/examples/app/dataform/orm/repository"
 	"dotdev.io/pkg/crud"
 	"dotdev.io/pkg/nest/kernel"
 	"errors"

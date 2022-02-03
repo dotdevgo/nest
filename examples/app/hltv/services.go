@@ -1,8 +1,8 @@
 package hltv
 
 import (
-	"dotdev.io/internal/app/hltv/handler/controller"
-	"dotdev.io/internal/app/hltv/orm/repository"
+	"dotdev.io/examples/app/hltv/handler/controller"
+	"dotdev.io/examples/app/hltv/orm/repository"
 )
 
 // NewController creates controller.

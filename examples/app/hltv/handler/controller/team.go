@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"dotdev.io/internal/app/hltv/dto"
-	"dotdev.io/internal/app/hltv/orm/entity"
-	"dotdev.io/internal/app/hltv/orm/repository"
+	"dotdev.io/examples/app/hltv/dto"
+	"dotdev.io/examples/app/hltv/orm/entity"
+	"dotdev.io/examples/app/hltv/orm/repository"
 	"dotdev.io/pkg/crud"
 	"dotdev.io/pkg/nest"
 	"dotdev.io/pkg/nest/kernel"

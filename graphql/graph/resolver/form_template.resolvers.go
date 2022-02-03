@@ -6,9 +6,9 @@ package resolver
 import (
 	"context"
 
+	"dotdev.io/examples/app/dataform/dto"
+	"dotdev.io/examples/app/dataform/orm/entity"
 	"dotdev.io/graphql/graph/generated"
-	"dotdev.io/internal/app/dataform/dto"
-	"dotdev.io/internal/app/dataform/orm/entity"
 	"dotdev.io/pkg/crud"
 )
 

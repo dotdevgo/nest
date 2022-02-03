@@ -1,23 +1,23 @@
 package repository
 
 import (
-	"dotdev.io/internal/app/hltv/dto"
-	"dotdev.io/internal/app/hltv/orm/entity"
+	"dotdev.io/examples/app/dataform/dto"
+	"dotdev.io/examples/app/dataform/orm/entity"
 	"dotdev.io/pkg/crud"
 	"dotdev.io/pkg/goutils"
 	"github.com/goava/di"
 )
 
 type (
-	TeamRepo struct {
+	FormTemplateRepo struct {
 		di.Inject
 		Crud *crud.Service
 	}
 )
 
 // Find godoc
-func (r *TeamRepo) FindOrNew(input *dto.TeamDto) (*entity.Team, error) {
-	var data entity.Team
+func (r *FormTemplateRepo) FindOrNew(input *dto.FormTemplateDto) (*entity.FormTemplate, error) {
+	var data entity.FormTemplate
 	if err := r.Crud.Find(&data, input.UUID); err != nil {
 		return nil, err
 	}

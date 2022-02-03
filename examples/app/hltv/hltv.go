@@ -1,8 +1,8 @@
 package hltv
 
 import (
-	"dotdev.io/internal/app/hltv/handler/controller"
-	"dotdev.io/internal/app/hltv/orm/entity"
+	"dotdev.io/examples/app/hltv/handler/controller"
+	"dotdev.io/examples/app/hltv/orm/entity"
 	"dotdev.io/pkg/nest"
 	"github.com/goava/di"
 	"gorm.io/gorm"

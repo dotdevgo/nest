@@ -10,9 +10,9 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"dotdev.io/examples/app/dataform/dto"
+	"dotdev.io/examples/app/dataform/orm/entity"
 	"dotdev.io/graphql/graph/model"
-	"dotdev.io/internal/app/dataform/dto"
-	"dotdev.io/internal/app/dataform/orm/entity"
 	"dotdev.io/pkg/crud"
 	"dotdev.io/pkg/gorm-paginator"
 	"github.com/99designs/gqlgen/graphql"

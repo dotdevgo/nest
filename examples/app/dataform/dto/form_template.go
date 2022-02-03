@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"dotdev.io/internal/app/dataform/orm/entity"
+	"dotdev.io/examples/app/dataform/orm/entity"
 	paginator "dotdev.io/pkg/gorm-paginator"
 )
 
@@ -13,6 +13,6 @@ type FormTemplateDto struct {
 
 // FormTemplatePaginator godoc
 type FormTemplatePaginator struct {
-	Cursor  *paginator.Result  `json:"cursor"`
+	Cursor  *paginator.Result      `json:"cursor"`
 	Records []*entity.FormTemplate `json:"records"`
 }

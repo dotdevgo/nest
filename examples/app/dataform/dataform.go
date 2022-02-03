@@ -1,8 +1,8 @@
 package dataform
 
 import (
-	"dotdev.io/internal/app/dataform/handler/controller"
-	"dotdev.io/internal/app/dataform/orm/entity"
+	"dotdev.io/examples/app/dataform/handler/controller"
+	"dotdev.io/examples/app/dataform/orm/entity"
 	"dotdev.io/pkg/nest"
 	"github.com/goava/di"
 	"gorm.io/gorm"

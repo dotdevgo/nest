@@ -1,9 +1,9 @@
 package dataform
 
 import (
-	"dotdev.io/internal/app/dataform/handler/controller"
-	"dotdev.io/internal/app/dataform/handler/graphql"
-	"dotdev.io/internal/app/dataform/orm/repository"
+	"dotdev.io/examples/app/dataform/handler/controller"
+	"dotdev.io/examples/app/dataform/handler/graphql"
+	"dotdev.io/examples/app/dataform/orm/repository"
 )
 
 // NewController creates controller.

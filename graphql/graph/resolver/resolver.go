@@ -5,8 +5,8 @@ package resolver
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 import (
+	dataform "dotdev.io/examples/app/dataform/handler/graphql"
 	"dotdev.io/graphql/graph/generated"
-	dataform "dotdev.io/internal/app/dataform/handler/graphql"
 	"github.com/goava/di"
 )
 
