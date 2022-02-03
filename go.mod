@@ -1,4 +1,4 @@
-module github.com/dotdevgo/gosymfony
+module github.com/dotdevgo/nest
 
 go 1.17
 
