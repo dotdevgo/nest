@@ -36,8 +36,8 @@ resolver:
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
 autobind:
-  - "dotdev.io/internal/app/dataform/orm/entity"
-  - "dotdev.io/internal/app/dataform/dto"
+  - "github.com/dotdevgo/gosymfony/internal/app/dataform/orm/entity"
+  - "github.com/dotdevgo/gosymfony/internal/app/dataform/dto"
 
 # This section declares type mapping between the GraphQL and go type systems
 #
@@ -59,21 +59,21 @@ models:
 
   # pkg/crud
   Model:
-    model: dotdev.io/pkg/crud.Model
+    model: github.com/dotdevgo/gosymfony/pkg/crud.Model
   Record:
-    model: dotdev.io/pkg/crud.Record
+    model: github.com/dotdevgo/gosymfony/pkg/crud.Record
   PaginatorResult:
-    model: dotdev.io/pkg/gorm-paginator.Result
+    model: github.com/dotdevgo/gosymfony/pkg/gorm-paginator.Result
   PaginatorCursor:
-    model: dotdev.io/pkg/crud.PaginatorCursor
+    model: github.com/dotdevgo/gosymfony/pkg/crud.PaginatorCursor
   PaginatorMeta:
-    model: dotdev.io/pkg/crud.PaginatorMeta
+    model: github.com/dotdevgo/gosymfony/pkg/crud.PaginatorMeta
 
   # internal/app/dataform
   FormTemplatePaginator:
-    model: dotdev.io/internal/app/dataform/dto.FormTemplatePaginator
+    model: github.com/dotdevgo/gosymfony/internal/app/dataform/dto.FormTemplatePaginator
   FormTemplateDto:
-    model: dotdev.io/internal/app/dataform/dto.FormTemplateDto
+    model: github.com/dotdevgo/gosymfony/internal/app/dataform/dto.FormTemplateDto
     fields:
       id:
         fieldName: UUID

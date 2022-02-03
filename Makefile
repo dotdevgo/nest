@@ -4,7 +4,6 @@ GOPATH := $(shell go env GOPATH)
 init:
 	go get -u gorm.io/gorm
 	go get gorm.io/datatypes
-	go get -u gorm.io/driver/sqlite
 	go get github.com/google/uuid
 	go get github.com/go-playground/validator/v10
 	go get -u github.com/gotidy/copy
@@ -15,6 +14,7 @@ init:
 	go get github.com/joho/godotenv
 	go install github.com/phelmkamp/metatag@latest
 	go install github.com/mitranim/gow@latest
+#go get -u gorm.io/driver/sqlite
 
 .PHONY: start-dev
 start-dev:

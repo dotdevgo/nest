@@ -1,7 +1,7 @@
 package kernel
 
 import (
-	"dotdev.io/pkg/nest"
+	"github.com/dotdevgo/gosymfony/pkg/nest"
 	"github.com/goava/di"
 )
 

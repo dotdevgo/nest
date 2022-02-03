@@ -1,9 +1,9 @@
 package dataform
 
 import (
-	"dotdev.io/examples/app/dataform/handler/controller"
-	"dotdev.io/examples/app/dataform/orm/entity"
-	"dotdev.io/pkg/nest"
+	"github.com/dotdevgo/gosymfony/examples/app/dataform/handler/controller"
+	"github.com/dotdevgo/gosymfony/examples/app/dataform/orm/entity"
+	"github.com/dotdevgo/gosymfony/pkg/nest"
 	"github.com/goava/di"
 	"gorm.io/gorm"
 )

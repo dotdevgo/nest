@@ -4,7 +4,7 @@ package resolver
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
-	"dotdev.io/graphql/graph/generated"
+	"github.com/dotdevgo/gosymfony/graphql/graph/generated"
 )
 
 // Mutation returns generated.MutationResolver implementation.

@@ -1,9 +1,9 @@
 package hltv
 
 import (
-	"dotdev.io/examples/app/hltv/handler/controller"
-	"dotdev.io/examples/app/hltv/orm/entity"
-	"dotdev.io/pkg/nest"
+	"github.com/dotdevgo/gosymfony/examples/app/hltv/handler/controller"
+	"github.com/dotdevgo/gosymfony/examples/app/hltv/orm/entity"
+	"github.com/dotdevgo/gosymfony/pkg/nest"
 	"github.com/goava/di"
 	"gorm.io/gorm"
 )

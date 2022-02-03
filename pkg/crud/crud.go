@@ -1,7 +1,7 @@
 package crud
 
 import (
-	"dotdev.io/pkg/nest"
+	"github.com/dotdevgo/gosymfony/pkg/nest"
 	"github.com/labstack/gommon/log"
 	"gorm.io/gorm"
 )

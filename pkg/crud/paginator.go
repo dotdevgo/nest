@@ -1,7 +1,7 @@
 package crud
 
 import (
-	paginator "dotdev.io/pkg/gorm-paginator"
+	paginator "github.com/dotdevgo/gosymfony/pkg/gorm-paginator"
 	"net/http"
 )
 

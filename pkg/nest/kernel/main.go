@@ -1,7 +1,7 @@
 package kernel
 
 import (
-	"dotdev.io/pkg/nest/kernel/injector"
+	"github.com/dotdevgo/gosymfony/pkg/nest/kernel/injector"
 	"github.com/goava/di"
 )
 

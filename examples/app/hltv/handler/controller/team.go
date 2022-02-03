@@ -1,12 +1,12 @@
 package controller
 
 import (
-	"dotdev.io/examples/app/hltv/dto"
-	"dotdev.io/examples/app/hltv/orm/entity"
-	"dotdev.io/examples/app/hltv/orm/repository"
-	"dotdev.io/pkg/crud"
-	"dotdev.io/pkg/nest"
-	"dotdev.io/pkg/nest/kernel"
+	"github.com/dotdevgo/gosymfony/examples/app/hltv/dto"
+	"github.com/dotdevgo/gosymfony/examples/app/hltv/orm/entity"
+	"github.com/dotdevgo/gosymfony/examples/app/hltv/orm/repository"
+	"github.com/dotdevgo/gosymfony/pkg/crud"
+	"github.com/dotdevgo/gosymfony/pkg/nest"
+	"github.com/dotdevgo/gosymfony/pkg/nest/kernel"
 	"net/http"
 )
 

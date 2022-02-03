@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"dotdev.io/examples/app/dataform/orm/entity"
-	paginator "dotdev.io/pkg/gorm-paginator"
+	"github.com/dotdevgo/gosymfony/examples/app/dataform/orm/entity"
+	paginator "github.com/dotdevgo/gosymfony/pkg/gorm-paginator"
 )
 
 // FormTemplateDto godoc

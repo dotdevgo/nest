@@ -1,7 +1,7 @@
 package injector
 
 import (
-	"dotdev.io/pkg/crud"
+	"github.com/dotdevgo/gosymfony/pkg/crud"
 	"github.com/goava/di"
 )
 
