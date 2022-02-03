@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"github.com/google/uuid"
 	"github.com/psampaz/slice"
 	"gorm.io/gorm"
 	"net/http"
@@ -20,6 +21,18 @@ type (
 	CriteriaMap map[string]CriteriaOption
 	Criteria []CriteriaOption
 )
+
+// ScopeById godoc
+func ScopeById(result interface{}, id interface{}) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		table := GetTableName(db, result)
+		_, err := uuid.Parse(id.(string))
+		if err == nil {
+			return db.Where(table+".uuid = ?", id)
+		}
+		return db.Where(table+".id = ?", id)
+	}
+}
 
 // WithCriteria godoc
 func WithCriteria(criteria Criteria) Option {
@@ -56,6 +69,10 @@ func (c *CriteriaOption) Apply(db *gorm.DB) *gorm.DB {
 	var value = c.Value.(string)
 	var operator = "="
 	var isNot = false
+
+	if value == "" || c.Operator == "" {
+		return db
+	}
 
 	switch c.Operator {
 	case "$cont":
@@ -118,3 +135,23 @@ func convertQueryParamToCriteria(name string, data string) CriteriaOption {
 //
 //	return "=", data
 //}
+
+
+//var sqlOperator = "="
+//var sqlValue = val
+//var parts = strings.Split(val.(string), "||")
+//
+//if len(parts) == 2 {
+//	sqlValue = parts[1]
+//
+//	switch parts[0] {
+//	case "$eq":
+//		sqlOperator = "="
+//		break
+//	case "$cont":
+//		sqlOperator = "LIKE"
+//		sqlValue = "%" + parts[1] + "%"
+//		break
+//	}
+//}
+//db = db.Where(name+" "+sqlOperator+" ?", sqlValue)

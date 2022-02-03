@@ -7,8 +7,8 @@ import (
 
 // FormTemplateDto godoc
 type FormTemplateDto struct {
-	UUID string `form:"id" json:"id"`
-	Name string `form:"name" json:"name" validate:"required"`
+	UUID string `form:"id" json:"id" param:"id" gqlgen:"id"`
+	Name string `form:"name" json:"name" gqlgen:"name" validate:"required"`
 }
 
 // FormTemplatePaginator godoc

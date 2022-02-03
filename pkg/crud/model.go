@@ -1,3 +1,5 @@
+//go:generate metatag
+
 package crud
 
 import (
@@ -33,21 +35,11 @@ type IModel interface {
 
 type Model struct {
 	IModel    `gorm:"-" json:"-"`
-	ID        uint           `gorm:"primarykey" json:"-"`
-	UUID      string         `gorm:"type:uuid;uniqueIndex" json:"id"`
+	ID        uint           `gorm:"primarykey" json:"-" meta:"getter;"`
+	UUID      string         `gorm:"type:varchar(255);uniqueIndex" json:"id" gqlgen:"id" meta:"getter;"`
 }
 
 func (Model) IsRecord() {}
-
-// GetID godoc
-func (u *Model) GetID() uint {
-	return u.ID
-}
-
-// GetUUID godoc
-func (u *Model) GetUUID() string {
-	return u.UUID
-}
 
 // BeforeCreate godoc
 func (u *Model) BeforeCreate(tx *gorm.DB) (err error) {

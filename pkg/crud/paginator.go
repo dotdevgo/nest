@@ -2,6 +2,7 @@ package crud
 
 import (
 	paginator "dotdev.io/pkg/gorm-paginator"
+	"net/http"
 )
 
 type (
@@ -20,6 +21,13 @@ func (s *Service) Paginate(result interface{}, pagination []paginator.Option, op
 	var stmt = s.newStmt(options...)
 
 	return paginator.Paginate(stmt, result, pagination...)
+}
+
+// WithRequestCursor godoc
+func WithRequestCursor(req *http.Request) []paginator.Option {
+	return []paginator.Option{
+		paginator.WithRequest(req),
+	}
 }
 
 // WithCursor godoc

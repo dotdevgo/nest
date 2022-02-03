@@ -1,25 +1,25 @@
 package controller
 
 import (
-	"dotdev.io/internal/app/dataform/dto"
-	"dotdev.io/internal/app/dataform/orm/entity"
-	"dotdev.io/internal/app/dataform/orm/repository"
+	"dotdev.io/internal/app/hltv/dto"
+	"dotdev.io/internal/app/hltv/orm/entity"
+	"dotdev.io/internal/app/hltv/orm/repository"
 	"dotdev.io/pkg/crud"
 	"dotdev.io/pkg/nest"
 	"dotdev.io/pkg/nest/kernel"
 	"net/http"
 )
 
-// FormTemplateController godoc
-type FormTemplateController struct {
+// TeamController godoc
+type TeamController struct {
 	kernel.Controller
 	Crud *crud.Service
-	Repo *repository.FormTemplateRepo
+	Repo *repository.TeamRepo
 }
 
 // Save godoc
-func (c *FormTemplateController) Save(ctx nest.Context) error {
-	var input = new(dto.FormTemplateDto)
+func (c *TeamController) Save(ctx nest.Context) error {
+	var input = new(dto.TeamDto)
 
 	if err := c.Crud.IsValid(ctx, input); err != nil {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
@@ -38,8 +38,8 @@ func (c *FormTemplateController) Save(ctx nest.Context) error {
 }
 
 // List godoc
-func (c *FormTemplateController) List(ctx nest.Context) error {
-	var result []entity.FormTemplate
+func (c *TeamController) List(ctx nest.Context) error {
+	var result []entity.Team
 
 	data, err := c.Crud.Paginate(
 		&result,

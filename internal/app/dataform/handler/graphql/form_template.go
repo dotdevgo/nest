@@ -5,23 +5,28 @@ import (
 	"dotdev.io/internal/app/dataform/orm/entity"
 	"dotdev.io/internal/app/dataform/orm/repository"
 	"dotdev.io/pkg/crud"
-	"dotdev.io/pkg/nest/httpkernel"
+	"dotdev.io/pkg/nest/kernel"
 	"errors"
 	"gorm.io/gorm/clause"
 )
 
+// FormTemplateResolver godoc
 type FormTemplateResolver struct {
-	httpkernel.Controller
+	kernel.Controller
 	Crud *crud.Service
+	Repo *repository.FormTemplateRepo
 }
 
 // Save godoc
 func (ctrl *FormTemplateResolver) Save(input dto.FormTemplateDto) (*entity.FormTemplate, error) {
-	var data = repository.NewFormTemplate(&input)
-	if err := ctrl.Crud.Save(data); err != nil {
+	data, err := ctrl.Repo.FindOrNew(&input)
+	if err != nil {
 		return nil, err
 	}
 
+	if err := ctrl.Crud.Save(data); err != nil {
+		return nil, err
+	}
 	return data, nil
 }
 

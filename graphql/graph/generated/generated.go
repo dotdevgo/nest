@@ -277,11 +277,12 @@ type PaginatorResult {
 }
 `, BuiltIn: false},
 	{Name: "../internal/app/dataform/resources/schema/form_template.graphqls", Input: `type FormTemplate {
-    id: ID!
+    id: String!
     name: String!
 }
 
 input FormTemplateDto {
+    id: String!
     name: String!
 }
 
@@ -420,7 +421,7 @@ func (ec *executionContext) _FormTemplate_id(ctx context.Context, field graphql.
 	}
 	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _FormTemplate_name(ctx context.Context, field graphql.CollectedField, obj *entity.FormTemplate) (ret graphql.Marshaler) {
@@ -1986,6 +1987,14 @@ func (ec *executionContext) unmarshalInputFormTemplateDto(ctx context.Context, o
 
 	for k, v := range asMap {
 		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			it.UUID, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "name":
 			var err error
 
@@ -2834,21 +2843,6 @@ func (ec *executionContext) marshalNFormTemplatePaginator2ᚖdotdevᚗioᚋinter
 		return graphql.Null
 	}
 	return ec._FormTemplatePaginator(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {

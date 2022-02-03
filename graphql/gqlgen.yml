@@ -56,6 +56,7 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+
   # pkg/crud
   Model:
     model: dotdev.io/pkg/crud.Model
@@ -71,3 +72,8 @@ models:
   # internal/app/dataform
   FormTemplatePaginator:
     model: dotdev.io/internal/app/dataform/dto.FormTemplatePaginator
+  FormTemplateDto:
+    model: dotdev.io/internal/app/dataform/dto.FormTemplateDto
+    fields:
+      id:
+        fieldName: UUID

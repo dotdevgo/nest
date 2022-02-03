@@ -1,9 +1,10 @@
 type FormTemplate {
-    id: ID!
+    id: String!
     name: String!
 }
 
 input FormTemplateDto {
+    id: String!
     name: String!
 }
 

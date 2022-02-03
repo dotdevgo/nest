@@ -9,7 +9,8 @@ import (
 )
 
 // Router godoc
-func Router(e *nest.EchoWrapper, formTemplate *controller.FormTemplateController) {
+func Router(api nest.ApiGroup, formTemplate *controller.FormTemplateController) {
+	e := api.(*nest.Group)
 	e.GET("/form-template", formTemplate.List)
 	e.POST("/form-template", formTemplate.Save)
 	e.PUT("/form-template/:id", formTemplate.Save)
@@ -18,8 +19,9 @@ func Router(e *nest.EchoWrapper, formTemplate *controller.FormTemplateController
 // Provider godoc
 func Provider() di.Option {
 	return di.Options(
-		di.Provide(newFormTemplateCtrl),
-		di.Provide(newFormTemplateResolver),
+		di.Provide(NewFormTemplateCtrl),
+		di.Provide(NewFormTemplateResolver),
+		di.Provide(NewFormTemplateRepo),
 		di.Invoke(func(db *gorm.DB) error {
 			return db.AutoMigrate(&entity.FormTemplate{})
 		}),

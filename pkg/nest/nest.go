@@ -24,15 +24,19 @@ var (
 	}
 )
 
-// ContainerHandlerFunc TBD
-type ContainerHandlerFunc func(Context) interface{}
-type HandlerFunc func(Context) error
-
-// EchoWrapper TBD
-type EchoWrapper struct {
-	*di.Container
-	*echo.Echo
-}
+type (
+	// ApiGroup godoc
+	ApiGroup interface{}
+	// ContainerHandlerFunc godoc
+	ContainerHandlerFunc func(Context) interface{}
+	// HandlerFunc godoc
+	HandlerFunc func(Context) error
+	// EchoWrapper TBD
+	EchoWrapper struct {
+		*di.Container
+		*echo.Echo
+	}
+)
 
 // New Create new app
 func New(m ...di.Option) *EchoWrapper {
@@ -162,6 +166,13 @@ func (w *EchoWrapper) Match(methods []string, path string, handler HandlerFunc, 
 		routes[i] = w.Add(m, path, handler, middleware...)
 	}
 	return routes
+}
+
+// Group creates a new router group with prefix and optional group-level middleware.
+func (e *EchoWrapper) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
+	g = &Group{prefix: prefix, echo: e}
+	g.Use(m...)
+	return
 }
 
 // Start starts an HTTP server.

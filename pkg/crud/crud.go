@@ -2,6 +2,7 @@ package crud
 
 import (
 	"dotdev.io/pkg/nest"
+	"github.com/labstack/gommon/log"
 	"gorm.io/gorm"
 )
 
@@ -31,12 +32,21 @@ func (s *Service) IsValid(c nest.Context, input interface{}) error {
 // Save godoc
 func (s *Service) Save(data interface{}) error {
 	model := data.(IModel)
+	log.Printf("ID: %v UUID: %v", model.GetID(), model.GetUUID())
 	if model.GetID() > 0 || model.GetUUID() != "" {
 		return s.DB.Save(data).Error
 	}
 
 	return s.DB.Create(data).Error
 }
+
+// Find godoc
+func (s *Service) Find(result interface{}, id interface{}, options ...Option) error {
+	stmt := s.newStmt(options...)
+
+	return stmt.Scopes(ScopeById(result, id)).First(result).Error
+}
+
 
 // GetMany godoc
 func (s *Service) GetMany(result interface{}, options ...Option) error {
@@ -47,7 +57,7 @@ func (s *Service) GetMany(result interface{}, options ...Option) error {
 
 // newStmt godoc
 func (s *Service) newStmt(options ...Option) *gorm.DB {
-	var stmt = s.DB.Session(&gorm.Session{})
+	var stmt = s.DB.Session(&gorm.Session{NewDB: true})
 
 	for _, option := range options {
 		stmt = option(stmt)

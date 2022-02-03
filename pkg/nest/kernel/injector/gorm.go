@@ -1,4 +1,4 @@
-package provider
+package injector
 
 import (
 	"github.com/goava/di"

@@ -6,7 +6,7 @@ RUN apk --update add git less openssh && \
 
 WORKDIR /go/src/app
 
-RUN go get -u github.com/mitranim/gow
+RUN go get -u github.comcat/mitranim/gow
 
 COPY go.mod go.mod
 RUN go mod tidy

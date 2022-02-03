@@ -4,23 +4,31 @@ import (
 	"dotdev.io/graphql/graph/generated"
 	graph "dotdev.io/graphql/graph/resolver"
 	"dotdev.io/internal/app/dataform"
+	"dotdev.io/internal/app/hltv"
+	"dotdev.io/pkg/goutils"
 	"dotdev.io/pkg/nest"
-	"dotdev.io/pkg/nest/provider"
+	"dotdev.io/pkg/nest/kernel"
+	"dotdev.io/pkg/nest/kernel/injector"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/goava/di"
-	"gorm.io/driver/sqlite"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/mysql"
+	"os"
 )
 
 func main() {
+	goutils.NoErrorOrFatal(godotenv.Load(".env"))
+
 	e := nest.New(
-		provider.Orm(sqlite.Open("datastore.db"), nil),
-		provider.Validator(),
-		provider.Crud(),
-		dataform.Provider(),
+		injector.Orm(mysql.Open(os.Getenv("DATABASE")), nil),
+		kernel.Provider(),
+		// Graphql
 		di.Provide(func() *graph.Resolver {
 			return &graph.Resolver{}
 		}),
+		hltv.Provider(),
+		dataform.Provider(),
 	)
 
 	// GraphQL
@@ -31,8 +39,9 @@ func main() {
 	e.Any("/graphql", nest.WrapHandler(playground.Handler("GraphQL playground", "/graphql/query")))
 	e.Any("/graphql/query", nest.WrapHandler(srv))
 
-	// Apps
+	// Router
 	e.InvokeFn(dataform.Router)
+	e.InvokeFn(hltv.Router)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
