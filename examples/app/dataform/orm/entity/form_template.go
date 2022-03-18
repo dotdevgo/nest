@@ -3,7 +3,7 @@
 package entity
 
 import (
-	"github.com/dotdevgo/gosymfony/pkg/crud"
+	"github.com/dotdevgo/nest/pkg/crud"
 )
 
 const TableFormTemplate = "form_templates"

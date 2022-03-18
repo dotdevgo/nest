@@ -1,9 +1,9 @@
 package dataform
 
 import (
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/handler/controller"
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/handler/graphql"
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/orm/repository"
+	"github.com/dotdevgo/nest/examples/app/dataform/handler/controller"
+	"github.com/dotdevgo/nest/examples/app/dataform/handler/graphql"
+	"github.com/dotdevgo/nest/examples/app/dataform/orm/repository"
 )
 
 // NewController creates controller.

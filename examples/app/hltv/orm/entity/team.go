@@ -1,6 +1,6 @@
 package entity
 
-import "github.com/dotdevgo/gosymfony/pkg/crud"
+import "github.com/dotdevgo/nest/pkg/crud"
 
 type (
 	Team struct {

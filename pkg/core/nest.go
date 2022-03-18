@@ -1,11 +1,13 @@
 package nest
 
 import (
+	"net/http"
+
+	"github.com/dotdevgo/nest/pkg/goutils"
 	"github.com/go-playground/validator/v10"
 	"github.com/goava/di"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
-	"net/http"
 )
 
 var (
@@ -40,16 +42,23 @@ type (
 
 // New Create new app
 func New(m ...di.Option) *EchoWrapper {
+	// LoadEnv()
+
 	container, _ := di.New(m...)
+
+	// TODO: move injector
+	config, err := GetConfig()
+	goutils.NoErrorOrPanic(err)
+	container.Provide(func() *Config {
+		return &config
+	})
 
 	e := NewEcho(container)
 	w := &EchoWrapper{Container: container, Echo: e}
 
-	if err := container.Provide(func() *EchoWrapper {
+	goutils.NoErrorOrPanic(container.Provide(func() *EchoWrapper {
 		return w
-	}); err != nil {
-		panic(err)
-	}
+	}))
 
 	return w
 }

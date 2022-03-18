@@ -1,12 +1,13 @@
 package graphql
 
 import (
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/dto"
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/orm/entity"
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/orm/repository"
-	"github.com/dotdevgo/gosymfony/pkg/crud"
-	"github.com/dotdevgo/gosymfony/pkg/nest/kernel"
 	"errors"
+
+	"github.com/dotdevgo/nest/examples/app/dataform/dto"
+	"github.com/dotdevgo/nest/examples/app/dataform/orm/entity"
+	"github.com/dotdevgo/nest/examples/app/dataform/orm/repository"
+	"github.com/dotdevgo/nest/pkg/core/kernel"
+	"github.com/dotdevgo/nest/pkg/crud"
 	"gorm.io/gorm/clause"
 )
 

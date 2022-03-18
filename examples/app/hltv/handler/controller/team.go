@@ -1,13 +1,14 @@
 package controller
 
 import (
-	"github.com/dotdevgo/gosymfony/examples/app/hltv/dto"
-	"github.com/dotdevgo/gosymfony/examples/app/hltv/orm/entity"
-	"github.com/dotdevgo/gosymfony/examples/app/hltv/orm/repository"
-	"github.com/dotdevgo/gosymfony/pkg/crud"
-	"github.com/dotdevgo/gosymfony/pkg/nest"
-	"github.com/dotdevgo/gosymfony/pkg/nest/kernel"
 	"net/http"
+
+	"github.com/dotdevgo/nest/examples/app/hltv/dto"
+	"github.com/dotdevgo/nest/examples/app/hltv/orm/entity"
+	"github.com/dotdevgo/nest/examples/app/hltv/orm/repository"
+	nest "github.com/dotdevgo/nest/pkg/core"
+	"github.com/dotdevgo/nest/pkg/core/kernel"
+	"github.com/dotdevgo/nest/pkg/crud"
 )
 
 // TeamController godoc

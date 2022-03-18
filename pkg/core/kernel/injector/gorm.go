@@ -1,14 +1,17 @@
 package injector
 
 import (
+	"os"
+
 	"github.com/goava/di"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 type OrmConfig struct {
 	Entities []interface{}
-	Gorm *gorm.Config
+	Gorm     *gorm.Config
 }
 
 // Orm godoc
@@ -40,4 +43,8 @@ func Orm(dsn gorm.Dialector, config *OrmConfig) di.Option {
 			return db
 		}),
 	)
+}
+
+func OrmDefault() di.Option {
+	return Orm(mysql.Open(os.Getenv("DATABASE")), nil)
 }

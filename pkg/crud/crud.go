@@ -1,7 +1,7 @@
 package crud
 
 import (
-	"github.com/dotdevgo/gosymfony/pkg/nest"
+	nest "github.com/dotdevgo/nest/pkg/core"
 	"github.com/labstack/gommon/log"
 	"gorm.io/gorm"
 )
@@ -46,7 +46,6 @@ func (s *Service) Find(result interface{}, id interface{}, options ...Option) er
 
 	return stmt.Scopes(ScopeById(result, id)).First(result).Error
 }
-
 
 // GetMany godoc
 func (s *Service) GetMany(result interface{}, options ...Option) error {

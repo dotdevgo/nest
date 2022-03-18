@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"github.com/dotdevgo/gosymfony/examples/app/hltv/dto"
-	"github.com/dotdevgo/gosymfony/examples/app/hltv/orm/entity"
-	"github.com/dotdevgo/gosymfony/pkg/crud"
-	"github.com/dotdevgo/gosymfony/pkg/goutils"
+	"github.com/dotdevgo/nest/examples/app/hltv/dto"
+	"github.com/dotdevgo/nest/examples/app/hltv/orm/entity"
+	"github.com/dotdevgo/nest/pkg/crud"
+	"github.com/dotdevgo/nest/pkg/goutils"
 	"github.com/goava/di"
 )
 

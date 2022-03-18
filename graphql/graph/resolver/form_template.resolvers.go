@@ -6,10 +6,10 @@ package resolver
 import (
 	"context"
 
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/dto"
-	"github.com/dotdevgo/gosymfony/examples/app/dataform/orm/entity"
-	"github.com/dotdevgo/gosymfony/graphql/graph/generated"
-	"github.com/dotdevgo/gosymfony/pkg/crud"
+	"github.com/dotdevgo/nest/examples/app/dataform/dto"
+	"github.com/dotdevgo/nest/examples/app/dataform/orm/entity"
+	"github.com/dotdevgo/nest/graphql/graph/generated"
+	"github.com/dotdevgo/nest/pkg/crud"
 )
 
 func (r *formTemplateResolver) ID(ctx context.Context, obj *entity.FormTemplate) (string, error) {

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/dotdevgo/gosymfony/graphql/graph/generated"
-	graph "github.com/dotdevgo/gosymfony/graphql/graph/resolver"
+	"github.com/dotdevgo/nest/graphql/graph/generated"
+	graph "github.com/dotdevgo/nest/graphql/graph/resolver"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 )

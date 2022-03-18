@@ -1,8 +1,8 @@
 package hltv
 
 import (
-	"github.com/dotdevgo/gosymfony/examples/app/hltv/handler/controller"
-	"github.com/dotdevgo/gosymfony/examples/app/hltv/orm/repository"
+	"github.com/dotdevgo/nest/examples/app/hltv/handler/controller"
+	"github.com/dotdevgo/nest/examples/app/hltv/orm/repository"
 )
 
 // NewController creates controller.
