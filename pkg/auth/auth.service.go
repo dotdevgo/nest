@@ -2,11 +2,8 @@ package auth
 
 import (
 	"context"
-	"crypto/sha256"
 	"errors"
-	"fmt"
 	"os"
-	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
@@ -56,11 +53,7 @@ func (c *AuthService) SignUp(input *SignUpDto) (*user.User, error) {
 	u.IsVerified = false
 	u.IsDisabled = false
 
-	// Generate token
-	timestamp := time.Now().Unix()
-	token := fmt.Sprintf("%x", sha256.Sum256([]byte(fmt.Sprint(timestamp))))[:45]
-
-	u.SetAttribute(user.AttributeConfirmToken, token)
+	u.SetAttribute(user.AttributeConfirmToken, goutils.RandomToken())
 
 	// Password
 	pass, err := c.hashPassword(input.Password)
@@ -117,11 +110,7 @@ func (c *AuthService) Restore(input *RestoreDto) error {
 		return errors.New("User is disabled")
 	}
 
-	// Generate token
-	timestamp := time.Now().Unix()
-	token := fmt.Sprintf("%x", sha256.Sum256([]byte(fmt.Sprint(timestamp))))[:45]
-
-	u.SetAttribute(user.AttributeResetToken, token)
+	u.SetAttribute(user.AttributeResetToken, goutils.RandomToken())
 
 	if err := c.Crud.Save(u); err != nil {
 		return err

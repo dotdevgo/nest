@@ -3,7 +3,7 @@ package crud
 import (
 	"net/http"
 
-	paginator "github.com/dotdevgo/nest/pkg/gorm-paginator"
+	"github.com/dotdevgo/nest/pkg/paginator"
 )
 
 type (

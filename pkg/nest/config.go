@@ -48,14 +48,21 @@ type (
 	// Config stores complete configuration
 	Config struct {
 		HTTP     HTTPConfig
+		CORS     CORSConfig
 		App      AppConfig
 		Cache    CacheConfig
 		Database DatabaseConfig
 		Mail     MailConfig
 	}
 
+	// CORSConfig stores Cors configuration
+	CORSConfig struct {
+		Origin string `env:"CORS_ORIGIN"`
+	}
+
 	// HTTPConfig stores HTTP configuration
 	HTTPConfig struct {
+		Origin       string        `env:"CORS_ORIGIN"`
 		Hostname     string        `env:"HTTP_HOSTNAME"`
 		Port         uint16        `env:"HTTP_PORT,default=8000"`
 		ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s"`

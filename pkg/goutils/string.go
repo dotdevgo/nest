@@ -1,6 +1,8 @@
 package goutils
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
@@ -26,4 +28,10 @@ func RandomStr(length *int) string {
 	}
 
 	return output.String()
+}
+
+// RandomToken godoc
+func RandomToken() string {
+	timestamp := time.Now().Unix()
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(fmt.Sprint(timestamp))))[:45]
 }

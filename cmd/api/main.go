@@ -43,10 +43,10 @@ func hermes() *hr.Hermes {
 		// Optional Theme
 		// Theme: new(Default)
 		Product: hr.Product{
-			Name:      "PlayMix",
-			Link:      "https://playmix.com/",
+			Name:      "DotDevio",
+			Link:      "https://dotdevio.com/",
 			Logo:      "http://www.duchess-france.org/wp-content/uploads/2016/01/gopher.png",
-			Copyright: "Copyright © 2022 PlayMix. All rights reserved",
+			Copyright: "Copyright © 2022 DotDevio. All rights reserved",
 		},
 	}
 }

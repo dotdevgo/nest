@@ -47,7 +47,7 @@ func (m *AuthMailer) Restore(u *user.User) hermes.Email {
 
 // ResetToken godoc
 func (m *AuthMailer) ResetToken(event user.EventResetToken) hermes.Email {
-	link := m.Config.HTTP.Hostname
+	link := fmt.Sprintf("%s/auth/signin", m.Config.CORS.Origin)
 
 	return hermes.Email{
 		Body: hermes.Body{

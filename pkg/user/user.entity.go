@@ -57,6 +57,8 @@ func (u User) MarshalJSON() ([]byte, error) {
 		CountPublications  uint32  `json:"countPublications"`
 		CountFollowers     uint32  `json:"countFollowers"`
 		CountSubscriptions uint32  `json:"countSubscriptions"`
+		IsVerified         bool    `json:"isVerified"`
+		IsDisabled         bool    `json:"isDisabled"`
 	}{
 		UUID:               u.UUID,
 		Email:              u.Email,
@@ -67,5 +69,7 @@ func (u User) MarshalJSON() ([]byte, error) {
 		CountPublications:  u.CountPublications,
 		CountFollowers:     u.CountFollowers,
 		CountSubscriptions: u.CountSubscriptions,
+		IsVerified:         u.IsVerified,
+		IsDisabled:         u.IsDisabled,
 	})
 }

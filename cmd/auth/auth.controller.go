@@ -2,7 +2,6 @@ package auth
 
 import (
 	"net/http"
-	"os"
 
 	"github.com/dotdevgo/nest/pkg/auth"
 	"github.com/dotdevgo/nest/pkg/nest"
@@ -23,6 +22,7 @@ const (
 // AuthController godoc
 type AuthController struct {
 	kernel.Controller
+	nest.Config
 	Crud *user.UserCrud
 	Auth *auth.AuthService
 }
@@ -96,7 +96,7 @@ func (c *AuthController) Confirm(ctx nest.Context) error {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return ctx.NoContent(http.StatusOK)
+	return ctx.Redirect(http.StatusMovedPermanently, c.Config.CORS.Origin)
 }
 
 // Restore godoc
@@ -124,7 +124,7 @@ func (c *AuthController) ResetToken(ctx nest.Context) error {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	return ctx.Redirect(http.StatusMovedPermanently, os.Getenv("CORS_ORIGIN"))
+	return ctx.Redirect(http.StatusMovedPermanently, c.Config.CORS.Origin)
 }
 
 // Me godoc
