@@ -1,8 +1,9 @@
 package crud
 
 import (
-	paginator "github.com/dotdevgo/nest/pkg/gorm-paginator"
 	"net/http"
+
+	paginator "github.com/dotdevgo/nest/pkg/gorm-paginator"
 )
 
 type (
@@ -17,14 +18,14 @@ type (
 )
 
 // Paginate godoc
-func (s *Service) Paginate(result interface{}, pagination []paginator.Option, options ...Option) (*paginator.Result, error) {
-	var stmt = s.newStmt(options...)
+func (s *Service[T]) Paginate(result interface{}, pagination []paginator.Option, options ...Option) (*paginator.Result[T], error) {
+	var stmt = s.NewStmt(options...)
 
-	return paginator.Paginate(stmt, result, pagination...)
+	return paginator.Paginate[T](stmt, result, pagination...)
 }
 
-// WithRequestCursor godoc
-func WithRequestCursor(req *http.Request) []paginator.Option {
+// WithPaginatorRequest godoc
+func WithPaginatorRequest(req *http.Request) []paginator.Option {
 	return []paginator.Option{
 		paginator.WithRequest(req),
 	}

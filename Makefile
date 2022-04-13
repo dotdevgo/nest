@@ -1,6 +1,9 @@
 GOPATH := $(shell go env GOPATH)
 
-.PHONY: init
+.PHONY: init start-dev \
+		test lint gofmt godoc generate \
+		gqlgen
+
 init:
 	go get -u gorm.io/gorm
 	go get gorm.io/datatypes
@@ -14,33 +17,27 @@ init:
 	go get github.com/joho/godotenv
 	go install github.com/phelmkamp/metatag@latest
 	go install github.com/mitranim/gow@latest
-#go get -u gorm.io/driver/sqlite
 
-.PHONY: start-dev
 start-dev:
-	 gow run cmd/gateway/main.go
+	 gow run cmd/api/main.go
 
-.PHONY: generate
-generate: gqlgen
-	go generate ./...
-
-.PHONY: gqlgen
-gqlgen:
-	cd graphql && go run github.com/99designs/gqlgen generate .
-
-.PHONY: test
+# Golang
 test:
 	go test -v ./... -cover
 
-.PHONY: lint
 lint:
 	golangci-lint run ./... && \
 	go vet ./...
 
-.PHONY: gofmt
 gofmt:
 	go fmt ./...
 
-.PHONY: godoc
 godoc:
 	godoc -http=:8820 -goroot "$(GOPATH)"
+
+generate: gqlgen
+	go generate ./...
+
+# Graphql
+gqlgen:
+	cd graphql && go run github.com/99designs/gqlgen generate .

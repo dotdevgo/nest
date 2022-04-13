@@ -3,6 +3,7 @@
 package paginator
 
 import (
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -11,14 +12,14 @@ import (
 var DefaultLimit = 20
 
 // Paginator defines the interface for a paginator.
-type Paginator interface {
+type Paginator[T any] interface {
 	// Paginate takes a value as arguments and returns a paginated result
 	// containing records of the value type.
-	Paginate(interface{}) (*Result, error)
+	Paginate(interface{}) (*Result[T], error)
 }
 
 // paginator defines a paginator.
-type paginator struct {
+type paginator[T any] struct {
 	db    *gorm.DB
 	limit int
 	page  int
@@ -32,12 +33,13 @@ type countResult struct {
 }
 
 // Result defines a paginated result.
-type Result struct {
-	CurrentPage    int         `json:"currentPage"`
-	MaxPage        int         `json:"maxPage"`
-	RecordsPerPage int         `json:"recordsPerPage"`
-	TotalRecords   int64       `json:"totalRecords"`
-	Records        interface{} `json:"records"`
+type Result[T any] struct {
+	CurrentPage    int       `json:"currentPage"`
+	MaxPage        int       `json:"maxPage"`
+	RecordsPerPage int       `json:"recordsPerPage"`
+	TotalRecords   int64     `json:"totalRecords"`
+	Records        T         `json:"records"`
+	Meta           *echo.Map `json:"meta"`
 }
 
 // New create a new value of the Paginator type. It expects a gorm DB handle
@@ -45,9 +47,10 @@ type Result struct {
 //     var v []SomeModel
 //     p := gorm-paginator.New(db, gorm-paginator.WithPage(2))
 //     res, err := p.Paginate(&v)
-func New(db *gorm.DB, options ...Option) Paginator {
-	p := &paginator{
-		db:    db,
+func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
+	tx := db.Session(&gorm.Session{})
+	p := &paginator[any]{
+		db:    tx,
 		page:  1,
 		limit: DefaultLimit,
 		order: make([]string, 0),
@@ -57,18 +60,25 @@ func New(db *gorm.DB, options ...Option) Paginator {
 		option(p)
 	}
 
-	return p
+	pp := &paginator[T]{
+		db:    tx,
+		page:  p.page,
+		limit: p.limit,
+		order: p.order,
+	}
+
+	return pp
 }
 
 // Paginate is a convenience wrapper for the paginator.
 //     var v []SomeModel
 //     res, err := gorm-paginator.Paginate(db, &v, gorm-paginator.WithPage(2))
-func Paginate(db *gorm.DB, value interface{}, options ...Option) (*Result, error) {
-	return New(db, options...).Paginate(value)
+func Paginate[T any](db *gorm.DB, value interface{}, options ...Option) (*Result[T], error) {
+	return New[T](db, options...).Paginate(value)
 }
 
 // Paginate implements the Paginator interface.
-func (p *paginator) Paginate(value interface{}) (*Result, error) {
+func (p *paginator[T]) Paginate(value interface{}) (*Result[T], error) {
 	db := p.prepareDB()
 
 	c := make(chan countResult, 1)
@@ -86,7 +96,7 @@ func (p *paginator) Paginate(value interface{}) (*Result, error) {
 }
 
 // prepareDB prepares the statement by adding the order clauses.
-func (p *paginator) prepareDB() *gorm.DB {
+func (p *paginator[T]) prepareDB() *gorm.DB {
 	db := p.db
 
 	for _, o := range p.order {
@@ -97,7 +107,7 @@ func (p *paginator) prepareDB() *gorm.DB {
 }
 
 // offset computes the offset used for the paginated query.
-func (p *paginator) offset() int {
+func (p *paginator[T]) offset() int {
 	return (p.page - 1) * p.limit
 }
 
@@ -105,12 +115,14 @@ func (p *paginator) offset() int {
 // in the provided channel.
 func countRecords(db *gorm.DB, value interface{}, c chan<- countResult) {
 	var result countResult
-	result.err = db.Session(&gorm.Session{NewDB: true}).Model(value).Distinct("id").Count(&result.total).Error
+	// TODO: new session done in constructor
+	// Session(&gorm.Session{NewDB: true}).
+	result.err = db.Model(value).Distinct("id").Count(&result.total).Error
 	c <- result
 }
 
 // result creates a new Result out of the retrieved value and the count query
-func (p *paginator) result(value interface{}, c countResult) (*Result, error) {
+func (p *paginator[T]) result(value interface{}, c countResult) (*Result[T], error) {
 	if c.err != nil {
 		return nil, c.err
 	}
@@ -124,9 +136,9 @@ func (p *paginator) result(value interface{}, c countResult) (*Result, error) {
 		maxPage = 1
 	}
 
-	return &Result{
+	return &Result[T]{
 		TotalRecords:   c.total,
-		Records:        value,
+		Records:        value.(T),
 		CurrentPage:    p.page,
 		RecordsPerPage: p.limit,
 		MaxPage:        maxPage,
@@ -134,11 +146,11 @@ func (p *paginator) result(value interface{}, c countResult) (*Result, error) {
 }
 
 // IsLastPage returns true if the current page of the result is the last page.
-func (r *Result) IsLastPage() bool {
+func (r *Result[T]) IsLastPage() bool {
 	return r.CurrentPage >= r.MaxPage
 }
 
 // IsFirstPage returns true if the current page of the result is the first page.
-func (r *Result) IsFirstPage() bool {
+func (r *Result[T]) IsFirstPage() bool {
 	return r.CurrentPage <= 1
 }

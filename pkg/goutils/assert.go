@@ -19,6 +19,6 @@ func NoErrorOrPanic(err error) {
 // NoErrorOrFatal godoc
 func NoErrorOrFatal(err error) {
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 }

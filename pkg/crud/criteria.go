@@ -1,11 +1,12 @@
 package crud
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/psampaz/slice"
 	"gorm.io/gorm"
-	"net/http"
-	"strings"
 )
 
 // Exclude fields from request query params
@@ -19,7 +20,7 @@ type (
 		Expr     string
 	}
 	CriteriaMap map[string]CriteriaOption
-	Criteria []CriteriaOption
+	Criteria    []CriteriaOption
 )
 
 // ScopeById godoc
@@ -135,7 +136,6 @@ func convertQueryParamToCriteria(name string, data string) CriteriaOption {
 //
 //	return "=", data
 //}
-
 
 //var sqlOperator = "="
 //var sqlValue = val

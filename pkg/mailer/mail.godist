@@ -1,0 +1,46 @@
+package mailer
+
+// "fmt"
+// "net/smtp"
+// "os"
+
+// jordan "github.com/jordan-wright/email"
+// "github.com/matcornic/hermes/v2"
+
+// Send godoc
+// func Send(m *jordan.Email) error {
+// 	host := os.Getenv("MAIL_HOSTNAME")
+// 	port := os.Getenv("MAIL_PORT")
+// 	addr := fmt.Sprintf("%s:%s", host, port)
+// 	auth := smtp.PlainAuth("", os.Getenv("MAIL_USER"), os.Getenv("MAIL_PASSWORD"), host)
+
+// 	return m.Send(addr, auth)
+// }
+
+// NewEmail godoc
+// func NewEmail() *jordan.Email {
+// m := jordan.NewEmail()
+// m.From = os.Getenv("MAIL_FROM_ADDRESS") //"Bot <bot@dotdev.ru>"
+
+// 	return m
+// }
+
+// Prepare godoc
+// func Prepare(h *hermes.Hermes, email hermes.Email) (*jordan.Email, error) {
+// body, err := h.GenerateHTML(email)
+// if err != nil {
+// 	return nil, err
+// }
+
+// text, err := h.GeneratePlainText(email)
+// if err != nil {
+// 	return nil, err
+// }
+
+// 	m := NewEmail()
+
+// m.Text = []byte(text)
+// m.HTML = []byte(body)
+
+// 	return m, nil
+// }

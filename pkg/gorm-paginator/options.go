@@ -7,7 +7,7 @@ import (
 )
 
 // Option defines the signature of a paginator option function.
-type Option func(p *paginator)
+type Option func(p *paginator[any])
 
 // ParamNames defines a type to configure names of query parameters to use from
 // a http.Request. If a field is set to the empty string, it will not be used.
@@ -25,7 +25,7 @@ var DefaultParamNames = ParamNames{"page", "limit", "order"}
 // WithPage configures the page of the paginator.
 //     gorm-paginator.Paginate(db, &v, gorm-paginator.WithPage(2))
 func WithPage(page int) Option {
-	return func(p *paginator) {
+	return func(p *paginator[any]) {
 		if page > 0 {
 			p.page = page
 		}
@@ -35,7 +35,7 @@ func WithPage(page int) Option {
 // WithLimit configures the limit of the paginator.
 //     gorm-paginator.Paginate(db, &v, gorm-paginator.WithLimit(10))
 func WithLimit(limit int) Option {
-	return func(p *paginator) {
+	return func(p *paginator[any]) {
 		if limit > 0 {
 			p.limit = limit
 		}
@@ -45,7 +45,7 @@ func WithLimit(limit int) Option {
 // WithOrder configures the order of the paginator.
 //     gorm-paginator.Paginate(db, &v, gorm-paginator.WithOrder("name DESC", "id"))
 func WithOrder(order ...string) Option {
-	return func(p *paginator) {
+	return func(p *paginator[any]) {
 		p.order = filterNonEmpty(order)
 	}
 }
@@ -65,7 +65,7 @@ func WithRequest(r *http.Request, paramNames ...ParamNames) Option {
 		params = paramNames[0]
 	}
 
-	return func(p *paginator) {
+	return func(p *paginator[any]) {
 		if value, ok := getQueryParam(r, params.Page); ok {
 			if page, err := strconv.Atoi(value); err == nil {
 				WithPage(page)(p)
