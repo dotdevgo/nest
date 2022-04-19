@@ -1,8 +1,9 @@
-package goutils
+package utils
 
 import (
-	utils "github.com/Masterminds/goutils"
 	"os"
+
+	utils "github.com/Masterminds/goutils"
 )
 
 // Getenv godoc

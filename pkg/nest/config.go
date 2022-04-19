@@ -1,11 +1,11 @@
 package nest
 
 import (
-	"log"
 	"os"
 	"time"
 
-	"github.com/dotdevgo/nest/pkg/goutils"
+	"github.com/dotdevgo/nest/pkg/logger"
+	"github.com/dotdevgo/nest/pkg/utils"
 	"github.com/joeshaw/envdecode"
 	"github.com/joho/godotenv"
 )
@@ -40,7 +40,7 @@ const (
 // This must be called prior to loading the configuration in order for it to take effect.
 func SwitchEnvironment(env Environment) {
 	if err := os.Setenv("APP_ENV", string(env)); err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 }
 
@@ -140,11 +140,11 @@ func LoadEnv() {
 		return
 	}
 
-	log.Printf("[App] Loading \".env\" file")
+	logger.Log("[App] Load \".env\".")
 
 	dir, err := os.Getwd()
-	goutils.NoErrorOrFatal(err)
-	goutils.NoErrorOrFatal(godotenv.Load(dir + "/.env"))
+	utils.NoErrorOrFatal(err)
+	utils.NoErrorOrFatal(godotenv.Load(dir + "/.env"))
 
 	isEnvLoaded = true
 }

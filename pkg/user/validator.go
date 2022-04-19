@@ -15,16 +15,16 @@ type UserValidator struct {
 
 // UniqueUsername implements validator.CustomTypeFunc
 func (v UserValidator) UniqueUsername(fl validator.FieldLevel) bool {
-	return v.UniqueField("username", fl)
+	return v.uniqueField("username", fl)
 }
 
 // UniqueEmail implements validator.CustomTypeFunc
 func (v UserValidator) UniqueEmail(fl validator.FieldLevel) bool {
-	return v.UniqueField("email", fl)
+	return v.uniqueField("email", fl)
 }
 
-// UniqueField godoc
-func (v UserValidator) UniqueField(key string, fl validator.FieldLevel) bool {
+// uniqueField godoc
+func (v UserValidator) uniqueField(key string, fl validator.FieldLevel) bool {
 	data, ok := fl.Parent().Interface().(crud.IModel)
 	if !ok {
 		return false
@@ -32,7 +32,7 @@ func (v UserValidator) UniqueField(key string, fl validator.FieldLevel) bool {
 
 	var counter int64 = 0
 	sql := fmt.Sprintf("(%s.%s = ? AND %s.pk != ?)", DBTableUsers, key, DBTableUsers)
-	if err := v.Crud.DB.
+	if err := v.Crud.Stmt().
 		Model(&User{}).
 		Where(sql, fl.Field().String(), data.GetPk()).
 		Count(&counter).

@@ -20,5 +20,9 @@ func I18n() di.Option {
 
 			return bundle
 		}),
+		di.Provide(func(bundle *i18n.Bundle) *i18n.Localizer {
+			var localizer *i18n.Localizer = i18n.NewLocalizer(bundle)
+			return localizer
+		}),
 	)
 }

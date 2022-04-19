@@ -2,11 +2,10 @@ package user
 
 import (
 	"github.com/dotdevgo/nest/pkg/crud"
-	"github.com/dotdevgo/nest/pkg/goutils"
 	"github.com/dotdevgo/nest/pkg/nest"
+	"github.com/dotdevgo/nest/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/goava/di"
-	"github.com/mustafaturan/bus/v3"
 	"gorm.io/gorm"
 )
 
@@ -23,12 +22,6 @@ func New() di.Option {
 		}),
 		di.Provide(func() *UserFactory {
 			return &UserFactory{}
-		}),
-		di.Provide(func() *UserHooks {
-			return &UserHooks{}
-		}),
-		di.Provide(func() *UserMailer {
-			return &UserMailer{}
 		}),
 		di.Provide(func() *UserProvider {
 			return &UserProvider{}
@@ -50,22 +43,9 @@ type UserProvider struct {
 
 // Boot godoc
 func (p UserProvider) Boot(w *nest.Kernel) error {
-	p.RegisterTopics(w)
 	p.RegisterValidations(w)
 
 	return nil
-}
-
-// RegisterTopics godoc
-func (p UserProvider) RegisterTopics(w *nest.Kernel) {
-	var b *bus.Bus
-	w.ResolveFn(&b)
-
-	var h *UserHooks
-	w.ResolveFn(&h)
-
-	b.RegisterTopics(EventUserSignUp, EventUserConfirm)
-	b.RegisterHandler(EventUserSignUp, h.EventUserSignUp())
 }
 
 // RegisterValidations godoc
@@ -76,6 +56,6 @@ func (p UserProvider) RegisterValidations(w *nest.Kernel) {
 	var v *validator.Validate
 	w.ResolveFn(&v)
 
-	goutils.NoErrorOrFatal(v.RegisterValidation("uniqueEmail", uv.UniqueEmail))
-	goutils.NoErrorOrFatal(v.RegisterValidation("uniqueUsername", uv.UniqueUsername))
+	utils.NoErrorOrFatal(v.RegisterValidation("uniqueEmail", uv.UniqueEmail))
+	utils.NoErrorOrFatal(v.RegisterValidation("uniqueUsername", uv.UniqueUsername))
 }

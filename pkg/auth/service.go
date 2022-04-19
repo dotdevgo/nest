@@ -3,21 +3,26 @@ package auth
 import (
 	"context"
 	"errors"
-	"os"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/dotdevgo/nest/pkg/goutils"
 	"github.com/dotdevgo/nest/pkg/user"
+	"github.com/dotdevgo/nest/pkg/utils"
 	"github.com/goava/di"
 	"github.com/mustafaturan/bus/v3"
+)
+
+const (
+	AttributeResetToken   = "reset_token"
+	AttributeConfirmToken = "confirmToken"
 )
 
 // AuthService godoc
 type AuthService struct {
 	di.Inject
+	AuthConfig
 	Crud *user.UserCrud
 	Bus  *bus.Bus
 }
@@ -30,30 +35,46 @@ func (c AuthService) Validate(input SignInDto) (user.User, error) {
 	}
 
 	if u.IsDisabled {
-		return u, errors.New("User is disabled")
+		return u, ErrorUserDisabled
 	}
 
 	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
-		return u, ErrInvalidPassword
+		return u, ErrorInvalidPassword
 	}
 
 	return u, nil
 }
 
+// NewToken godoc
+func (c AuthService) NewToken(u user.User) (string, error) {
+	claims := NewJwtClaims(u.ID)
+
+	// Create token with claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	// Generate encoded token and send it as response.
+	t, err := token.SignedString([]byte(c.AuthConfig.JwtSecret))
+	if err != nil {
+		return "", err
+	}
+
+	return t, nil
+}
+
 // SignUp godoc
 func (c AuthService) SignUp(input SignUpDto) (user.User, error) {
 	var u user.User
-	goutils.Copy(&u, input)
+	utils.Copy(&u, &input)
 
 	// Defaults
-	u.CountPublications = 0
 	u.CountFollowers = 0
+	u.CountPublications = 0
 	u.CountSubscriptions = 0
 
 	u.IsVerified = false
 	u.IsDisabled = false
 
-	u.SetAttribute(user.AttributeConfirmToken, goutils.RandomToken())
+	u.SetAttribute(AttributeConfirmToken, utils.RandomToken())
 
 	// Password
 	pass, err := c.hashPassword(input.Password)
@@ -66,7 +87,7 @@ func (c AuthService) SignUp(input SignUpDto) (user.User, error) {
 		return u, err
 	}
 
-	if err := c.Bus.Emit(context.Background(), user.EventUserSignUp, u); err != nil {
+	if err := c.Bus.Emit(context.Background(), EventUserSignUp, u); err != nil {
 		return u, err
 	}
 
@@ -79,20 +100,20 @@ func (c AuthService) Confirm(token string) error {
 
 	result := c.Crud.Stmt().
 		Find(&u, datatypes.JSONQuery("attributes").
-			Equals(token, user.AttributeConfirmToken))
+			Equals(token, AttributeConfirmToken))
 
 	if result.Error != nil || u.Pk <= 0 {
 		return errors.New("Invalid token")
 	}
 
 	u.IsVerified = true
-	u.DeleteAttribute(user.AttributeConfirmToken)
+	u.DeleteAttribute(AttributeConfirmToken)
 
 	if err := c.Crud.Flush(&u); err != nil {
 		return err
 	}
 
-	if err := c.Bus.Emit(context.Background(), user.EventUserConfirm, &u); err != nil {
+	if err := c.Bus.Emit(context.Background(), EventUserConfirm, &u); err != nil {
 		return err
 	}
 
@@ -100,23 +121,23 @@ func (c AuthService) Confirm(token string) error {
 }
 
 // Restore godoc
-func (c AuthService) Restore(input RestoreDto) error {
+func (c AuthService) Restore(input IdentityDto) error {
 	u, err := c.Crud.FindByIdentity(input.Identity)
 	if err != nil {
 		return err
 	}
 
 	if u.IsDisabled {
-		return errors.New("User is disabled")
+		return ErrorUserDisabled
 	}
 
-	u.SetAttribute(user.AttributeResetToken, goutils.RandomToken())
+	u.SetAttribute(AttributeResetToken, utils.RandomToken())
 
 	if err := c.Crud.Flush(&u); err != nil {
 		return err
 	}
 
-	if err := c.Bus.Emit(context.Background(), user.EventUserRestore, u); err != nil {
+	if err := c.Bus.Emit(context.Background(), EventUserRestore, u); err != nil {
 		return err
 	}
 
@@ -126,15 +147,15 @@ func (c AuthService) Restore(input RestoreDto) error {
 // ResetToken godoc
 func (c AuthService) ResetToken(u user.User, token string) error {
 	if u.IsDisabled {
-		return errors.New("User is disabled")
+		return ErrorUserDisabled
 	}
 
-	if token != u.GetAttribute(user.AttributeResetToken) {
+	if token != u.GetAttribute(AttributeResetToken) {
 		return errors.New("Invalid token")
 	}
 
-	u.DeleteAttribute(user.AttributeResetToken)
-	password := goutils.RandomStr(nil)
+	u.DeleteAttribute(AttributeResetToken)
+	password := utils.RandomStr(nil)
 
 	// Password
 	pass, err := c.hashPassword(password)
@@ -147,39 +168,19 @@ func (c AuthService) ResetToken(u user.User, token string) error {
 		return err
 	}
 
-	var event = user.EventResetToken{
-		User:     &u,
-		Password: password,
-	}
-
-	if err := c.Bus.Emit(context.Background(), user.EventUserResetToken, event); err != nil {
+	var event = EventResetToken{u, password}
+	if err := c.Bus.Emit(context.Background(), EventUserResetToken, event); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// NewToken godoc
-func (c AuthService) NewToken(u user.User) (string, error) {
-	claims := NewJwtClaims(u.ID)
-
-	// Create token with claims
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
-	if err != nil {
-		return "", err
-	}
-
-	return t, nil
-}
-
 // hashPassword godoc
-func (c AuthService) hashPassword(pass string) ([]byte, error) {
-	password, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
+func (c AuthService) hashPassword(pass string) (password []byte, err error) {
+	password, err = bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
-		return []byte(""), err
+		return password, err
 	}
 
 	return password, err

@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dotdevgo/nest/pkg/goutils"
+	"github.com/dotdevgo/nest/pkg/logger"
+	"github.com/dotdevgo/nest/pkg/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/goava/di"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
+
+	// "github.com/labstack/gommon/log"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -44,7 +47,7 @@ type (
 	Controller interface {
 		Router(e *Kernel)
 	}
-	// Controller godoc
+	// ServiceProvider godoc
 	ServiceProvider interface {
 		Boot(e *Kernel) error
 	}
@@ -53,14 +56,20 @@ type (
 // New Create new app
 func New(m ...di.Option) *Kernel {
 	container, err := di.New(m...)
-	goutils.NoErrorOrFatal(err)
+	utils.NoErrorOrFatal(err)
 
 	e := NewEcho(container)
 	e.HideBanner = true
 
+	// Logger
+	logger.Init()
+	logger.Logger = log.New()
+	e.Logger = logger.GetEchoLogger()
+	e.Use(logger.Hook())
+
 	w := &Kernel{Container: container, Echo: e}
 
-	goutils.NoErrorOrFatal(container.Provide(func() *Kernel {
+	utils.NoErrorOrFatal(container.Provide(func() *Kernel {
 		return w
 	}))
 
@@ -109,7 +118,7 @@ func (w *Kernel) ApiGroup() *Group {
 // And invokes function with them. See Invocation for details.
 func (c *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
 	if err := c.Invoke(invocation, options...); err != nil {
-		log.Panic(err)
+		c.Logger.Panic(err)
 	}
 }
 
@@ -118,7 +127,7 @@ func (c *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) 
 // the process of type resolving.
 func (c *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
 	if err := c.Provide(constructor, options...); err != nil {
-		log.Panic(err)
+		c.Logger.Panic(err)
 	}
 }
 
@@ -130,7 +139,7 @@ func (c *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOpti
 //	}
 func (c *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := c.Resolve(ptr, options...); err != nil {
-		log.Panic(err)
+		c.Logger.Panic(err)
 	}
 }
 
@@ -232,6 +241,14 @@ func (e *Kernel) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
 	return
 }
 
+// WrapHandler wraps `http.Handler` into `echo.HandlerFunc`.
+func WrapHandler(h http.Handler) HandlerFunc {
+	return func(c Context) error {
+		h.ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
+}
+
 // Start starts an HTTP server.
 func (w *Kernel) Start(address string) error {
 	w.beforeStart()
@@ -249,38 +266,21 @@ func (w *Kernel) Serve() error {
 	return w.Start(fmt.Sprintf(":%v", config.HTTP.Port))
 }
 
-// WrapHandler wraps `http.Handler` into `echo.HandlerFunc`.
-func WrapHandler(h http.Handler) HandlerFunc {
-	return func(c Context) error {
-		h.ServeHTTP(c.Response(), c.Request())
-		return nil
-	}
-}
-
 // beforeStart godoc
 func (w *Kernel) beforeStart() {
-	// TODO: refactor
-	// Custom
-	if err := w.Invoke(w.bootContainer); err != nil {
-		log.Error(err)
-	}
-
-	if err := w.Invoke(w.registerControllers); err != nil {
-		log.Error(err)
-	}
-
-	// TODO: refactor
 	// Set custom validator
 	var v *validator.Validate
 	w.ResolveFn(&v)
 	w.Validator = &EchoValidator{validator: v}
-}
 
-// registerControllers godoc
-// TODO: refactor
-func (w *Kernel) registerControllers(controllers []Controller) {
-	for _, controller := range controllers {
-		w.InvokeFn(controller.Router)
+	// TODO: refactor
+	// Custom
+	if err := w.Invoke(w.bootContainer); err != nil {
+		w.Logger.Fatal(err)
+	}
+
+	if err := w.Invoke(w.bootRouter); err != nil {
+		w.Logger.Fatal(err)
 	}
 }
 
@@ -296,9 +296,17 @@ func (w *Kernel) bootContainer(providers []ServiceProvider) error {
 	return nil
 }
 
+// bootRouter godoc
+// TODO: refactor
+func (w *Kernel) bootRouter(controllers []Controller) {
+	for _, controller := range controllers {
+		w.InvokeFn(controller.Router)
+	}
+}
+
 // // TODO: move injector
 // config, err := GetConfig()
-// goutils.NoErrorOrFatal(err)
+// utils.NoErrorOrFatal(err)
 // container.Provide(func() *Config {
 // 	return &config
 // })

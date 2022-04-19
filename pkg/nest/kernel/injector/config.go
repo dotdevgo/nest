@@ -1,8 +1,8 @@
 package injector
 
 import (
-	"github.com/dotdevgo/nest/pkg/goutils"
 	"github.com/dotdevgo/nest/pkg/nest"
+	"github.com/dotdevgo/nest/pkg/utils"
 	"github.com/goava/di"
 )
 
@@ -11,7 +11,7 @@ func Config() di.Option {
 	return di.Options(
 		di.Provide(func(w *nest.Kernel) nest.Config {
 			config, err := nest.GetConfig()
-			goutils.NoErrorOrFatal(err)
+			utils.NoErrorOrFatal(err)
 
 			w.Config = config
 

@@ -2,8 +2,8 @@ package nest
 
 import (
 	"errors"
-	"log"
 
+	"github.com/dotdevgo/nest/pkg/logger"
 	"github.com/goava/di"
 	"github.com/labstack/echo/v4"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
@@ -33,7 +33,7 @@ func (c *context) Resolve(ptr di.Pointer, options ...di.ResolveOption) error {
 func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := c.Container.Resolve(ptr, options...); err != nil {
 		// TODO: refactor panic
-		log.Panic(err)
+		logger.Panic(err)
 	}
 }
 

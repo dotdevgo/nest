@@ -10,11 +10,6 @@ const (
 	DBTableUsers = "users"
 )
 
-const (
-	AttributeResetToken   = "reset_token"
-	AttributeConfirmToken = "confirmToken"
-)
-
 type Email string
 
 // User godoc
@@ -27,9 +22,10 @@ type User struct {
 	Username    string  `json:"username" gorm:"not null;index:uniqueUsername,unique"`
 	DisplayName *string `json:"displayName"`
 	Locale      *string `json:"locale"`
-	Bio         string  `json:"bio"`
 	Photo       string  `json:"photo" gorm:"null"`
+	Bio         string  `json:"bio"`
 
+	// TODO: remove
 	CountPublications  uint32 `json:"countPublications"`
 	CountFollowers     uint32 `json:"countFollowers"`
 	CountSubscriptions uint32 `json:"countSubscriptions"`

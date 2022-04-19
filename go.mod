@@ -23,6 +23,7 @@ require (
 	github.com/mustafaturan/monoton/v2 v2.0.2
 	github.com/nicksnyder/go-i18n/v2 v2.2.0
 	github.com/psampaz/slice v0.2.0
+	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
 	golang.org/x/text v0.3.7
 	gorm.io/datatypes v1.0.5
@@ -50,6 +51,8 @@ require (
 	github.com/jaytaylor/html2text v0.0.0-20180606194806-57d518f124b0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
+	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect

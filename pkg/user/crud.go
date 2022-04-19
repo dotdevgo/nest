@@ -1,8 +1,6 @@
 package user
 
 import (
-	"errors"
-
 	"github.com/dotdevgo/nest/pkg/crud"
 )
 
@@ -20,7 +18,7 @@ func (c UserCrud) FindByIdentity(identity string) (User, error) {
 	}
 
 	if 0 == u.Pk {
-		return u, errors.New("Invalid identity")
+		return u, ErrorInvalidIdentity
 	}
 
 	return u, nil

@@ -73,7 +73,11 @@ func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
 // Paginate is a convenience wrapper for the paginator.
 //     var v []SomeModel
 //     res, err := gorm-paginator.Paginate(db, &v, gorm-paginator.WithPage(2))
-func Paginate[T any](db *gorm.DB, value interface{}, options ...Option) (*Result[T], error) {
+func Paginate[T any](
+	db *gorm.DB,
+	value interface{},
+	options ...Option,
+) (*Result[T], error) {
 	return New[T](db, options...).Paginate(value)
 }
 

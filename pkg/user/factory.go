@@ -1,13 +1,13 @@
 package user
 
-// import "github.com/dotdevgo/nest/pkg/goutils"
+// import "github.com/dotdevgo/nest/pkg/utils"
 
 type UserFactory struct{}
 
 // func (UserFactory) FromDto(input interface{}) User {
 // 	var data User
 
-// 	goutils.Copy(&data, input)
+// 	utils.Copy(&data, input)
 
 // 	return data
 // }

@@ -1,24 +1,24 @@
-package goutils
+package utils
 
-import "github.com/labstack/gommon/log"
+import "github.com/dotdevgo/nest/pkg/logger"
 
 // NoError godoc
 func NoError(err error) {
 	if err != nil {
-		log.Error(err)
+		logger.Error(err)
 	}
 }
 
 // NoErrorOrPanic godoc
 func NoErrorOrPanic(err error) {
 	if err != nil {
-		log.Panic(err)
+		logger.Panic(err)
 	}
 }
 
 // NoErrorOrFatal godoc
 func NoErrorOrFatal(err error) {
 	if err != nil {
-		log.Panic(err)
+		logger.Panic(err)
 	}
 }

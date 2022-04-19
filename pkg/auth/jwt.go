@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"os"
 	"time"
 
 	jwt "github.com/golang-jwt/jwt"
@@ -18,11 +17,10 @@ func NewJwtClaims(identity string) *jwt.StandardClaims {
 }
 
 // JwtMiddleware godoc
-func JwtMiddleware() echo.MiddlewareFunc {
+func JwtMiddleware(config AuthConfig) echo.MiddlewareFunc {
 	return middleware.JWTWithConfig(middleware.JWTConfig{
-		Claims: &jwt.StandardClaims{},
-		// TODO: token secret
-		SigningKey: []byte(os.Getenv("JWT_SECRET")),
+		Claims:     &jwt.StandardClaims{},
+		SigningKey: []byte(config.JwtSecret),
 	})
 }
 

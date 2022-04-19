@@ -2,10 +2,9 @@ package auth
 
 import (
 	"fmt"
-	"log"
 
-	"github.com/dotdevgo/nest/pkg/goutils"
-	"github.com/dotdevgo/nest/pkg/user"
+	"github.com/dotdevgo/nest/pkg/logger"
+	"github.com/dotdevgo/nest/pkg/utils"
 	"github.com/joeshaw/envdecode"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/steam"
@@ -21,7 +20,7 @@ func New() di.Option {
 		di.Provide(func() AuthConfig {
 			var cfg AuthConfig
 			err := envdecode.StrictDecode(&cfg)
-			goutils.NoErrorOrFatal(err)
+			utils.NoErrorOrFatal(err)
 			return cfg
 		}),
 		di.Provide(func() *AuthService {
@@ -49,8 +48,11 @@ func (p AuthProvider) Boot(w *nest.Kernel) error {
 	p.RegisterTopics(w)
 	p.RegisterAuthProviders(w)
 
+	var authConfig AuthConfig
+	w.ResolveFn(&authConfig)
+
 	api := w.ApiGroup()
-	api.Use(JwtMiddleware())
+	api.Use(JwtMiddleware(authConfig))
 
 	return nil
 }
@@ -63,11 +65,25 @@ func (p AuthProvider) RegisterTopics(w *nest.Kernel) {
 	var h *AuthHooks
 	w.ResolveFn(&h)
 
-	b.RegisterTopics(user.EventUserRestore)
-	b.RegisterHandler(user.EventUserRestore, h.EventRestore())
+	b.RegisterTopics(EventUserRestore)
+	b.RegisterHandler(EventUserRestore, bus.Handler{
+		Matcher: EventUserRestore,
+		Handle:  h.Restore,
+	})
 
-	b.RegisterTopics(user.EventUserResetToken)
-	b.RegisterHandler(user.EventUserResetToken, h.EventResetToken())
+	b.RegisterTopics(EventUserResetToken)
+	b.RegisterHandler(EventUserResetToken, bus.Handler{
+		Matcher: EventUserResetToken,
+		Handle:  h.ResetToken,
+	})
+
+	b.RegisterTopics(EventUserSignUp)
+	b.RegisterHandler(EventUserSignUp, bus.Handler{
+		Matcher: EventUserSignUp,
+		Handle:  h.SignUp,
+	})
+
+	b.RegisterTopics(EventUserConfirm)
 }
 
 // RegisterAuthProviders godoc
@@ -78,7 +94,8 @@ func (p AuthProvider) RegisterAuthProviders(w *nest.Kernel) {
 	var arr []goth.Provider
 	if authConfig.SteamApiKey != "" {
 		arr = append(arr, steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/auth/callback/steam", w.Config.HTTP.Hostname)))
-		log.Printf("[OAuth] Registered \"steam\" provider")
+		logger.Log("[Auth] Provider: \"steam\".")
 	}
+
 	goth.UseProviders(arr...)
 }

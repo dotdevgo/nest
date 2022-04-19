@@ -1,4 +1,4 @@
-package goutils
+package utils
 
 import (
 	"github.com/gotidy/copy"

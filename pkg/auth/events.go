@@ -1,4 +1,6 @@
-package user
+package auth
+
+import "github.com/dotdevgo/nest/pkg/user"
 
 const (
 	EventUserSignUp     = "user.sign_up"
@@ -9,7 +11,7 @@ const (
 
 type (
 	EventResetToken struct {
-		User     *User
+		User     user.User
 		Password string
 	}
 )

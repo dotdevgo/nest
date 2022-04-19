@@ -2,9 +2,9 @@ package mailer
 
 import (
 	"fmt"
-	"log"
 	"net/smtp"
 
+	"github.com/dotdevgo/nest/pkg/logger"
 	"github.com/dotdevgo/nest/pkg/nest"
 	"github.com/goava/di"
 	"github.com/jordan-wright/email"
@@ -17,17 +17,19 @@ type Mailer struct {
 	*hermes.Hermes
 }
 
-// New godoc
+// NewEmail godoc
 func (c Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 	m := email.NewEmail()
 
 	body, err := c.Hermes.GenerateHTML(template)
 	if err != nil {
+		logger.Log(err)
 		return nil, err
 	}
 
 	text, err := c.Hermes.GeneratePlainText(template)
 	if err != nil {
+		logger.Log(err)
 		return nil, err
 	}
 
@@ -41,7 +43,7 @@ func (c Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 func (c Mailer) Send(m *email.Email) error {
 	config := c.Config.Mail
 	if "" == config.Hostname {
-		log.Printf("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)
+		logger.Log("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)
 		return nil
 	}
 
@@ -50,7 +52,10 @@ func (c Mailer) Send(m *email.Email) error {
 	addr := fmt.Sprintf("%s:%v", config.Hostname, config.Port)
 	auth := smtp.PlainAuth("", config.User, config.Password, config.Hostname)
 
-	// log.Printf("SMTP: %s; %s:%s %s", addr, config.User, config.Password, config.FromAddress)
+	err := m.Send(addr, auth)
+	if err != nil {
+		logger.Log(err)
+	}
 
-	return m.Send(addr, auth)
+	return err
 }

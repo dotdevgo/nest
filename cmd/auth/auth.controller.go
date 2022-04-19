@@ -32,7 +32,7 @@ type AuthController struct {
 }
 
 // Router godoc
-func (c *AuthController) Router(w *nest.Kernel) {
+func (c AuthController) Router(w *nest.Kernel) {
 	w.POST(RouteAuthSignup, c.SignUp)
 	w.POST(RouteAuthSignin, c.SignIn)
 	w.GET(RouteAuthConfirm, c.Confirm)
@@ -46,7 +46,7 @@ func (c *AuthController) Router(w *nest.Kernel) {
 }
 
 // SignUp godoc
-func (c *AuthController) OAuth(ctx nest.Context) error {
+func (c AuthController) OAuth(ctx nest.Context) error {
 	req := ctx.Request()
 	res := ctx.Response()
 
@@ -59,7 +59,7 @@ func (c *AuthController) OAuth(ctx nest.Context) error {
 }
 
 // SignUp godoc
-func (c *AuthController) SignUp(ctx nest.Context) error {
+func (c AuthController) SignUp(ctx nest.Context) error {
 	var input auth.SignUpDto // = new(auth.SignUpDto)
 	if err := c.Crud.IsValid(ctx, &input); err != nil {
 		return nest.NewValidatorError(ctx, err)
@@ -82,7 +82,7 @@ func (c *AuthController) SignUp(ctx nest.Context) error {
 }
 
 // SignIn godoc
-func (c *AuthController) SignIn(ctx nest.Context) error {
+func (c AuthController) SignIn(ctx nest.Context) error {
 	var input auth.SignInDto
 	if err := c.Crud.IsValid(ctx, &input); err != nil {
 		return nest.NewValidatorError(ctx, err)
@@ -105,7 +105,7 @@ func (c *AuthController) SignIn(ctx nest.Context) error {
 }
 
 // Confirm godoc
-func (c *AuthController) Confirm(ctx nest.Context) error {
+func (c AuthController) Confirm(ctx nest.Context) error {
 	token := ctx.Param("token")
 	if token == "" {
 		return nest.NewHTTPError(http.StatusBadRequest)
@@ -119,9 +119,9 @@ func (c *AuthController) Confirm(ctx nest.Context) error {
 }
 
 // Restore godoc
-func (c *AuthController) Restore(ctx nest.Context) error {
-	var input auth.RestoreDto
-	if err := c.Crud.IsValid(ctx, input); err != nil {
+func (c AuthController) Restore(ctx nest.Context) error {
+	var input auth.IdentityDto
+	if err := c.Crud.IsValid(ctx, &input); err != nil {
 		return nest.NewValidatorError(ctx, err)
 	}
 
@@ -133,7 +133,7 @@ func (c *AuthController) Restore(ctx nest.Context) error {
 }
 
 // ResetToken godoc
-func (c *AuthController) ResetToken(ctx nest.Context) error {
+func (c AuthController) ResetToken(ctx nest.Context) error {
 	var u user.User
 	if err := c.Crud.Find(&u, ctx.Param("user")); err != nil {
 		return nest.NewHTTPError(http.StatusNotFound, err)
@@ -147,7 +147,7 @@ func (c *AuthController) ResetToken(ctx nest.Context) error {
 }
 
 // Me godoc
-func (c *AuthController) Me(ctx nest.Context) error {
+func (c AuthController) Me(ctx nest.Context) error {
 	cc := auth.NewContext(ctx)
 
 	u := cc.User()

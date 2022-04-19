@@ -3,16 +3,16 @@ package main
 import (
 	"os"
 
+	"github.com/dotdevgo/nest/cmd/api/config"
 	authcmd "github.com/dotdevgo/nest/cmd/auth"
 	"github.com/dotdevgo/nest/pkg/auth"
 	"github.com/dotdevgo/nest/pkg/mailer"
-	nest "github.com/dotdevgo/nest/pkg/nest"
+	"github.com/dotdevgo/nest/pkg/nest"
 	"github.com/dotdevgo/nest/pkg/nest/kernel"
 	"github.com/dotdevgo/nest/pkg/nest/kernel/injector"
 	"github.com/dotdevgo/nest/pkg/user"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	hr "github.com/matcornic/hermes/v2"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	e := nest.New(
 		kernel.New(),
 		injector.NewOrm(),
-		mailer.New(hermes()),
+		mailer.New(config.Hermes()),
 		user.New(),
 		auth.New(),
 		authcmd.NewRouter(),
@@ -36,17 +36,4 @@ func main() {
 	}))
 
 	e.Logger.Fatal(e.Serve())
-}
-
-func hermes() *hr.Hermes {
-	return &hr.Hermes{
-		// Optional Theme
-		// Theme: new(Default)
-		Product: hr.Product{
-			Name:      "DotDevio",
-			Link:      "https://dotdevio.com/",
-			Logo:      "http://www.duchess-france.org/wp-content/uploads/2016/01/gopher.png",
-			Copyright: "Copyright © 2022 DotDevio. All rights reserved",
-		},
-	}
 }
