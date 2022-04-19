@@ -11,17 +11,17 @@ type UserCrud struct {
 }
 
 // FindByIdentity godoc
-func (c *UserCrud) FindByIdentity(identity string) (*User, error) {
+func (c UserCrud) FindByIdentity(identity string) (User, error) {
 	var u User
 
-	result := c.NewStmt(ScopeByIdentity(identity)).First(&u)
+	result := c.Stmt(ScopeByIdentity(identity)).First(&u)
 	if err := result.Error; err != nil {
-		return nil, err
+		return u, err
 	}
 
-	if 0 == u.ID {
-		return nil, errors.New("Invalid identity")
+	if 0 == u.Pk {
+		return u, errors.New("Invalid identity")
 	}
 
-	return &u, nil
+	return u, nil
 }

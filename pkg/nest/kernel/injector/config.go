@@ -9,9 +9,11 @@ import (
 // Config godoc
 func Config() di.Option {
 	return di.Options(
-		di.Provide(func() nest.Config {
+		di.Provide(func(w *nest.Kernel) nest.Config {
 			config, err := nest.GetConfig()
 			goutils.NoErrorOrFatal(err)
+
+			w.Config = config
 
 			return config
 		}),

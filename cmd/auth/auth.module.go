@@ -1,4 +1,4 @@
-package auth
+package authcmd
 
 import (
 	"github.com/dotdevgo/nest/pkg/nest"

@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// NewModule godoc
+// New godoc
 func New() di.Option {
 	return di.Options(
 		di.Invoke(func(db *gorm.DB) error {
@@ -49,7 +49,7 @@ type UserProvider struct {
 }
 
 // Boot godoc
-func (p *UserProvider) Boot(w *nest.EchoWrapper) error {
+func (p UserProvider) Boot(w *nest.Kernel) error {
 	p.RegisterTopics(w)
 	p.RegisterValidations(w)
 
@@ -57,7 +57,7 @@ func (p *UserProvider) Boot(w *nest.EchoWrapper) error {
 }
 
 // RegisterTopics godoc
-func (p *UserProvider) RegisterTopics(w *nest.EchoWrapper) {
+func (p UserProvider) RegisterTopics(w *nest.Kernel) {
 	var b *bus.Bus
 	w.ResolveFn(&b)
 
@@ -69,7 +69,7 @@ func (p *UserProvider) RegisterTopics(w *nest.EchoWrapper) {
 }
 
 // RegisterValidations godoc
-func (p *UserProvider) RegisterValidations(w *nest.EchoWrapper) {
+func (p UserProvider) RegisterValidations(w *nest.Kernel) {
 	var uv *UserValidator
 	w.ResolveFn(&uv)
 

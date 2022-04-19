@@ -18,7 +18,7 @@ type UserHooks struct {
 }
 
 // EventUserSignUp godoc
-func (h *UserHooks) EventUserSignUp() bus.Handler {
+func (h UserHooks) EventUserSignUp() bus.Handler {
 	return bus.Handler{
 		Matcher: EventUserSignUp,
 		Handle: func(ctx context.Context, e bus.Event) {

@@ -23,7 +23,6 @@ type User struct {
 	crud.Timestampable
 	crud.Attributes
 
-	// todo: unique indexes
 	Email       string  `json:"email" gorm:"not null;index:uniqueEmail,unique"`
 	Username    string  `json:"username" gorm:"not null;index:uniqueUsername,unique"`
 	DisplayName *string `json:"displayName"`
@@ -48,7 +47,7 @@ func (u User) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(&struct {
-		UUID               string  `json:"id"`
+		ID                 string  `json:"id"`
 		Email              string  `json:"email"`
 		Username           string  `json:"username"`
 		DisplayName        *string `json:"displayName"`
@@ -60,7 +59,7 @@ func (u User) MarshalJSON() ([]byte, error) {
 		IsVerified         bool    `json:"isVerified"`
 		IsDisabled         bool    `json:"isDisabled"`
 	}{
-		UUID:               u.UUID,
+		ID:                 u.ID,
 		Email:              u.Email,
 		Username:           u.Username,
 		DisplayName:        displayName,

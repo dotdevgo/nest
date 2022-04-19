@@ -13,21 +13,21 @@ type AuthContext struct {
 }
 
 // User godoc
-func (c *AuthContext) User() (*user.User, error) {
+func (c AuthContext) User() *user.User {
 	token := c.Get("user").(*jwt.Token)
 	claims := token.Claims.(*jwt.StandardClaims)
 
 	var crud *user.UserCrud
 	if err := c.Resolve(&crud); err != nil {
-		return nil, err
+		return nil
 	}
 
 	var u user.User
 	if err := crud.Find(&u, claims.Subject); err != nil {
-		return nil, err
+		return nil
 	}
 
-	return &u, nil
+	return &u
 }
 
 // NewContext godoc

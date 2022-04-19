@@ -17,12 +17,12 @@ func NewService[T IModel](db *gorm.DB) *Service[T] {
 }
 
 // IsValid godoc
-func (s *Service[T]) IsValid(c nest.Context, input interface{}) error {
-	if err := c.Bind(input); err != nil {
+func (s *Service[T]) IsValid(ctx nest.Context, input interface{}) error {
+	if err := ctx.Bind(input); err != nil {
 		return err
 	}
 
-	if err := c.Validate(input); err != nil {
+	if err := ctx.Validate(input); err != nil {
 		return err
 	}
 
@@ -30,8 +30,8 @@ func (s *Service[T]) IsValid(c nest.Context, input interface{}) error {
 }
 
 // Save godoc
-func (s *Service[T]) Save(data T) error {
-	if data.GetID() > 0 || data.GetUUID() != "" {
+func (s *Service[T]) Flush(data T) error {
+	if data.GetPk() > 0 || data.GetID() != "" {
 		return s.DB.Save(data).Error
 	}
 
@@ -40,20 +40,20 @@ func (s *Service[T]) Save(data T) error {
 
 // Find godoc
 func (s *Service[T]) Find(result T, id interface{}, options ...Option) error {
-	stmt := s.NewStmt(options...)
+	stmt := s.Stmt(options...)
 
 	return stmt.Scopes(ScopeById(result, id)).First(result).Error
 }
 
 // GetMany godoc
 func (s *Service[T]) GetMany(result interface{}, options ...Option) error {
-	var stmt = s.NewStmt(options...)
+	var stmt = s.Stmt(options...)
 
 	return stmt.Find(result).Error
 }
 
-// NewStmt godoc
-func (s *Service[T]) NewStmt(options ...Option) *gorm.DB {
+// Stmt godoc
+func (s *Service[T]) Stmt(options ...Option) *gorm.DB {
 	var stmt = s.DB.Session(&gorm.Session{}) //NewDB: true
 
 	for _, option := range options {

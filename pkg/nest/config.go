@@ -128,12 +128,23 @@ func GetConfig() (Config, error) {
 
 	var cfg Config
 	err := envdecode.StrictDecode(&cfg)
+
 	return cfg, err
 }
 
+var isEnvLoaded = false
+
 // LoadEnv godoc
 func LoadEnv() {
+	if isEnvLoaded == true {
+		return
+	}
+
+	log.Printf("[App] Loading \".env\" file")
+
 	dir, err := os.Getwd()
 	goutils.NoErrorOrFatal(err)
 	goutils.NoErrorOrFatal(godotenv.Load(dir + "/.env"))
+
+	isEnvLoaded = true
 }

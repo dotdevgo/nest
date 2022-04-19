@@ -23,7 +23,7 @@ type (
 	}
 
 	Attributes struct {
-		RawAttributes *echo.Map      `gorm:"-" json:"attributes"`
+		RawAttributes echo.Map       `gorm:"-" json:"attributes"`
 		Attributes    datatypes.JSON `json:"-"`
 	}
 
@@ -32,90 +32,90 @@ type (
 	}
 
 	IModel interface {
-		GetID() uint
-		GetUUID() string
+		GetPk() uint64
+		GetID() string
 	}
 )
 
 type Model struct {
 	IModel `gorm:"-" json:"-"`
-	ID     uint   `gorm:"primarykey" json:"-" meta:"getter;"`
-	UUID   string `gorm:"type:varchar(255);uniqueIndex" json:"id" gqlgen:"id" meta:"getter;"`
+	Pk     uint64 `gorm:"primarykey" json:"-" meta:"getter;"`
+	ID     string `gorm:"type:varchar(255);uniqueIndex" json:"id" gqlgen:"id" meta:"getter;"`
 }
 
 func (Model) IsRecord() {}
 
 // BeforeCreate godoc
-func (u *Model) BeforeCreate(tx *gorm.DB) (err error) {
-	if u.UUID == "" {
-		u.UUID = uuid.New().String()
+func (m *Model) BeforeCreate(tx *gorm.DB) (err error) {
+	if m.ID == "" {
+		m.ID = uuid.New().String()
 	}
 
 	return
 }
 
 // BeforeSave godoc
-func (u *Attributes) BeforeSave(tx *gorm.DB) (err error) {
-	if err := u.initAttributes(); err != nil {
+func (m *Attributes) BeforeSave(tx *gorm.DB) (err error) {
+	if err := m.parseAttributes(); err != nil {
 		return err
 	}
 
-	encoded, err := json.Marshal(u.RawAttributes)
+	encoded, err := json.Marshal(m.RawAttributes)
 	if err != nil {
 		return err
 	}
 
-	u.Attributes = datatypes.JSON(encoded)
+	m.Attributes = datatypes.JSON(encoded)
 
 	return
 }
 
 // SetAttribute godoc
-func (u *Attributes) SetAttribute(name string, value any) error {
-	if err := u.initAttributes(); err != nil {
+func (m *Attributes) SetAttribute(name string, value any) error {
+	if err := m.parseAttributes(); err != nil {
 		return err
 	}
 
-	attr := *u.RawAttributes
+	attr := m.RawAttributes
 	attr[name] = value
-	u.RawAttributes = &attr
-
-	return nil
-}
-
-// SetAttribute godoc
-func (u *Attributes) DeleteAttribute(name string) error {
-	if err := u.initAttributes(); err != nil {
-		return err
-	}
-
-	attr := *u.RawAttributes
-	delete(attr, name)
-	u.RawAttributes = &attr
+	m.RawAttributes = attr
 
 	return nil
 }
 
 // GetAttribute godoc
-func (u *Attributes) GetAttribute(name string) any {
-	if err := u.initAttributes(); err != nil {
+func (m *Attributes) GetAttribute(name string) any {
+	if err := m.parseAttributes(); err != nil {
 		return nil
 	}
 
-	attr := *u.RawAttributes
+	attr := m.RawAttributes
 	return attr[name]
 }
 
+// SetAttribute godoc
+func (m *Attributes) DeleteAttribute(name string) error {
+	if err := m.parseAttributes(); err != nil {
+		return err
+	}
+
+	attr := m.RawAttributes
+	delete(attr, name)
+	m.RawAttributes = attr
+
+	return nil
+}
+
 // GetAttribute godoc
-func (u *Attributes) initAttributes() (err error) {
-	if nil != u.RawAttributes {
+func (m *Attributes) parseAttributes() (err error) {
+	if nil != m.RawAttributes {
 		return
 	}
 
-	var data *echo.Map = &echo.Map{}
-	u.RawAttributes = data
+	var data echo.Map = echo.Map{}
+	m.RawAttributes = data
 
-	val, err := u.Attributes.Value()
+	val, err := m.Attributes.Value()
 	if err != nil {
 		return err
 	}
@@ -131,10 +131,10 @@ func (u *Attributes) initAttributes() (err error) {
 	return
 }
 
-// if nil == u.Attributes {
-// 	u.Attributes = datatypes.JSON([]byte(`{"test":"row"}`))
+// if nil == m.Attributes {
+// 	m.Attributes = datatypes.JSON([]byte(`{"test":"row"}`))
 // }
-// val, err := u.Attributes.Value()
+// val, err := m.Attributes.Value()
 // var data echo.Map
 // if err := json.Unmarshal([]byte(val.(string)), &data); err != nil {
 // 	return err
@@ -144,6 +144,6 @@ func (u *Attributes) initAttributes() (err error) {
 // if err != nil {
 // 	return err
 // }
-// u.Attributes = datatypes.JSON(encoded)
+// m.Attributes = datatypes.JSON(encoded)
 
 // fmt.Printf("%v %v %v", data, val.(string), err)

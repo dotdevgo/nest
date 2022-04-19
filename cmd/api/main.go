@@ -35,7 +35,7 @@ func main() {
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
-	e.Logger.Fatal(e.Start())
+	e.Logger.Fatal(e.Serve())
 }
 
 func hermes() *hr.Hermes {

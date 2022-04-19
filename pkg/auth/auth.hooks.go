@@ -20,7 +20,7 @@ type AuthHooks struct {
 }
 
 // EventRestore godoc
-func (h *AuthHooks) EventRestore() bus.Handler {
+func (h AuthHooks) EventRestore() bus.Handler {
 	return bus.Handler{
 		Matcher: user.EventUserRestore,
 		Handle: func(ctx context.Context, e bus.Event) {
@@ -52,7 +52,7 @@ func (h *AuthHooks) EventRestore() bus.Handler {
 }
 
 // EventResetToken godoc
-func (h *AuthHooks) EventResetToken() bus.Handler {
+func (h AuthHooks) EventResetToken() bus.Handler {
 	return bus.Handler{
 		Matcher: user.EventUserResetToken,
 		Handle: func(ctx context.Context, e bus.Event) {

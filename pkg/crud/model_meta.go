@@ -3,12 +3,12 @@
 
 package crud
 
-// GetID returns the value of ID.
-func (m Model) GetID() uint {
-	return m.ID
+// GetPk returns the value of ID.
+func (m Model) GetPk() uint64 {
+	return m.Pk
 }
 
-// GetUUID returns the value of UUID.
-func (m Model) GetUUID() string {
-	return m.UUID
+// GetID returns the value of UUID.
+func (m Model) GetID() string {
+	return m.ID
 }

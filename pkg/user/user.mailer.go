@@ -15,7 +15,7 @@ type UserMailer struct {
 }
 
 // SignUp godoc
-func (m *UserMailer) SignUp(u *User) hermes.Email {
+func (m UserMailer) SignUp(u *User) hermes.Email {
 	link := fmt.Sprintf("%s/auth/confirm/%s", m.Config.HTTP.Hostname, u.GetAttribute(AttributeConfirmToken))
 
 	return hermes.Email{

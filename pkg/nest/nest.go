@@ -34,32 +34,33 @@ type (
 	ContainerHandlerFunc func(Context) interface{}
 	// HandlerFunc godoc
 	HandlerFunc func(Context) error
-	// EchoWrapper godoc
-	EchoWrapper struct {
+	// Kernel godoc
+	Kernel struct {
 		*di.Container
 		*echo.Echo
 		Config
 	}
 	// Controller godoc
 	Controller interface {
-		Router(e *EchoWrapper)
+		Router(e *Kernel)
 	}
 	// Controller godoc
 	ServiceProvider interface {
-		Boot(w *EchoWrapper) error
+		Boot(e *Kernel) error
 	}
 )
 
 // New Create new app
-func New(m ...di.Option) *EchoWrapper {
-	container, _ := di.New(m...)
+func New(m ...di.Option) *Kernel {
+	container, err := di.New(m...)
+	goutils.NoErrorOrFatal(err)
 
 	e := NewEcho(container)
 	e.HideBanner = true
 
-	w := &EchoWrapper{Container: container, Echo: e}
+	w := &Kernel{Container: container, Echo: e}
 
-	goutils.NoErrorOrFatal(container.Provide(func() *EchoWrapper {
+	goutils.NoErrorOrFatal(container.Provide(func() *Kernel {
 		return w
 	}))
 
@@ -97,7 +98,7 @@ func NewHTTPError(code int, message ...interface{}) *echo.HTTPError {
 }
 
 // Api godoc
-func (w *EchoWrapper) ApiGroup() *Group {
+func (w *Kernel) ApiGroup() *Group {
 	var api ApiGroup
 	w.ResolveFn(&api)
 	e := api.(*Group)
@@ -106,7 +107,7 @@ func (w *EchoWrapper) ApiGroup() *Group {
 
 // Invoke calls the function fn. It parses function parameters. Looks for it in a container.
 // And invokes function with them. See Invocation for details.
-func (c *EchoWrapper) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
+func (c *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
 	if err := c.Invoke(invocation, options...); err != nil {
 		log.Panic(err)
 	}
@@ -115,7 +116,7 @@ func (c *EchoWrapper) InvokeFn(invocation di.Invocation, options ...di.InvokeOpt
 // Provide provides to container reliable way to build type. The constructor will be invoked lazily on-demand.
 // For more information about constructors see Constructor interface. ProvideOption can add additional behavior to
 // the process of type resolving.
-func (c *EchoWrapper) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
+func (c *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
 	if err := c.Provide(constructor, options...); err != nil {
 		log.Panic(err)
 	}
@@ -127,14 +128,14 @@ func (c *EchoWrapper) ProvideFn(constructor di.Constructor, options ...di.Provid
 //	if err := container.Resolve(&server); err != nil {
 //		// handle error
 //	}
-func (c *EchoWrapper) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
+func (c *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := c.Resolve(ptr, options...); err != nil {
 		log.Panic(err)
 	}
 }
 
 // Handler Wrap route with DI args
-func (w *EchoWrapper) HandlerFn(handlerFunc ContainerHandlerFunc) HandlerFunc {
+func (w *Kernel) HandlerFn(handlerFunc ContainerHandlerFunc) HandlerFunc {
 	return func(c Context) error {
 		//cc := &context{c, w.Container}
 		return w.Invoke(handlerFunc(c))
@@ -143,7 +144,7 @@ func (w *EchoWrapper) HandlerFn(handlerFunc ContainerHandlerFunc) HandlerFunc {
 
 // Add registers a new route for an HTTP method and path with matching handler
 // in the router with optional route-level middleware.
-func (w *EchoWrapper) Add(method, path string, handler HandlerFunc, middleware ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) Add(method, path string, handler HandlerFunc, middleware ...echo.MiddlewareFunc) *echo.Route {
 	return w.Echo.Add(method, path, func(c echo.Context) error {
 		cc := c.(Context)
 		return handler(cc)
@@ -152,61 +153,61 @@ func (w *EchoWrapper) Add(method, path string, handler HandlerFunc, middleware .
 
 // CONNECT registers a new CONNECT route for a path with matching handler in the
 // router with optional route-level middleware.
-func (w *EchoWrapper) CONNECT(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) CONNECT(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodConnect, path, h, m...)
 }
 
 // DELETE registers a new DELETE route for a path with matching handler in the router
 // with optional route-level middleware.
-func (w *EchoWrapper) DELETE(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) DELETE(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodDelete, path, h, m...)
 }
 
 // GET registers a new GET route for a path with matching handler in the router
 // with optional route-level middleware.
-func (w *EchoWrapper) GET(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) GET(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodGet, path, h, m...)
 }
 
 // HEAD registers a new HEAD route for a path with matching handler in the
 // router with optional route-level middleware.
-func (w *EchoWrapper) HEAD(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) HEAD(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodHead, path, h, m...)
 }
 
 // OPTIONS registers a new OPTIONS route for a path with matching handler in the
 // router with optional route-level middleware.
-func (w *EchoWrapper) OPTIONS(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) OPTIONS(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodOptions, path, h, m...)
 }
 
 // PATCH registers a new PATCH route for a path with matching handler in the
 // router with optional route-level middleware.
-func (w *EchoWrapper) PATCH(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) PATCH(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodPatch, path, h, m...)
 }
 
 // POST registers a new POST route for a path with matching handler in the
 // router with optional route-level middleware.
-func (w *EchoWrapper) POST(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) POST(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodPost, path, h, m...)
 }
 
 // PUT registers a new PUT route for a path with matching handler in the
 // router with optional route-level middleware.
-func (w *EchoWrapper) PUT(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) PUT(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodPut, path, h, m...)
 }
 
 // TRACE registers a new TRACE route for a path with matching handler in the
 // router with optional route-level middleware.
-func (w *EchoWrapper) TRACE(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
+func (w *Kernel) TRACE(path string, h HandlerFunc, m ...echo.MiddlewareFunc) *echo.Route {
 	return w.Add(http.MethodTrace, path, h, m...)
 }
 
 // Any registers a new route for all HTTP methods and path with matching handler
 // in the router with optional route-level middleware.
-func (w *EchoWrapper) Any(path string, handler HandlerFunc, middleware ...echo.MiddlewareFunc) []*echo.Route {
+func (w *Kernel) Any(path string, handler HandlerFunc, middleware ...echo.MiddlewareFunc) []*echo.Route {
 	routes := make([]*echo.Route, len(methods))
 	for i, m := range methods {
 		routes[i] = w.Add(m, path, handler, middleware...)
@@ -216,7 +217,7 @@ func (w *EchoWrapper) Any(path string, handler HandlerFunc, middleware ...echo.M
 
 // Match registers a new route for multiple HTTP methods and path with matching
 // handler in the router with optional route-level middleware.
-func (w *EchoWrapper) Match(methods []string, path string, handler HandlerFunc, middleware ...echo.MiddlewareFunc) []*echo.Route {
+func (w *Kernel) Match(methods []string, path string, handler HandlerFunc, middleware ...echo.MiddlewareFunc) []*echo.Route {
 	routes := make([]*echo.Route, len(methods))
 	for i, m := range methods {
 		routes[i] = w.Add(m, path, handler, middleware...)
@@ -225,14 +226,14 @@ func (w *EchoWrapper) Match(methods []string, path string, handler HandlerFunc, 
 }
 
 // Group creates a new router group with prefix and optional group-level middleware.
-func (e *EchoWrapper) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
+func (e *Kernel) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
 	g = &Group{prefix: prefix, echo: e}
 	g.Use(m...)
 	return
 }
 
 // Start starts an HTTP server.
-func (w *EchoWrapper) StartWith(address string) error {
+func (w *Kernel) Start(address string) error {
 	w.beforeStart()
 
 	w.Echo.Server.Addr = address
@@ -240,14 +241,12 @@ func (w *EchoWrapper) StartWith(address string) error {
 	return w.Echo.StartServer(w.Echo.Server)
 }
 
-// Start starts an HTTP server.
-func (w *EchoWrapper) Start() error {
-	w.beforeStart()
-
+// Serve starts an HTTP server on default port.
+func (w *Kernel) Serve() error {
 	var config Config
 	w.ResolveFn(&config)
 
-	return w.StartWith(fmt.Sprintf(":%v", config.HTTP.Port))
+	return w.Start(fmt.Sprintf(":%v", config.HTTP.Port))
 }
 
 // WrapHandler wraps `http.Handler` into `echo.HandlerFunc`.
@@ -258,7 +257,8 @@ func WrapHandler(h http.Handler) HandlerFunc {
 	}
 }
 
-func (w *EchoWrapper) beforeStart() {
+// beforeStart godoc
+func (w *Kernel) beforeStart() {
 	// TODO: refactor
 	// Custom
 	if err := w.Invoke(w.bootContainer); err != nil {
@@ -278,7 +278,7 @@ func (w *EchoWrapper) beforeStart() {
 
 // registerControllers godoc
 // TODO: refactor
-func (w *EchoWrapper) registerControllers(controllers []Controller) {
+func (w *Kernel) registerControllers(controllers []Controller) {
 	for _, controller := range controllers {
 		w.InvokeFn(controller.Router)
 	}
@@ -286,7 +286,7 @@ func (w *EchoWrapper) registerControllers(controllers []Controller) {
 
 // bootContainer godoc
 // TODO: refactor
-func (w *EchoWrapper) bootContainer(providers []ServiceProvider) error {
+func (w *Kernel) bootContainer(providers []ServiceProvider) error {
 	for _, p := range providers {
 		if err := p.Boot(w); err != nil {
 			return err

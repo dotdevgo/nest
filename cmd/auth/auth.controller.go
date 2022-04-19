@@ -1,4 +1,4 @@
-package auth
+package authcmd
 
 import (
 	"net/http"
@@ -8,6 +8,7 @@ import (
 	"github.com/dotdevgo/nest/pkg/nest/kernel"
 	"github.com/dotdevgo/nest/pkg/user"
 	"github.com/labstack/echo/v4"
+	"github.com/markbates/goth/gothic"
 )
 
 const (
@@ -17,6 +18,9 @@ const (
 	RouteAuthRestore    = "/auth/restore"
 	RouteAuthResetToken = "/auth/reset/:user/:token"
 	RouteAuthMe         = "/auth/me"
+
+	// Oauth
+	RouteAuthOauth = "/auth/oauth"
 )
 
 // AuthController godoc
@@ -28,21 +32,36 @@ type AuthController struct {
 }
 
 // Router godoc
-func (c *AuthController) Router(w *nest.EchoWrapper) {
+func (c *AuthController) Router(w *nest.Kernel) {
 	w.POST(RouteAuthSignup, c.SignUp)
 	w.POST(RouteAuthSignin, c.SignIn)
 	w.GET(RouteAuthConfirm, c.Confirm)
 	w.POST(RouteAuthRestore, c.Restore)
 	w.GET(RouteAuthResetToken, c.ResetToken)
+	w.GET(RouteAuthOauth, c.OAuth)
+	w.GET("/auth/callback/steam", c.OAuth)
 
 	api := w.ApiGroup()
 	api.GET(RouteAuthMe, c.Me)
 }
 
 // SignUp godoc
+func (c *AuthController) OAuth(ctx nest.Context) error {
+	req := ctx.Request()
+	res := ctx.Response()
+
+	if user, err := gothic.CompleteUserAuth(res, req); err == nil {
+		return ctx.JSON(http.StatusOK, user)
+	}
+
+	gothic.BeginAuthHandler(res, req)
+	return nil
+}
+
+// SignUp godoc
 func (c *AuthController) SignUp(ctx nest.Context) error {
-	var input = new(auth.SignUpDto)
-	if err := c.Crud.IsValid(ctx, input); err != nil {
+	var input auth.SignUpDto // = new(auth.SignUpDto)
+	if err := c.Crud.IsValid(ctx, &input); err != nil {
 		return nest.NewValidatorError(ctx, err)
 	}
 
@@ -64,8 +83,8 @@ func (c *AuthController) SignUp(ctx nest.Context) error {
 
 // SignIn godoc
 func (c *AuthController) SignIn(ctx nest.Context) error {
-	var input = new(auth.SignInDto)
-	if err := c.Crud.IsValid(ctx, input); err != nil {
+	var input auth.SignInDto
+	if err := c.Crud.IsValid(ctx, &input); err != nil {
 		return nest.NewValidatorError(ctx, err)
 	}
 
@@ -101,7 +120,7 @@ func (c *AuthController) Confirm(ctx nest.Context) error {
 
 // Restore godoc
 func (c *AuthController) Restore(ctx nest.Context) error {
-	var input = new(auth.RestoreDto)
+	var input auth.RestoreDto
 	if err := c.Crud.IsValid(ctx, input); err != nil {
 		return nest.NewValidatorError(ctx, err)
 	}
@@ -120,7 +139,7 @@ func (c *AuthController) ResetToken(ctx nest.Context) error {
 		return nest.NewHTTPError(http.StatusNotFound, err)
 	}
 
-	if err := c.Auth.ResetToken(&u, ctx.Param("token")); err != nil {
+	if err := c.Auth.ResetToken(u, ctx.Param("token")); err != nil {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
 
@@ -131,9 +150,9 @@ func (c *AuthController) ResetToken(ctx nest.Context) error {
 func (c *AuthController) Me(ctx nest.Context) error {
 	cc := auth.NewContext(ctx)
 
-	u, err := cc.User()
-	if err != nil {
-		return nest.NewHTTPError(http.StatusBadRequest, err)
+	u := cc.User()
+	if u == nil {
+		return nest.NewHTTPError(http.StatusBadRequest)
 	}
 
 	return ctx.JSON(http.StatusOK, u)

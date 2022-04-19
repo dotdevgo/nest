@@ -18,7 +18,7 @@ type Mailer struct {
 }
 
 // New godoc
-func (c *Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
+func (c Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 	m := email.NewEmail()
 
 	body, err := c.Hermes.GenerateHTML(template)
@@ -38,7 +38,7 @@ func (c *Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 }
 
 // Send godoc
-func (c *Mailer) Send(m *email.Email) error {
+func (c Mailer) Send(m *email.Email) error {
 	config := c.Config.Mail
 	if "" == config.Hostname {
 		log.Printf("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)

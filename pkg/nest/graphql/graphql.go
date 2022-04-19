@@ -16,7 +16,7 @@ func Provider() di.Option {
 }
 
 // Router godoc
-func Router(e *nest.EchoWrapper) {
+func Router(e *nest.Kernel) {
 	// GraphQL
 	//var resolver graph.Resolver
 	//e.ResolveFn(&resolver)

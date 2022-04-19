@@ -16,12 +16,12 @@ type AuthMailer struct {
 }
 
 // Restore godoc
-func (m *AuthMailer) Restore(u *user.User) hermes.Email {
+func (m AuthMailer) Restore(u *user.User) hermes.Email {
 
 	link := fmt.Sprintf(
 		"%s/auth/reset/%s/%s",
 		m.Config.HTTP.Hostname,
-		u.UUID,
+		u.ID,
 		u.GetAttribute(user.AttributeResetToken),
 	)
 
@@ -46,7 +46,7 @@ func (m *AuthMailer) Restore(u *user.User) hermes.Email {
 }
 
 // ResetToken godoc
-func (m *AuthMailer) ResetToken(event user.EventResetToken) hermes.Email {
+func (m AuthMailer) ResetToken(event user.EventResetToken) hermes.Email {
 	link := fmt.Sprintf("%s/auth/signin", m.Config.CORS.Origin)
 
 	return hermes.Email{
