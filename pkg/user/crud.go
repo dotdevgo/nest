@@ -1,7 +1,7 @@
 package user
 
 import (
-	"github.com/dotdevgo/nest/pkg/crud"
+	"dotdev/nest/pkg/crud"
 )
 
 type UserCrud struct {

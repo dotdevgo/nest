@@ -1,6 +1,6 @@
 package utils
 
-import "github.com/dotdevgo/nest/pkg/logger"
+import "dotdev/nest/pkg/logger"
 
 // NoError godoc
 func NoError(err error) {

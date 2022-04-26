@@ -1,6 +1,6 @@
 package user
 
-// import "github.com/dotdevgo/nest/pkg/utils"
+// import "dotdev/nest/pkg/utils"
 
 type UserFactory struct{}
 

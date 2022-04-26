@@ -1,7 +1,8 @@
 package tag
 
 import (
-	"github.com/dotdevgo/nest/pkg/crud"
+	"dotdev/nest/pkg/crud"
+
 	"github.com/goava/di"
 	"gorm.io/gorm"
 )

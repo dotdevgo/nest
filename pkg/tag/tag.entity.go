@@ -1,6 +1,6 @@
 package tag
 
-import "github.com/dotdevgo/nest/pkg/crud"
+import "dotdev/nest/pkg/crud"
 
 const (
 	DBTableTags = "tags"

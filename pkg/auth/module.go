@@ -3,13 +3,15 @@ package auth
 import (
 	"fmt"
 
-	"github.com/dotdevgo/nest/pkg/logger"
-	"github.com/dotdevgo/nest/pkg/utils"
+	"dotdev/nest/pkg/logger"
+	"dotdev/nest/pkg/utils"
+
 	"github.com/joeshaw/envdecode"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/steam"
 
-	"github.com/dotdevgo/nest/pkg/nest"
+	"dotdev/nest/pkg/nest"
+
 	"github.com/goava/di"
 	"github.com/mustafaturan/bus/v3"
 )

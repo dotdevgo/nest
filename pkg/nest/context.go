@@ -3,7 +3,8 @@ package nest
 import (
 	"errors"
 
-	"github.com/dotdevgo/nest/pkg/logger"
+	"dotdev/nest/pkg/logger"
+
 	"github.com/goava/di"
 	"github.com/labstack/echo/v4"
 	"github.com/nicksnyder/go-i18n/v2/i18n"

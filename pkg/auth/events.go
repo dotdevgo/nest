@@ -1,6 +1,6 @@
 package auth
 
-import "github.com/dotdevgo/nest/pkg/user"
+import "dotdev/nest/pkg/user"
 
 const (
 	EventUserSignUp     = "user.sign_up"

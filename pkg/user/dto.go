@@ -1,6 +1,6 @@
 package user
 
-import "github.com/dotdevgo/nest/pkg/crud"
+import "dotdev/nest/pkg/crud"
 
 // UserDto godoc
 type UserDto struct {

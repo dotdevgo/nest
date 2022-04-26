@@ -7,9 +7,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
 
+	"dotdev/nest/pkg/user"
+	"dotdev/nest/pkg/utils"
+
 	"github.com/dgrijalva/jwt-go"
-	"github.com/dotdevgo/nest/pkg/user"
-	"github.com/dotdevgo/nest/pkg/utils"
 	"github.com/goava/di"
 	"github.com/mustafaturan/bus/v3"
 )
@@ -22,9 +23,9 @@ const (
 // AuthService godoc
 type AuthService struct {
 	di.Inject
+	*bus.Bus
 	AuthConfig
 	Crud *user.UserCrud
-	Bus  *bus.Bus
 }
 
 // Validate godoc
@@ -67,10 +68,6 @@ func (c AuthService) SignUp(input SignUpDto) (user.User, error) {
 	utils.Copy(&u, &input)
 
 	// Defaults
-	u.CountFollowers = 0
-	u.CountPublications = 0
-	u.CountSubscriptions = 0
-
 	u.IsVerified = false
 	u.IsDisabled = false
 

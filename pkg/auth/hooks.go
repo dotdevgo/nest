@@ -3,9 +3,9 @@ package auth
 import (
 	"context"
 
-	"github.com/dotdevgo/nest/pkg/logger"
-	"github.com/dotdevgo/nest/pkg/mailer"
-	"github.com/dotdevgo/nest/pkg/user"
+	"dotdev/nest/pkg/logger"
+	"dotdev/nest/pkg/mailer"
+	"dotdev/nest/pkg/user"
 
 	"github.com/goava/di"
 	"github.com/mustafaturan/bus/v3"

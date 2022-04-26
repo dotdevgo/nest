@@ -3,7 +3,8 @@ package user
 import (
 	"fmt"
 
-	"github.com/dotdevgo/nest/pkg/crud"
+	"dotdev/nest/pkg/crud"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/goava/di"
 )

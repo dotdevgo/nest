@@ -1,6 +1,7 @@
 package crud
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -22,6 +23,13 @@ type (
 	CriteriaMap map[string]CriteriaOption
 	Criteria    []CriteriaOption
 )
+
+// ScopeOrderBy godoc
+func ScopeOrderBy(column string, order string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Order(fmt.Sprintf("%s %s", column, strings.ToUpper(order)))
+	}
+}
 
 // ScopeById godoc
 func ScopeById(result interface{}, id interface{}) func(db *gorm.DB) *gorm.DB {

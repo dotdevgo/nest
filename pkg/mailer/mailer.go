@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/smtp"
 
-	"github.com/dotdevgo/nest/pkg/logger"
-	"github.com/dotdevgo/nest/pkg/nest"
+	"dotdev/nest/pkg/logger"
+	"dotdev/nest/pkg/nest"
+
 	"github.com/goava/di"
 	"github.com/jordan-wright/email"
 	"github.com/matcornic/hermes/v2"

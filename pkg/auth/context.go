@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"github.com/dotdevgo/nest/pkg/user"
+	"dotdev/nest/pkg/user"
 
-	"github.com/dotdevgo/nest/pkg/nest"
+	"dotdev/nest/pkg/nest"
+
 	"github.com/golang-jwt/jwt"
 )
 

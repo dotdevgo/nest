@@ -1,6 +1,6 @@
 package injector
 
-import "github.com/dotdevgo/nest/pkg/nest"
+import "dotdev/nest/pkg/nest"
 
 // Router godoc
 func NewApiGroup(e *nest.Kernel) nest.ApiGroup {

@@ -1,6 +1,6 @@
 package auth
 
-import "github.com/dotdevgo/nest/pkg/user"
+import "dotdev/nest/pkg/user"
 
 type IdentityDto struct {
 	Identity string `json:"identity" form:"identity" validate:"required,min=3"`

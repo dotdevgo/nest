@@ -3,10 +3,11 @@ package authcmd
 import (
 	"net/http"
 
-	"github.com/dotdevgo/nest/pkg/auth"
-	"github.com/dotdevgo/nest/pkg/nest"
-	"github.com/dotdevgo/nest/pkg/nest/kernel"
-	"github.com/dotdevgo/nest/pkg/user"
+	"dotdev/nest/pkg/auth"
+	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/nest/kernel"
+	"dotdev/nest/pkg/user"
+
 	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth/gothic"
 )
@@ -19,11 +20,10 @@ const (
 	RouteAuthResetToken = "/auth/reset/:user/:token"
 	RouteAuthMe         = "/auth/me"
 
-	// Oauth
-	RouteAuthOauth = "/auth/oauth"
+	RouteOauth         = "/auth/oauth/:provider"
+	RouteOauthCallback = "/auth/callback/:provider"
 )
 
-// AuthController godoc
 type AuthController struct {
 	kernel.Controller
 	nest.Config
@@ -31,24 +31,28 @@ type AuthController struct {
 	Auth *auth.AuthService
 }
 
-// Router godoc
 func (c AuthController) Router(w *nest.Kernel) {
 	w.POST(RouteAuthSignup, c.SignUp)
 	w.POST(RouteAuthSignin, c.SignIn)
 	w.GET(RouteAuthConfirm, c.Confirm)
 	w.POST(RouteAuthRestore, c.Restore)
 	w.GET(RouteAuthResetToken, c.ResetToken)
-	w.GET(RouteAuthOauth, c.OAuth)
-	w.GET("/auth/callback/steam", c.OAuth)
+	w.GET(RouteOauth, c.OAuth)
+	w.GET(RouteOauthCallback, c.OAuth)
 
 	api := w.ApiGroup()
 	api.GET(RouteAuthMe, c.Me)
 }
 
-// SignUp godoc
+// OAuth godoc
 func (c AuthController) OAuth(ctx nest.Context) error {
 	req := ctx.Request()
 	res := ctx.Response()
+
+	// https://groups.google.com/g/golang-nuts/c/Dur6uGUEKKk
+	values := req.URL.Query()
+	values.Add("provider", ctx.Param("provider"))
+	req.URL.RawQuery = values.Encode()
 
 	if user, err := gothic.CompleteUserAuth(res, req); err == nil {
 		return ctx.JSON(http.StatusOK, user)

@@ -3,8 +3,8 @@ package auth
 import (
 	"fmt"
 
-	"github.com/dotdevgo/nest/pkg/nest"
-	"github.com/dotdevgo/nest/pkg/user"
+	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/user"
 
 	"github.com/goava/di"
 	"github.com/matcornic/hermes/v2"

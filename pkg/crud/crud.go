@@ -3,7 +3,8 @@ package crud
 import (
 	"database/sql"
 
-	"github.com/dotdevgo/nest/pkg/nest"
+	"dotdev/nest/pkg/nest"
+
 	"gorm.io/gorm"
 )
 
@@ -115,4 +116,14 @@ func (s *Service[T]) Rollback() {
 
 	s.tx.Rollback()
 	s.tx = nil
+}
+
+// Transaction godoc
+func (s *Service[T]) Transaction(fc func(tx *gorm.DB) (err error), opts ...*sql.TxOptions) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		s.tx = tx
+		err := fc(tx)
+		s.tx = nil
+		return err
+	}, opts...)
 }

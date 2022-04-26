@@ -1,8 +1,9 @@
 package injector
 
 import (
-	"github.com/dotdevgo/nest/pkg/nest"
-	"github.com/dotdevgo/nest/pkg/utils"
+	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/utils"
+
 	"github.com/goava/di"
 )
 

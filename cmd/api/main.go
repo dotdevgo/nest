@@ -3,14 +3,15 @@ package main
 import (
 	"os"
 
-	"github.com/dotdevgo/nest/cmd/api/config"
-	authcmd "github.com/dotdevgo/nest/cmd/auth"
-	"github.com/dotdevgo/nest/pkg/auth"
-	"github.com/dotdevgo/nest/pkg/mailer"
-	"github.com/dotdevgo/nest/pkg/nest"
-	"github.com/dotdevgo/nest/pkg/nest/kernel"
-	"github.com/dotdevgo/nest/pkg/nest/kernel/injector"
-	"github.com/dotdevgo/nest/pkg/user"
+	"dotdev/nest/cmd/api/config"
+	authcmd "dotdev/nest/cmd/auth"
+	"dotdev/nest/pkg/auth"
+	"dotdev/nest/pkg/mailer"
+	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/nest/kernel"
+	"dotdev/nest/pkg/nest/kernel/injector"
+	"dotdev/nest/pkg/user"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

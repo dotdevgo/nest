@@ -1,9 +1,10 @@
 package user
 
 import (
-	"github.com/dotdevgo/nest/pkg/crud"
-	"github.com/dotdevgo/nest/pkg/nest"
-	"github.com/dotdevgo/nest/pkg/utils"
+	"dotdev/nest/pkg/crud"
+	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/utils"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/goava/di"
 	"gorm.io/gorm"

@@ -1,7 +1,8 @@
 package kernel
 
 import (
-	"github.com/dotdevgo/nest/pkg/nest/kernel/injector"
+	"dotdev/nest/pkg/nest/kernel/injector"
+
 	"github.com/goava/di"
 )
 

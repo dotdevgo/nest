@@ -4,8 +4,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/dotdevgo/nest/pkg/logger"
-	"github.com/dotdevgo/nest/pkg/utils"
+	"dotdev/nest/pkg/logger"
+	"dotdev/nest/pkg/utils"
+
 	"github.com/joeshaw/envdecode"
 	"github.com/joho/godotenv"
 )

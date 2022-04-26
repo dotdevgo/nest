@@ -1,7 +1,8 @@
 package graphql
 
 import (
-	"github.com/dotdevgo/nest/pkg/nest"
+	"dotdev/nest/pkg/nest"
+
 	"github.com/goava/di"
 )
 

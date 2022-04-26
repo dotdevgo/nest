@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dotdevgo/nest/pkg/logger"
-	"github.com/dotdevgo/nest/pkg/utils"
+	"dotdev/nest/pkg/logger"
+	"dotdev/nest/pkg/utils"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/goava/di"
 	"github.com/labstack/echo/v4"

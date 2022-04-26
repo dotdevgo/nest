@@ -1,7 +1,7 @@
 package injector
 
 import (
-	"github.com/dotdevgo/nest/pkg/nest/kernel/injector/factory"
+	"dotdev/nest/pkg/nest/kernel/injector/factory"
 
 	"github.com/goava/di"
 	"github.com/mustafaturan/bus/v3"

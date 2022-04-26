@@ -3,7 +3,7 @@ package user
 import (
 	"encoding/json"
 
-	"github.com/dotdevgo/nest/pkg/crud"
+	"dotdev/nest/pkg/crud"
 )
 
 const (
@@ -26,9 +26,9 @@ type User struct {
 	Bio         string  `json:"bio"`
 
 	// TODO: remove
-	CountPublications  uint32 `json:"countPublications"`
-	CountFollowers     uint32 `json:"countFollowers"`
-	CountSubscriptions uint32 `json:"countSubscriptions"`
+	// CountPublications  uint32 `json:"countPublications"`
+	// CountFollowers     uint32 `json:"countFollowers"`
+	// CountSubscriptions uint32 `json:"countSubscriptions"`
 
 	IsVerified bool `json:"isVerified" gorm:"null"`
 	IsDisabled bool `json:"isDisabled" gorm:"null"`
@@ -43,28 +43,28 @@ func (u User) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(&struct {
-		ID                 string  `json:"id"`
-		Email              string  `json:"email"`
-		Username           string  `json:"username"`
-		DisplayName        *string `json:"displayName"`
-		Bio                string  `json:"bio"`
-		Photo              string  `json:"photo"`
-		CountPublications  uint32  `json:"countPublications"`
-		CountFollowers     uint32  `json:"countFollowers"`
-		CountSubscriptions uint32  `json:"countSubscriptions"`
-		IsVerified         bool    `json:"isVerified"`
-		IsDisabled         bool    `json:"isDisabled"`
+		ID          string  `json:"id"`
+		Email       string  `json:"email"`
+		Username    string  `json:"username"`
+		DisplayName *string `json:"displayName"`
+		Bio         string  `json:"bio"`
+		Photo       string  `json:"photo"`
+		// CountPublications  uint32  `json:"countPublications"`
+		// CountFollowers     uint32  `json:"countFollowers"`
+		// CountSubscriptions uint32  `json:"countSubscriptions"`
+		IsVerified bool `json:"isVerified"`
+		IsDisabled bool `json:"isDisabled"`
 	}{
-		ID:                 u.ID,
-		Email:              u.Email,
-		Username:           u.Username,
-		DisplayName:        displayName,
-		Bio:                u.Bio,
-		Photo:              u.Photo,
-		CountPublications:  u.CountPublications,
-		CountFollowers:     u.CountFollowers,
-		CountSubscriptions: u.CountSubscriptions,
-		IsVerified:         u.IsVerified,
-		IsDisabled:         u.IsDisabled,
+		ID:          u.ID,
+		Email:       u.Email,
+		Username:    u.Username,
+		DisplayName: displayName,
+		Bio:         u.Bio,
+		Photo:       u.Photo,
+		// CountPublications:  u.CountPublications,
+		// CountFollowers:     u.CountFollowers,
+		// CountSubscriptions: u.CountSubscriptions,
+		IsVerified: u.IsVerified,
+		IsDisabled: u.IsDisabled,
 	})
 }
