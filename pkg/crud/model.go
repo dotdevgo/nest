@@ -23,7 +23,7 @@ type (
 	}
 
 	Attributes struct {
-		RawAttributes echo.Map       `gorm:"-" json:"attributes"`
+		RawAttributes echo.Map       `gorm:"-" json:"attributes" form:"attributes"`
 		Attributes    datatypes.JSON `json:"-"`
 	}
 
@@ -40,7 +40,7 @@ type (
 type Model struct {
 	IModel `gorm:"-" json:"-"`
 	Pk     uint64 `gorm:"primarykey" json:"-" meta:"getter;"`
-	ID     string `gorm:"type:varchar(255);uniqueIndex" json:"id" gqlgen:"id" meta:"getter;"`
+	ID     string `gorm:"type:varchar(255);uniqueIndex" json:"id" form:"id" gqlgen:"id" meta:"getter;"`
 }
 
 func (Model) IsRecord() {}
@@ -68,6 +68,27 @@ func (m *Attributes) BeforeSave(tx *gorm.DB) (err error) {
 	m.Attributes = datatypes.JSON(encoded)
 
 	return
+}
+
+// GetAttributes godoc
+func (m *Attributes) GetAttributes() (echo.Map, error) {
+	// TODO: Refactor
+	jsonAttr := m.Attributes.String()
+	var attributes echo.Map
+	if err := json.Unmarshal([]byte(jsonAttr), &attributes); err != nil {
+		return attributes, err
+	}
+
+	return attributes, nil
+}
+
+// AddAttributes godoc
+func (m *Attributes) AddAttributes(attr echo.Map) error {
+	for name, value := range attr {
+		m.SetAttribute(name, value)
+	}
+
+	return nil
 }
 
 // SetAttribute godoc

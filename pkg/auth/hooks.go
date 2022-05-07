@@ -33,7 +33,7 @@ func (h AuthHooks) SignUp(ctx context.Context, e bus.Event) {
 		}
 
 		m.To = []string{u.Email}
-		m.Subject = "NestApp: Confirm your account"
+		m.Subject = "Confirm your account"
 
 		if err := h.Mailer.Send(m); err != nil {
 			return
@@ -47,7 +47,7 @@ func (h AuthHooks) Restore(ctx context.Context, e bus.Event) {
 		return
 	}
 
-	logger.Log("AuthHooks: OnRestore %v", u.ID)
+	// logger.Log("AuthHooks: OnRestore %v", u.ID)
 
 	go func() {
 		template := h.AuthMailer.Restore(u)
@@ -72,7 +72,7 @@ func (h AuthHooks) ResetToken(ctx context.Context, e bus.Event) {
 	}
 
 	u := event.User
-	logger.Log("AuthHooks: OnResetToken %v", u.ID)
+	// logger.Log("AuthHooks: OnResetToken %v", u.ID)
 
 	go func() {
 		template := h.AuthMailer.ResetToken(event)
@@ -83,6 +83,30 @@ func (h AuthHooks) ResetToken(ctx context.Context, e bus.Event) {
 
 		m.To = []string{u.Email}
 		m.Subject = "Password has been reset"
+
+		if err := h.Mailer.Send(m); err != nil {
+			return
+		}
+	}()
+}
+
+func (h AuthHooks) ResetEmail(ctx context.Context, e bus.Event) {
+	u, ok := e.Data.(user.User)
+	if !ok {
+		return
+	}
+
+	logger.Log("AuthHooks: ChangeEmail %v", u.ID)
+
+	go func() {
+		template := h.AuthMailer.ResetEmail(u)
+		m, err := h.Mailer.NewEmail(template)
+		if err != nil {
+			return
+		}
+
+		m.To = []string{u.Email}
+		m.Subject = "Confirm your new email"
 
 		if err := h.Mailer.Send(m); err != nil {
 			return

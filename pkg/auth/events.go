@@ -7,6 +7,7 @@ const (
 	EventUserConfirm    = "user.confirm"
 	EventUserRestore    = "user.restore"
 	EventUserResetToken = "user.reset_token"
+	EventUserResetEmail = "user.reset_email"
 )
 
 type (

@@ -14,6 +14,6 @@ func New() di.Option {
 		injector.NewBus(),
 		injector.Validator(),
 		injector.I18n(),
-		di.Provide(injector.NewApiGroup),
+		di.Provide(injector.NewSecureGroup),
 	)
 }

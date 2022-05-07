@@ -9,7 +9,7 @@ import (
 
 // DefaultLimit defines the default limit for paginated queries. This is a
 // variable so that users can configure it at runtime.
-var DefaultLimit = 20
+var DefaultLimit = 10
 
 // Paginator defines the interface for a paginator.
 type Paginator[T any] interface {
@@ -20,10 +20,11 @@ type Paginator[T any] interface {
 
 // paginator defines a paginator.
 type paginator[T any] struct {
-	db    *gorm.DB
-	limit int
-	page  int
-	order []string
+	db     *gorm.DB
+	limit  int
+	page   int
+	offset int
+	order  []string
 }
 
 // countResult defines the result of the count query executed by the paginator.
@@ -35,6 +36,7 @@ type countResult struct {
 // Result defines a paginated result.
 type Result[T any] struct {
 	CurrentPage    int       `json:"currentPage"`
+	Offset         int       `json:"offset"`
 	MaxPage        int       `json:"maxPage"`
 	RecordsPerPage int       `json:"recordsPerPage"`
 	TotalRecords   int64     `json:"totalRecords"`
@@ -50,10 +52,11 @@ type Result[T any] struct {
 func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
 	tx := db.Session(&gorm.Session{})
 	p := &paginator[any]{
-		db:    tx,
-		page:  1,
-		limit: DefaultLimit,
-		order: make([]string, 0),
+		db:     tx,
+		page:   1,
+		offset: 0,
+		limit:  DefaultLimit,
+		order:  make([]string, 0),
 	}
 
 	for _, option := range options {
@@ -61,10 +64,11 @@ func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
 	}
 
 	pp := &paginator[T]{
-		db:    tx,
-		page:  p.page,
-		limit: p.limit,
-		order: p.order,
+		db:     tx,
+		page:   p.page,
+		offset: p.offset,
+		limit:  p.limit,
+		order:  p.order,
 	}
 
 	return pp
@@ -89,7 +93,7 @@ func (p *paginator[T]) Paginate(value interface{}) (*Result[T], error) {
 
 	go countRecords(db, value, c)
 
-	err := db.Limit(p.limit).Offset(p.offset()).Find(value).Error
+	err := db.Limit(p.limit).Offset(p.getOffset()).Find(value).Error
 
 	if err != nil {
 		<-c
@@ -111,7 +115,11 @@ func (p *paginator[T]) prepareDB() *gorm.DB {
 }
 
 // offset computes the offset used for the paginated query.
-func (p *paginator[T]) offset() int {
+func (p *paginator[T]) getOffset() int {
+	if p.offset > 0 {
+		return p.offset
+	}
+
 	return (p.page - 1) * p.limit
 }
 
@@ -143,6 +151,7 @@ func (p *paginator[T]) result(value interface{}, c countResult) (*Result[T], err
 	return &Result[T]{
 		TotalRecords:   c.total,
 		Records:        value.(T),
+		Offset:         p.offset,
 		CurrentPage:    p.page,
 		RecordsPerPage: p.limit,
 		MaxPage:        maxPage,

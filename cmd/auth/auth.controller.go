@@ -13,12 +13,14 @@ import (
 )
 
 const (
-	RouteAuthSignup     = "/auth/signup"
-	RouteAuthSignin     = "/auth/signin"
-	RouteAuthConfirm    = "/auth/confirm/:token"
-	RouteAuthRestore    = "/auth/restore"
-	RouteAuthResetToken = "/auth/reset/:user/:token"
-	RouteAuthMe         = "/auth/me"
+	RouteAuthSignup         = "/auth/signup"
+	RouteAuthSignin         = "/auth/signin"
+	RouteAuthConfirm        = "/auth/confirm/:token"
+	RouteAuthRestore        = "/auth/restore"
+	RouteAuthResetToken     = "/auth/reset/:user/:token"
+	RouteAuthChangePassword = "/api/auth/password"
+	RouteAuthProfile        = "/api/auth/profile"
+	RouteAuthMe             = "/api/auth/me"
 
 	RouteOauth         = "/auth/oauth/:provider"
 	RouteOauthCallback = "/auth/callback/:provider"
@@ -40,8 +42,10 @@ func (c AuthController) Router(w *nest.Kernel) {
 	w.GET(RouteOauth, c.OAuth)
 	w.GET(RouteOauthCallback, c.OAuth)
 
-	api := w.ApiGroup()
+	api := w.Secure()
 	api.GET(RouteAuthMe, c.Me)
+	api.POST(RouteAuthChangePassword, c.ChangePassword)
+	api.POST(RouteAuthProfile, c.Profile)
 }
 
 // OAuth godoc
@@ -153,11 +157,54 @@ func (c AuthController) ResetToken(ctx nest.Context) error {
 // Me godoc
 func (c AuthController) Me(ctx nest.Context) error {
 	cc := auth.NewContext(ctx)
-
 	u := cc.User()
 	if u == nil {
 		return nest.NewHTTPError(http.StatusBadRequest)
 	}
 
 	return ctx.JSON(http.StatusOK, u)
+}
+
+// ChangePassword godoc
+func (c AuthController) ChangePassword(ctx nest.Context) error {
+	cc := auth.NewContext(ctx)
+	u := cc.User()
+	if u == nil {
+		return nest.NewHTTPError(http.StatusBadRequest)
+	}
+
+	var input auth.ChangePasswordDto
+	if err := c.Crud.IsValid(ctx, &input); err != nil {
+		return nest.NewValidatorError(ctx, err)
+	}
+
+	err := c.Auth.ChangePassword(*u, input)
+	if err != nil {
+		return nest.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
+}
+
+// Profile godoc
+func (c AuthController) Profile(ctx nest.Context) error {
+	cc := auth.NewContext(ctx)
+	u := cc.User()
+	if u == nil {
+		return nest.NewHTTPError(http.StatusBadRequest)
+	}
+
+	var input user.UserDto
+	input.Pk = u.Pk
+	input.ID = u.ID
+
+	if err := c.Crud.IsValid(ctx, &input); err != nil {
+		return nest.NewValidatorError(ctx, err)
+	}
+
+	if err := c.Auth.Save(*u, input); err != nil {
+		return nest.NewValidatorError(ctx, err)
+	}
+
+	return ctx.NoContent(http.StatusOK)
 }

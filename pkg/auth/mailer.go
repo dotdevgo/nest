@@ -97,3 +97,34 @@ func (m AuthMailer) ResetToken(event EventResetToken) hermes.Email {
 		},
 	}
 }
+
+// ResetEmail godoc
+func (m AuthMailer) ResetEmail(u user.User) hermes.Email {
+	link := fmt.Sprintf(
+		"%s/auth/confirm/%s",
+		m.Config.HTTP.Hostname,
+		u.GetAttribute(AttributeConfirmToken),
+	)
+
+	return hermes.Email{
+		Body: hermes.Body{
+			Name: u.Username,
+			Intros: []string{
+				"You have changed your email.",
+			},
+			Actions: []hermes.Action{
+				{
+					Instructions: "To confirm new Email click here:",
+					Button: hermes.Button{
+						Color: "#22BC66",
+						Text:  "Confirm your email",
+						Link:  link,
+					},
+				},
+			},
+			// Outros: []string{
+			// 	"Need help, or have questions? Just reply to this email, we'd love to help.",
+			// },
+		},
+	}
+}

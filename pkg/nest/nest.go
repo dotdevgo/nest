@@ -33,7 +33,9 @@ var (
 
 type (
 	// ApiGroup godoc
-	ApiGroup interface{}
+	// ApiGroup interface{}
+	// ApiGroup godoc
+	SecureGroup interface{}
 	// ContainerHandlerFunc godoc
 	ContainerHandlerFunc func(Context) interface{}
 	// HandlerFunc godoc
@@ -108,10 +110,18 @@ func NewHTTPError(code int, message ...interface{}) *echo.HTTPError {
 }
 
 // Api godoc
-func (w *Kernel) ApiGroup() *Group {
-	var api ApiGroup
-	w.ResolveFn(&api)
-	e := api.(*Group)
+// func (w *Kernel) ApiGroup() *Group {
+// 	var api ApiGroup
+// 	w.ResolveFn(&api)
+// 	e := api.(*Group)
+// 	return e
+// }
+
+// Secure godoc
+func (w *Kernel) Secure() *Group {
+	var g SecureGroup
+	w.ResolveFn(&g)
+	e := g.(*Group)
 	return e
 }
 
@@ -140,7 +150,7 @@ func (c *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOpti
 //	}
 func (c *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := c.Resolve(ptr, options...); err != nil {
-		c.Logger.Panic(err)
+		c.Logger.Panicf("%s", err)
 	}
 }
 

@@ -42,6 +42,11 @@ func (u User) MarshalJSON() ([]byte, error) {
 		displayName = &u.Username
 	}
 
+	attributes, err := u.GetAttributes()
+	if err != nil {
+		return []byte{}, err
+	}
+
 	return json.Marshal(&struct {
 		ID          string  `json:"id"`
 		Email       string  `json:"email"`
@@ -54,6 +59,7 @@ func (u User) MarshalJSON() ([]byte, error) {
 		// CountSubscriptions uint32  `json:"countSubscriptions"`
 		IsVerified bool `json:"isVerified"`
 		IsDisabled bool `json:"isDisabled"`
+		Attributes any  `json:"attributes"`
 	}{
 		ID:          u.ID,
 		Email:       u.Email,
@@ -66,5 +72,6 @@ func (u User) MarshalJSON() ([]byte, error) {
 		// CountSubscriptions: u.CountSubscriptions,
 		IsVerified: u.IsVerified,
 		IsDisabled: u.IsDisabled,
+		Attributes: attributes,
 	})
 }

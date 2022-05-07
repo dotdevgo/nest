@@ -12,15 +12,26 @@ type Option func(p *paginator[any])
 // ParamNames defines a type to configure names of query parameters to use from
 // a http.Request. If a field is set to the empty string, it will not be used.
 type ParamNames struct {
-	Page  string
-	Limit string
-	Order string
+	Page   string
+	Limit  string
+	Order  string
+	Offset string
 }
 
 // DefaultParamNames specifies the query parameter names to use from
 // a http.Request by default when the WithRequest option is uses. This can be
 // overridden at runtime.
-var DefaultParamNames = ParamNames{"page", "limit", "order"}
+var DefaultParamNames = ParamNames{"page", "limit", "order", "offset"}
+
+// WithOffset configures the offset of the paginator.
+//     gorm-paginator.Paginate(db, &v, gorm-paginator.WithOffset(2))
+func WithOffset(offset int) Option {
+	return func(p *paginator[any]) {
+		if offset > 0 {
+			p.offset = offset
+		}
+	}
+}
 
 // WithPage configures the page of the paginator.
 //     gorm-paginator.Paginate(db, &v, gorm-paginator.WithPage(2))
@@ -66,6 +77,12 @@ func WithRequest(r *http.Request, paramNames ...ParamNames) Option {
 	}
 
 	return func(p *paginator[any]) {
+		if value, ok := getQueryParam(r, params.Offset); ok {
+			if offset, err := strconv.Atoi(value); err == nil {
+				WithOffset(offset)(p)
+			}
+		}
+
 		if value, ok := getQueryParam(r, params.Page); ok {
 			if page, err := strconv.Atoi(value); err == nil {
 				WithPage(page)(p)

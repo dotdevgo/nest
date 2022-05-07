@@ -12,5 +12,8 @@ func NewRouter() di.Option {
 		di.Provide(func() *AuthController {
 			return &AuthController{}
 		}, di.As(new(nest.Controller))),
+		di.Provide(func() *UserController {
+			return &UserController{}
+		}, di.As(new(nest.Controller))),
 	)
 }

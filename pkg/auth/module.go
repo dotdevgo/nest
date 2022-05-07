@@ -53,7 +53,7 @@ func (p AuthProvider) Boot(w *nest.Kernel) error {
 	var authConfig AuthConfig
 	w.ResolveFn(&authConfig)
 
-	api := w.ApiGroup()
+	api := w.Secure()
 	api.Use(JwtMiddleware(authConfig))
 
 	return nil
@@ -86,6 +86,12 @@ func (p AuthProvider) RegisterTopics(w *nest.Kernel) {
 	})
 
 	b.RegisterTopics(EventUserConfirm)
+
+	b.RegisterTopics(EventUserResetEmail)
+	b.RegisterHandler(EventUserResetEmail, bus.Handler{
+		Matcher: EventUserResetEmail,
+		Handle:  h.ResetEmail,
+	})
 }
 
 // RegisterAuthProviders godoc

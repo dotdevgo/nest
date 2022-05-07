@@ -28,6 +28,26 @@ type AuthService struct {
 	Crud *user.UserCrud
 }
 
+// ChangePassword godoc
+func (c AuthService) ChangePassword(u user.User, input ChangePasswordDto) error {
+	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
+		return ErrorInvalidPassword
+	}
+
+	// Password
+	pass, err := c.hashPassword(input.NewPassword)
+	if err != nil {
+		return err
+	}
+	u.Password = pass
+
+	if err := c.Crud.Flush(&u); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Validate godoc
 func (c AuthService) Validate(input SignInDto) (user.User, error) {
 	u, err := c.Crud.FindByIdentity(input.Identity)
@@ -167,6 +187,42 @@ func (c AuthService) ResetToken(u user.User, token string) error {
 
 	var event = EventResetToken{u, password}
 	if err := c.Bus.Emit(context.Background(), EventUserResetToken, event); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Save godoc
+func (c AuthService) Save(u user.User, input user.UserDto) error {
+	isEmailChanged := false
+
+	u.DisplayName = input.DisplayName
+	u.Bio = input.Bio
+
+	if nil != input.RawAttributes {
+		u.AddAttributes(input.RawAttributes)
+	}
+
+	if len(input.Username) > 0 && u.Username != input.Username {
+		u.Username = input.Username
+	}
+
+	if len(input.Email) > 0 && u.Email != input.Email {
+		u.Email = input.Email
+		u.IsVerified = false
+		isEmailChanged = true
+	}
+
+	if isEmailChanged {
+		u.SetAttribute(AttributeConfirmToken, utils.RandomToken())
+
+		if err := c.Bus.Emit(context.Background(), EventUserResetEmail, u); err != nil {
+			return err
+		}
+	}
+
+	if err := c.Crud.Flush(&u); err != nil {
 		return err
 	}
 
