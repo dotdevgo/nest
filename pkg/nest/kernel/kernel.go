@@ -1,6 +1,7 @@
 package kernel
 
 import (
+	"dotdev/nest/pkg/nest"
 	"dotdev/nest/pkg/nest/kernel/injector"
 
 	"github.com/goava/di"
@@ -8,6 +9,8 @@ import (
 
 // Provider godoc
 func New() di.Option {
+	nest.LoadEnv()
+
 	return di.Options(
 		injector.Config(),
 		injector.EventBus(),

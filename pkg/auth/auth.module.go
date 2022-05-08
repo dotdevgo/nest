@@ -3,7 +3,6 @@ package auth
 import (
 	"fmt"
 
-	"dotdev/nest/pkg/logger"
 	"dotdev/nest/pkg/utils"
 
 	"github.com/joeshaw/envdecode"
@@ -34,19 +33,19 @@ func New() di.Option {
 		di.Provide(func() *AuthMailer {
 			return &AuthMailer{}
 		}),
-		di.Provide(func() *AuthProvider {
-			return &AuthProvider{}
-		}, di.As(new(nest.ServiceProvider))),
+		di.Provide(func() *AuthModule {
+			return &AuthModule{}
+		}, di.As(new(nest.ContainerModule))),
 	)
 }
 
-// AuthProvider godoc
-type AuthProvider struct {
-	nest.ServiceProvider
+// AuthModule godoc
+type AuthModule struct {
+	nest.ContainerModule
 }
 
 // Boot godoc
-func (p AuthProvider) Boot(w *nest.Kernel) error {
+func (p AuthModule) Boot(w *nest.Kernel) error {
 	p.RegisterTopics(w)
 	p.RegisterAuthProviders(w)
 
@@ -60,7 +59,7 @@ func (p AuthProvider) Boot(w *nest.Kernel) error {
 }
 
 // RegisterTopics godoc
-func (p AuthProvider) RegisterTopics(w *nest.Kernel) {
+func (p AuthModule) RegisterTopics(w *nest.Kernel) {
 	var b *bus.Bus
 	w.ResolveFn(&b)
 
@@ -95,14 +94,14 @@ func (p AuthProvider) RegisterTopics(w *nest.Kernel) {
 }
 
 // RegisterAuthProviders godoc
-func (p AuthProvider) RegisterAuthProviders(w *nest.Kernel) {
+func (p AuthModule) RegisterAuthProviders(w *nest.Kernel) {
 	var authConfig AuthConfig
 	w.ResolveFn(&authConfig)
 
 	var arr []goth.Provider
 	if authConfig.SteamApiKey != "" {
 		arr = append(arr, steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/auth/callback/steam", w.Config.HTTP.Hostname)))
-		logger.Log("[Auth] Provider: \"steam\".")
+		w.Logger.Info("[Auth] Register provider: \"steam\"")
 	}
 
 	goth.UseProviders(arr...)

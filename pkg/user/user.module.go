@@ -24,9 +24,9 @@ func New() di.Option {
 		di.Provide(func() *UserFactory {
 			return &UserFactory{}
 		}),
-		di.Provide(func() *UserProvider {
-			return &UserProvider{}
-		}, di.As(new(nest.ServiceProvider))),
+		di.Provide(func() *UserModule {
+			return &UserModule{}
+		}, di.As(new(nest.ContainerModule))),
 	)
 }
 
@@ -37,20 +37,20 @@ func NewUserCrud(c *crud.Service[*User]) *UserCrud {
 	}
 }
 
-// UserProvider godoc
-type UserProvider struct {
-	nest.ServiceProvider
+// UserModule godoc
+type UserModule struct {
+	nest.ContainerModule
 }
 
 // Boot godoc
-func (p UserProvider) Boot(w *nest.Kernel) error {
+func (p UserModule) Boot(w *nest.Kernel) error {
 	p.RegisterValidations(w)
 
 	return nil
 }
 
 // RegisterValidations godoc
-func (p UserProvider) RegisterValidations(w *nest.Kernel) {
+func (p UserModule) RegisterValidations(w *nest.Kernel) {
 	var uv *UserValidator
 	w.ResolveFn(&uv)
 

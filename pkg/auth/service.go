@@ -28,26 +28,6 @@ type AuthService struct {
 	Crud *user.UserCrud
 }
 
-// ChangePassword godoc
-func (c AuthService) ChangePassword(u user.User, input ChangePasswordDto) error {
-	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
-		return ErrorInvalidPassword
-	}
-
-	// Password
-	pass, err := c.hashPassword(input.NewPassword)
-	if err != nil {
-		return err
-	}
-	u.Password = pass
-
-	if err := c.Crud.Flush(&u); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // Validate godoc
 func (c AuthService) Validate(input SignInDto) (user.User, error) {
 	u, err := c.Crud.FindByIdentity(input.Identity)
@@ -80,6 +60,26 @@ func (c AuthService) NewToken(u user.User) (string, error) {
 	}
 
 	return t, nil
+}
+
+// ChangePassword godoc
+func (c AuthService) ChangePassword(u user.User, input ChangePasswordDto) error {
+	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
+		return ErrorInvalidPassword
+	}
+
+	// Password
+	pass, err := c.hashPassword(input.NewPassword)
+	if err != nil {
+		return err
+	}
+	u.Password = pass
+
+	if err := c.Crud.Flush(&u); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // SignUp godoc
@@ -195,19 +195,23 @@ func (c AuthService) ResetToken(u user.User, token string) error {
 
 // Save godoc
 func (c AuthService) Save(u user.User, input user.UserDto) error {
-	isEmailChanged := false
-
-	u.DisplayName = input.DisplayName
-	u.Bio = input.Bio
-
 	if nil != input.RawAttributes {
 		u.AddAttributes(input.RawAttributes)
+	}
+
+	if len(input.DisplayName) > 0 {
+		u.DisplayName = input.DisplayName
+	}
+
+	if len(input.Bio) > 0 {
+		u.Bio = input.Bio
 	}
 
 	if len(input.Username) > 0 && u.Username != input.Username {
 		u.Username = input.Username
 	}
 
+	isEmailChanged := false
 	if len(input.Email) > 0 && u.Email != input.Email {
 		u.Email = input.Email
 		u.IsVerified = false

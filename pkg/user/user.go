@@ -20,7 +20,7 @@ type User struct {
 
 	Email       string  `json:"email" gorm:"not null;index:uniqueEmail,unique"`
 	Username    string  `json:"username" gorm:"not null;index:uniqueUsername,unique"`
-	DisplayName *string `json:"displayName"`
+	DisplayName string  `json:"displayName"`
 	Locale      *string `json:"locale"`
 	Photo       string  `json:"photo" gorm:"null"`
 	Bio         string  `json:"bio"`
@@ -37,10 +37,10 @@ type User struct {
 }
 
 func (u User) MarshalJSON() ([]byte, error) {
-	displayName := u.DisplayName
-	if displayName == nil {
-		displayName = &u.Username
-	}
+	// displayName := u.DisplayName
+	// if displayName == nil {
+	// 	displayName = &u.Username
+	// }
 
 	attributes, err := u.GetAttributes()
 	if err != nil {
@@ -48,12 +48,12 @@ func (u User) MarshalJSON() ([]byte, error) {
 	}
 
 	return json.Marshal(&struct {
-		ID          string  `json:"id"`
-		Email       string  `json:"email"`
-		Username    string  `json:"username"`
-		DisplayName *string `json:"displayName"`
-		Bio         string  `json:"bio"`
-		Photo       string  `json:"photo"`
+		ID          string `json:"id"`
+		Email       string `json:"email"`
+		Username    string `json:"username"`
+		DisplayName string `json:"displayName"`
+		Bio         string `json:"bio"`
+		Photo       string `json:"photo"`
 		// CountPublications  uint32  `json:"countPublications"`
 		// CountFollowers     uint32  `json:"countFollowers"`
 		// CountSubscriptions uint32  `json:"countSubscriptions"`
@@ -64,7 +64,7 @@ func (u User) MarshalJSON() ([]byte, error) {
 		ID:          u.ID,
 		Email:       u.Email,
 		Username:    u.Username,
-		DisplayName: displayName,
+		DisplayName: u.DisplayName,
 		Bio:         u.Bio,
 		Photo:       u.Photo,
 		// CountPublications:  u.CountPublications,

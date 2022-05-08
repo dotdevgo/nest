@@ -48,11 +48,11 @@ type (
 	}
 	// Controller godoc
 	Controller interface {
-		Router(e *Kernel)
+		Router(w *Kernel)
 	}
-	// ServiceProvider godoc
-	ServiceProvider interface {
-		Boot(e *Kernel) error
+	// ContainerModule godoc
+	ContainerModule interface {
+		Boot(w *Kernel) error
 	}
 )
 
@@ -65,6 +65,7 @@ func New(m ...di.Option) *Kernel {
 	e.HideBanner = true
 
 	// Logger
+	// TODO: refactor
 	logger.Init()
 	logger.Logger = log.New()
 	e.Logger = logger.GetEchoLogger()
@@ -262,7 +263,7 @@ func WrapHandler(h http.Handler) HandlerFunc {
 
 // Start starts an HTTP server.
 func (w *Kernel) Start(address string) error {
-	w.beforeStart()
+	w.start()
 
 	w.Echo.Server.Addr = address
 
@@ -277,8 +278,8 @@ func (w *Kernel) Serve() error {
 	return w.Start(fmt.Sprintf(":%v", config.HTTP.Port))
 }
 
-// beforeStart godoc
-func (w *Kernel) beforeStart() {
+// start godoc
+func (w *Kernel) start() {
 	// Set custom validator
 	var v *validator.Validate
 	w.ResolveFn(&v)
@@ -286,18 +287,18 @@ func (w *Kernel) beforeStart() {
 
 	// TODO: refactor
 	// Custom
-	if err := w.Invoke(w.bootContainer); err != nil {
+	if err := w.Invoke(w.boot); err != nil {
 		w.Logger.Fatal(err)
 	}
 
-	if err := w.Invoke(w.bootRouter); err != nil {
+	if err := w.Invoke(w.router); err != nil {
 		w.Logger.Fatal(err)
 	}
 }
 
-// bootContainer godoc
+// boot godoc
 // TODO: refactor
-func (w *Kernel) bootContainer(providers []ServiceProvider) error {
+func (w *Kernel) boot(providers []ContainerModule) error {
 	for _, p := range providers {
 		if err := p.Boot(w); err != nil {
 			return err
@@ -307,9 +308,9 @@ func (w *Kernel) bootContainer(providers []ServiceProvider) error {
 	return nil
 }
 
-// bootRouter godoc
+// router godoc
 // TODO: refactor
-func (w *Kernel) bootRouter(controllers []Controller) {
+func (w *Kernel) router(controllers []Controller) {
 	for _, controller := range controllers {
 		w.InvokeFn(controller.Router)
 	}

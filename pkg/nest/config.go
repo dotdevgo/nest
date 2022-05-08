@@ -1,6 +1,7 @@
 package nest
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -141,11 +142,11 @@ func LoadEnv() {
 		return
 	}
 
-	logger.Log("[App] Load \".env\".")
-
 	dir, err := os.Getwd()
 	utils.NoErrorOrFatal(err)
-	utils.NoErrorOrFatal(godotenv.Load(dir + "/.env"))
 
+	utils.NoErrorOrFatal(godotenv.Load(dir + "/.env"))
 	isEnvLoaded = true
+
+	logger.Log(fmt.Sprintf("[App] Loaded env file: \".env\""))
 }
