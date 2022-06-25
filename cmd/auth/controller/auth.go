@@ -1,4 +1,4 @@
-package authcmd
+package controller
 
 import (
 	"net/http"
@@ -19,7 +19,7 @@ const (
 	RouteAuthRestore        = "/auth/restore"
 	RouteAuthResetToken     = "/auth/reset/:user/:token"
 	RouteAuthChangePassword = "/api/auth/password"
-	RouteAuthProfile        = "/api/auth/profile"
+	RouteAuthUpdate         = "/api/auth/update"
 	RouteAuthMe             = "/api/auth/me"
 
 	RouteOauth         = "/auth/oauth/:provider"
@@ -45,7 +45,7 @@ func (c AuthController) Router(w *nest.Kernel) {
 	api := w.Secure()
 	api.GET(RouteAuthMe, c.Me)
 	api.POST(RouteAuthChangePassword, c.ChangePassword)
-	api.POST(RouteAuthProfile, c.Profile)
+	api.POST(RouteAuthUpdate, c.Update)
 }
 
 // OAuth godoc
@@ -68,7 +68,7 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 
 // SignUp godoc
 func (c AuthController) SignUp(ctx nest.Context) error {
-	var input auth.SignUpDto // = new(auth.SignUpDto)
+	var input auth.SignUpDto
 	if err := c.Crud.IsValid(ctx, &input); err != nil {
 		return nest.NewValidatorError(ctx, err)
 	}
@@ -186,8 +186,8 @@ func (c AuthController) ChangePassword(ctx nest.Context) error {
 	return ctx.NoContent(http.StatusNoContent)
 }
 
-// Profile godoc
-func (c AuthController) Profile(ctx nest.Context) error {
+// Update godoc
+func (c AuthController) Update(ctx nest.Context) error {
 	cc := auth.NewContext(ctx)
 	u := cc.User()
 	if u == nil {
@@ -202,9 +202,10 @@ func (c AuthController) Profile(ctx nest.Context) error {
 		return nest.NewValidatorError(ctx, err)
 	}
 
-	if err := c.Auth.Save(*u, input); err != nil {
+	if err := c.Auth.Save(u, input); err != nil {
 		return nest.NewValidatorError(ctx, err)
 	}
 
-	return ctx.NoContent(http.StatusOK)
+	return ctx.JSON(http.StatusOK, u)
+	// return ctx.NoContent(http.StatusOK)
 }

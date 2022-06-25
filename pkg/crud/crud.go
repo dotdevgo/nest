@@ -8,20 +8,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service[T IModel] struct {
+type Crud[T IModel] struct {
 	db *gorm.DB
 	tx *gorm.DB
 }
 
 // NewService godoc
-func NewService[T IModel](db *gorm.DB) *Service[T] {
-	s := &Service[T]{db: db}
+func NewService[T IModel](db *gorm.DB) *Crud[T] {
+	s := &Crud[T]{db: db}
 	return s
 	// .Session(&gorm.Session{NewDB: true})
 }
 
 // IsValid godoc
-func (s *Service[T]) IsValid(ctx nest.Context, input interface{}) error {
+func (s *Crud[T]) IsValid(ctx nest.Context, input interface{}) error {
 	if err := ctx.Bind(input); err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (s *Service[T]) IsValid(ctx nest.Context, input interface{}) error {
 }
 
 // Save godoc
-func (s *Service[T]) Flush(data T) error {
+func (s *Crud[T]) Flush(data T) error {
 	if data.GetPk() > 0 || data.GetID() != "" {
 		return s.Tx().Save(data).Error
 	}
@@ -43,21 +43,21 @@ func (s *Service[T]) Flush(data T) error {
 }
 
 // Find godoc
-func (s *Service[T]) Find(result T, id interface{}, options ...Option) error {
+func (s *Crud[T]) Find(result T, id interface{}, options ...Option) error {
 	stmt := s.Stmt(options...)
 
 	return stmt.Scopes(ScopeById(result, id)).First(result).Error
 }
 
 // GetMany godoc
-func (s *Service[T]) GetMany(result interface{}, options ...Option) error {
+func (s *Crud[T]) GetMany(result interface{}, options ...Option) error {
 	var stmt = s.Stmt(options...)
 
 	return stmt.Find(result).Error
 }
 
 // Stmt godoc
-func (s *Service[T]) Stmt(options ...Option) *gorm.DB {
+func (s *Crud[T]) Stmt(options ...Option) *gorm.DB {
 	var stmt = s.Tx().Session(&gorm.Session{}) //NewDB: true
 
 	for _, option := range options {
@@ -68,12 +68,12 @@ func (s *Service[T]) Stmt(options ...Option) *gorm.DB {
 }
 
 // DB Godoc
-func (s *Service[T]) DB() *gorm.DB {
+func (s *Crud[T]) DB() *gorm.DB {
 	return s.db
 }
 
 // Tx Get current transaction
-func (s *Service[T]) Tx() *gorm.DB {
+func (s *Crud[T]) Tx() *gorm.DB {
 	if s.tx != nil {
 		return s.tx
 	}
@@ -81,7 +81,7 @@ func (s *Service[T]) Tx() *gorm.DB {
 }
 
 // Begin godoc
-func (s *Service[T]) Begin(opts ...*sql.TxOptions) (*gorm.DB, error) {
+func (s *Crud[T]) Begin(opts ...*sql.TxOptions) (*gorm.DB, error) {
 	s.tx = s.db.Begin(opts...)
 
 	defer func() {
@@ -98,7 +98,7 @@ func (s *Service[T]) Begin(opts ...*sql.TxOptions) (*gorm.DB, error) {
 }
 
 // Commit godoc
-func (s *Service[T]) Commit() *gorm.DB {
+func (s *Crud[T]) Commit() *gorm.DB {
 	if s.tx == nil {
 		return nil
 	}
@@ -109,7 +109,7 @@ func (s *Service[T]) Commit() *gorm.DB {
 }
 
 // Rollback godoc
-func (s *Service[T]) Rollback() {
+func (s *Crud[T]) Rollback() {
 	if s.tx == nil {
 		return
 	}
@@ -119,7 +119,7 @@ func (s *Service[T]) Rollback() {
 }
 
 // Transaction godoc
-func (s *Service[T]) Transaction(fc func(tx *gorm.DB) (err error), opts ...*sql.TxOptions) error {
+func (s *Crud[T]) Transaction(fc func(tx *gorm.DB) (err error), opts ...*sql.TxOptions) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		s.tx = tx
 		err := fc(tx)

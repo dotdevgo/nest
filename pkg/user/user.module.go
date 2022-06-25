@@ -31,9 +31,9 @@ func New() di.Option {
 }
 
 // NewUserCrud godoc
-func NewUserCrud(c *crud.Service[*User]) *UserCrud {
+func NewUserCrud(c *crud.Crud[*User]) *UserCrud {
 	return &UserCrud{
-		Service: c,
+		Crud: c,
 	}
 }
 

@@ -142,11 +142,15 @@ func LoadEnv() {
 		return
 	}
 
+	isEnvLoaded = true
+
 	dir, err := os.Getwd()
 	utils.NoErrorOrFatal(err)
 
-	utils.NoErrorOrFatal(godotenv.Load(dir + "/.env"))
-	isEnvLoaded = true
+	if err := godotenv.Load(dir + "/.env"); err != nil {
+		logger.Error(fmt.Sprintf("[App] Invalid env file: \".env\""))
+		return
+	}
 
 	logger.Log(fmt.Sprintf("[App] Loaded env file: \".env\""))
 }

@@ -35,9 +35,12 @@ func ScopeOrderBy(column string, order string) func(db *gorm.DB) *gorm.DB {
 func ScopeById(result interface{}, id interface{}) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		table := GetTableName(db, result)
-		_, err := uuid.Parse(id.(string))
-		if err == nil {
-			return db.Where(table+".id = ?", id)
+		str, ok := id.(string)
+		if ok {
+			_, err := uuid.Parse(str)
+			if err == nil {
+				return db.Where(table+".id = ?", id)
+			}
 		}
 		return db.Where(table+".pk = ?", id)
 	}

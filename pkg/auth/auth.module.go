@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 
-	"dotdev/nest/pkg/utils"
+	"dotdev/nest/pkg/logger"
 
 	"github.com/joeshaw/envdecode"
 	"github.com/markbates/goth"
@@ -20,8 +20,10 @@ func New() di.Option {
 	return di.Options(
 		di.Provide(func() AuthConfig {
 			var cfg AuthConfig
-			err := envdecode.StrictDecode(&cfg)
-			utils.NoErrorOrFatal(err)
+			if err := envdecode.StrictDecode(&cfg); err != nil {
+				logger.Error(err)
+			}
+			// utils.NoErrorOrFatal(err)
 			return cfg
 		}),
 		di.Provide(func() *AuthService {
@@ -98,6 +100,7 @@ func (p AuthModule) RegisterAuthProviders(w *nest.Kernel) {
 	var authConfig AuthConfig
 	w.ResolveFn(&authConfig)
 
+	// TODO: refactor
 	var arr []goth.Provider
 	if authConfig.SteamApiKey != "" {
 		arr = append(arr, steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/auth/callback/steam", w.Config.HTTP.Hostname)))

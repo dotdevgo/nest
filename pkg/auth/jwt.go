@@ -11,7 +11,8 @@ import (
 // NewJwtClaims godoc
 func NewJwtClaims(identity string) *jwt.StandardClaims {
 	return &jwt.StandardClaims{
-		Subject:   identity,
+		Subject: identity,
+		// ExpiresAt: time.Now().Add(15).Unix(),
 		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
 	}
 }

@@ -18,7 +18,7 @@ type (
 )
 
 // Paginate godoc
-func (s *Service[T]) Paginate(result interface{}, pagination []paginator.Option, options ...Option) (*paginator.Result[T], error) {
+func (s *Crud[T]) Paginate(result interface{}, pagination []paginator.Option, options ...Option) (*paginator.Result[T], error) {
 	var stmt = s.Stmt(options...)
 
 	return paginator.Paginate[T](stmt, result, pagination...)

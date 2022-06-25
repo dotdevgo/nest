@@ -5,7 +5,7 @@ import (
 )
 
 type UserCrud struct {
-	*crud.Service[*User]
+	*crud.Crud[*User]
 }
 
 // FindByIdentity godoc

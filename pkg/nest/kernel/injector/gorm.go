@@ -16,7 +16,7 @@ type OrmConfig struct {
 }
 
 // Orm godoc
-func NewWithDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
+func OrmWithDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
 	if nil == config {
 		config = &OrmConfig{}
 	}
@@ -46,6 +46,6 @@ func NewWithDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
 	)
 }
 
-func NewOrm() di.Option {
-	return NewWithDsn(mysql.Open(os.Getenv("DATABASE")), nil)
+func Orm() di.Option {
+	return OrmWithDsn(mysql.Open(os.Getenv("DATABASE")), nil)
 }

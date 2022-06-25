@@ -194,7 +194,7 @@ func (c AuthService) ResetToken(u user.User, token string) error {
 }
 
 // Save godoc
-func (c AuthService) Save(u user.User, input user.UserDto) error {
+func (c AuthService) Save(u *user.User, input user.UserDto) error {
 	if nil != input.RawAttributes {
 		u.AddAttributes(input.RawAttributes)
 	}
@@ -226,7 +226,7 @@ func (c AuthService) Save(u user.User, input user.UserDto) error {
 		}
 	}
 
-	if err := c.Crud.Flush(&u); err != nil {
+	if err := c.Crud.Flush(u); err != nil {
 		return err
 	}
 

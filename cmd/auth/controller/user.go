@@ -1,4 +1,4 @@
-package authcmd
+package controller
 
 import (
 	"dotdev/nest/pkg/nest"

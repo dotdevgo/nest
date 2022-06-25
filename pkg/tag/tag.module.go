@@ -19,8 +19,8 @@ func New() di.Option {
 }
 
 // NewTagCrud godoc
-func NewTagCrud(c *crud.Service[*Tag]) *TagCrud {
+func NewTagCrud(c *crud.Crud[*Tag]) *TagCrud {
 	return &TagCrud{
-		Service: c,
+		Crud: c,
 	}
 }
