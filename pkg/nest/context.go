@@ -29,7 +29,7 @@ type (
 func (c *context) IsTLS() bool {
 	var config Config
 	c.ResolveFn(&config)
-	return c.Context.IsTLS() || config.HTTP.TLS.Enabled
+	return config.HTTP.TLS.Enabled || c.Context.IsTLS()
 }
 
 // Resolve godoc

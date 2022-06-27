@@ -78,7 +78,9 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 		}
 
 		domain, _, _ := net.SplitHostPort(u.Host)
-		// origin, err := url.Parse(c.Config.HTTP.Origin)
+		if 0 == len(domain) {
+			domain = u.Host
+		}
 
 		cookie := http.Cookie{
 			Name:     "_SSO_TOKEN",
