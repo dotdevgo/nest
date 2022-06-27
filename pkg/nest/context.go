@@ -26,6 +26,13 @@ type (
 )
 
 // Resolve godoc
+func (c *context) IsTLS() bool {
+	var config Config
+	c.ResolveFn(&config)
+	return c.Context.IsTLS() || config.HTTP.TLS.Enabled
+}
+
+// Resolve godoc
 func (c *context) Resolve(ptr di.Pointer, options ...di.ResolveOption) error {
 	return c.Container.Resolve(ptr, options...)
 }
