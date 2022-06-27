@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"net/url"
@@ -83,7 +84,7 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 		}
 
 		cookie := http.Cookie{
-			Name:     "_SSO_TOKEN",
+			Name:     "APP_SSO_TOKEN",
 			Value:    token,
 			Path:     "/",
 			Domain:   domain,
@@ -91,6 +92,8 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 			Secure:   ctx.IsTLS(),
 			SameSite: http.SameSiteLaxMode,
 		}
+
+		log.Printf("COOKIE: %v", cookie)
 
 		ctx.SetCookie(&cookie)
 		redirectUrl := fmt.Sprintf("%s/auth/oauth", c.Config.HTTP.Origin)
