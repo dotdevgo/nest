@@ -12,6 +12,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/goava/di"
+	"github.com/labstack/echo/v4"
 	"github.com/mustafaturan/bus/v3"
 )
 
@@ -25,7 +26,8 @@ type AuthService struct {
 	di.Inject
 	*bus.Bus
 	AuthConfig
-	Crud *user.UserCrud
+	Crud      *user.UserCrud
+	Validator echo.Validator
 }
 
 // Validate godoc
@@ -199,10 +201,12 @@ func (c AuthService) Save(u *user.User, input user.UserDto) error {
 		u.AddAttributes(input.RawAttributes)
 	}
 
+	u.DisplayName = ""
 	if len(input.DisplayName) > 0 {
 		u.DisplayName = input.DisplayName
 	}
 
+	u.Bio = ""
 	if len(input.Bio) > 0 {
 		u.Bio = input.Bio
 	}
@@ -215,19 +219,22 @@ func (c AuthService) Save(u *user.User, input user.UserDto) error {
 	if len(input.Email) > 0 && u.Email != input.Email {
 		u.Email = input.Email
 		u.IsVerified = false
+		u.SetAttribute(AttributeConfirmToken, utils.RandomToken())
 		isEmailChanged = true
 	}
 
-	if isEmailChanged {
-		u.SetAttribute(AttributeConfirmToken, utils.RandomToken())
-
-		if err := c.Bus.Emit(context.Background(), EventUserResetEmail, u); err != nil {
-			return err
-		}
+	if err := c.Validator.Validate(u); err != nil {
+		return err
 	}
 
 	if err := c.Crud.Flush(u); err != nil {
 		return err
+	}
+
+	if isEmailChanged {
+		if err := c.Bus.Emit(context.Background(), EventUserResetEmail, u); err != nil {
+			return err
+		}
 	}
 
 	return nil

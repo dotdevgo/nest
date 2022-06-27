@@ -285,6 +285,10 @@ func (w *Kernel) start() {
 	w.ResolveFn(&v)
 	w.Validator = &EchoValidator{validator: v}
 
+	w.Provide(func() echo.Validator {
+		return w.Validator
+	})
+
 	// TODO: refactor
 	// Custom
 	if err := w.Invoke(w.boot); err != nil {

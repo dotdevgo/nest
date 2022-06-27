@@ -198,8 +198,8 @@ func (c AuthController) Update(ctx nest.Context) error {
 	input.Pk = u.Pk
 	input.ID = u.ID
 
-	if err := c.Crud.IsValid(ctx, &input); err != nil {
-		return nest.NewValidatorError(ctx, err)
+	if err := ctx.Bind(&input); err != nil {
+		return err
 	}
 
 	if err := c.Auth.Save(u, input); err != nil {
@@ -207,5 +207,4 @@ func (c AuthController) Update(ctx nest.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, u)
-	// return ctx.NoContent(http.StatusOK)
 }
