@@ -3,9 +3,13 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/mail"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"dotdev/nest/pkg/user"
 	"dotdev/nest/pkg/utils"
@@ -13,6 +17,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/goava/di"
 	"github.com/labstack/echo/v4"
+	"github.com/markbates/goth"
 	"github.com/mustafaturan/bus/v3"
 )
 
@@ -161,6 +166,55 @@ func (c AuthService) Restore(input IdentityDto) error {
 	}
 
 	return nil
+}
+
+// OAuth godoc
+func (c AuthService) OAuth(gothUser goth.User) (OAuth, error) {
+	oauth := OAuth{
+		UniqueID: gothUser.UserID,
+		Provider: gothUser.Provider,
+	}
+	result := c.Crud.DB().Preload(clause.Associations).First(&oauth)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		password := utils.RandomStr(nil)
+		pass, err := c.hashPassword(password)
+		if err != nil {
+			return oauth, err
+		}
+
+		_, err = mail.ParseAddress(gothUser.Email)
+		email := gothUser.Email
+		if nil != err {
+			// TODO: config domain variable
+			email = fmt.Sprintf("%s@%s.4squad.net", oauth.UniqueID, oauth.Provider)
+		}
+
+		u := user.User{
+			Username:    gothUser.NickName,
+			DisplayName: fmt.Sprintf("%s (%s)", gothUser.NickName, gothUser.Name),
+			Email:       email,
+			Password:    pass,
+		}
+
+		oauth.User = &u
+		if err := c.Crud.DB().Create(&u).Error; err != nil {
+			return oauth, err
+		}
+
+		if err := c.Crud.DB().Create(&oauth).Error; err != nil {
+			return oauth, err
+		}
+	}
+
+	oauth.User.SetAttribute("steam", oauth.UniqueID)
+	if err := c.Crud.DB().Save(oauth.User).Error; err != nil {
+		return oauth, err
+	}
+
+	// u.SetAttribute("oauth_id", gothUser.UserID)
+	// u.SetAttribute("oauth_avatar", gothUser.AvatarURL)
+
+	return oauth, nil
 }
 
 // ResetToken godoc

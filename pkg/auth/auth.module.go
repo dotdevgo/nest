@@ -8,6 +8,7 @@ import (
 	"github.com/joeshaw/envdecode"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/steam"
+	"gorm.io/gorm"
 
 	"dotdev/nest/pkg/nest"
 
@@ -25,6 +26,9 @@ func New() di.Option {
 			}
 			// utils.NoErrorOrFatal(err)
 			return cfg
+		}),
+		di.Invoke(func(db *gorm.DB) error {
+			return db.AutoMigrate(&OAuth{})
 		}),
 		di.Provide(func() *AuthService {
 			return &AuthService{}

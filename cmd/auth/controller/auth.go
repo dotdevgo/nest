@@ -1,7 +1,10 @@
 package controller
 
 import (
+	"fmt"
+	"net"
 	"net/http"
+	"net/url"
 
 	"dotdev/nest/pkg/auth"
 	"dotdev/nest/pkg/nest"
@@ -58,8 +61,37 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 	values.Add("provider", ctx.Param("provider"))
 	req.URL.RawQuery = values.Encode()
 
-	if user, err := gothic.CompleteUserAuth(res, req); err == nil {
-		return ctx.JSON(http.StatusOK, user)
+	if oauthUser, err := gothic.CompleteUserAuth(res, req); err == nil {
+		oauth, err := c.Auth.OAuth(oauthUser)
+		if err != nil {
+			return nest.NewHTTPError(http.StatusBadRequest, err)
+		}
+
+		token, err := c.Auth.NewToken(*oauth.User)
+		if err != nil {
+			return nest.NewHTTPError(http.StatusBadRequest, err)
+		}
+
+		u, err := url.Parse(c.Config.HTTP.Origin)
+		if err != nil {
+			return nest.NewHTTPError(http.StatusBadRequest, err)
+		}
+
+		domain, _, _ := net.SplitHostPort(u.Host)
+		// origin, err := url.Parse(c.Config.HTTP.Origin)
+
+		cookie := http.Cookie{
+			Name:     "_SSO_TOKEN",
+			Value:    token,
+			Path:     "/",
+			Domain:   domain,
+			HttpOnly: false,
+			SameSite: http.SameSiteLaxMode,
+		}
+
+		ctx.SetCookie(&cookie)
+		redirectUrl := fmt.Sprintf("%s/auth/oauth", c.Config.HTTP.Origin)
+		return ctx.Redirect(http.StatusMovedPermanently, redirectUrl)
 	}
 
 	gothic.BeginAuthHandler(res, req)
