@@ -86,6 +86,7 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 			Path:     "/",
 			Domain:   domain,
 			HttpOnly: false,
+			Secure:   ctx.IsTLS(),
 			SameSite: http.SameSiteLaxMode,
 		}
 
