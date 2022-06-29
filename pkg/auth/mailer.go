@@ -27,11 +27,11 @@ func (m AuthMailer) SignUp(u user.User) hermes.Email {
 		Body: hermes.Body{
 			Name: u.Username,
 			Intros: []string{
-				"Welcome to GamerApp! We're very excited to have you on board.",
+				fmt.Sprintf("Welcome to %s! We're very excited to have you on board.", m.Config.App.Name),
 			},
 			Actions: []hermes.Action{
 				{
-					Instructions: "To get started with GamerApp, please click here:",
+					Instructions: fmt.Sprintf("To get started with %s, please click here:", m.Config.App.Name),
 					Button: hermes.Button{
 						Color: "#22BC66",
 						Text:  "Confirm your account",

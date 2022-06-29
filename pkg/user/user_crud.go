@@ -2,10 +2,21 @@ package user
 
 import (
 	"dotdev/nest/pkg/crud"
+	"dotdev/nest/pkg/paginator"
 )
 
 type UserCrud struct {
 	*crud.Crud[*User]
+}
+
+type UserList []*User
+type UserPaginator *paginator.Result[*UserList]
+
+// Paginate godoc
+func (s UserCrud) Paginate(result interface{}, pagination []paginator.Option, options ...crud.Option) (UserPaginator, error) {
+	var stmt = s.Stmt(options...)
+
+	return paginator.Paginate[*UserList](stmt, result, pagination...)
 }
 
 // FindByIdentity godoc
