@@ -273,15 +273,21 @@ func (w *Kernel) Start(address string) error {
 	return w.Echo.StartServer(w.Echo.Server)
 }
 
+var isBooted = false
+
 // Serve starts an HTTP server on default port.
 func (w *Kernel) Serve() error {
+	if !isBooted {
+		if err := w.Boot(); err != nil {
+			return err
+		}
+	}
+
 	var config Config
 	w.ResolveFn(&config)
 
 	return w.Start(fmt.Sprintf(":%v", config.HTTP.Port))
 }
-
-var isBooted = false
 
 // Boot godoc
 func (w *Kernel) Boot() error {
@@ -291,6 +297,7 @@ func (w *Kernel) Boot() error {
 
 	isBooted = true
 
+	// TODO: refactor
 	// Set custom validator
 	var v *validator.Validate
 	w.ResolveFn(&v)
