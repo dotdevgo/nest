@@ -6,9 +6,13 @@ import (
 	"gorm.io/gorm"
 )
 
-type PaginatorResult interface {
-	IsPaginatorResult()
-}
+// type PaginatorResult interface {
+// 	IsPaginatorResult()
+// }
+
+// func (Result[T]) IsPaginatorResult() {}
+
+// func (*Result[T]) IsPaginatorResult() {}
 
 // DefaultLimit defines the default limit for paginated queries. This is a
 // variable so that users can configure it at runtime.
@@ -170,7 +174,3 @@ func (r *Result[T]) IsLastPage() bool {
 func (r *Result[T]) IsFirstPage() bool {
 	return r.CurrentPage <= 1
 }
-
-func (Result[T]) IsPaginatorResult() {}
-
-// func (*Result[T]) IsPaginatorResult() {}
