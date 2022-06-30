@@ -35,7 +35,7 @@ func NewValidatorError(ctx Context, err error) error {
 			errs[i] = ApiError{Field: strings.ToLower(fe.Field()), Msg: fe.Error()}
 		}
 
-		return ctx.JSON(http.StatusBadRequest, echo.Map{"errors": errs})
+		return ctx.JSON(http.StatusBadRequest, &echo.Map{"errors": errs})
 	}
 
 	return NewHTTPError(http.StatusBadRequest, err.Error())

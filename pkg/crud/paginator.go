@@ -1,9 +1,8 @@
 package crud
 
 import (
-	"net/http"
-
 	"dotdev/nest/pkg/paginator"
+	"net/http"
 )
 
 type (

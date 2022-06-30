@@ -3,7 +3,6 @@
 package paginator
 
 import (
-	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
@@ -39,13 +38,13 @@ type countResult struct {
 
 // Result defines a paginated result.
 type Result[T any] struct {
-	CurrentPage    int       `json:"currentPage"`
-	Offset         int       `json:"offset"`
-	MaxPage        int       `json:"maxPage"`
-	RecordsPerPage int       `json:"recordsPerPage"`
-	TotalRecords   int64     `json:"totalRecords"`
-	Records        T         `json:"records"`
-	Meta           *echo.Map `json:"meta"`
+	CurrentPage    int         `json:"currentPage" gqlgen:"currentPage"`
+	Offset         int         `json:"offset" gqlgen:"offset"`
+	MaxPage        int         `json:"maxPage" gqlgen:"maxPage"`
+	RecordsPerPage int         `json:"recordsPerPage" gqlgen:"recordsPerPage"`
+	TotalRecords   int64       `json:"totalRecords" gqlgen:"totalRecords"`
+	Records        T           `json:"records" gqlgen:"records"`
+	Meta           interface{} `json:"meta" gqlgen:"meta"`
 }
 
 // New create a new value of the Paginator type. It expects a gorm DB handle
@@ -173,3 +172,5 @@ func (r *Result[T]) IsFirstPage() bool {
 }
 
 func (Result[T]) IsPaginatorResult() {}
+
+// func (*Result[T]) IsPaginatorResult() {}

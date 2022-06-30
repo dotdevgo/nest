@@ -206,13 +206,13 @@ func (c AuthService) OAuth(gothUser goth.User) (OAuth, error) {
 		}
 	}
 
-	oauth.User.SetAttribute("steam", oauth.UniqueID)
+	oauthAttribute := fmt.Sprintf("oauth_%s", oauth.Provider)
+	oauth.User.SetAttribute(oauthAttribute, oauth.UniqueID)
+	// oauth.User.SetAttribute("oauth_avatar", gothUser.AvatarURL)
+
 	if err := c.Crud.DB().Save(oauth.User).Error; err != nil {
 		return oauth, err
 	}
-
-	// u.SetAttribute("oauth_id", gothUser.UserID)
-	// u.SetAttribute("oauth_avatar", gothUser.AvatarURL)
 
 	return oauth, nil
 }

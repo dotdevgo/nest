@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"dotdev/nest/cmd/api/config"
-	authcmd "dotdev/nest/cmd/auth"
 	"dotdev/nest/pkg/auth"
 	"dotdev/nest/pkg/mailer"
 	"dotdev/nest/pkg/nest"
@@ -21,11 +20,11 @@ func main() {
 
 	e := nest.New(
 		kernel.New(),
-		injector.NewOrm(),
+		injector.Orm(),
 		mailer.New(config.Hermes()),
 		user.New(),
 		auth.New(),
-		authcmd.NewRouter(),
+		// authcmd.NewRouter(),
 	)
 
 	// e.Use(middleware.Logger())

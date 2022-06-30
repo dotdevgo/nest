@@ -4,10 +4,13 @@ package crud
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
+	"log"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
-	"github.com/labstack/echo/v4"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -23,7 +26,7 @@ type (
 	}
 
 	Attributes struct {
-		RawAttributes echo.Map       `gorm:"-" json:"attributes" form:"attributes"`
+		RawAttributes JSON           `gorm:"-" json:"attributes" form:"attributes"`
 		Attributes    datatypes.JSON `json:"-"`
 	}
 
@@ -71,10 +74,10 @@ func (m *Attributes) BeforeSave(tx *gorm.DB) (err error) {
 }
 
 // GetAttributes godoc
-func (m *Attributes) GetAttributes() (echo.Map, error) {
+func (m *Attributes) GetAttributes() (JSON, error) {
 	// TODO: Refactor
 	jsonAttr := m.Attributes.String()
-	var attributes echo.Map
+	var attributes JSON
 	if err := json.Unmarshal([]byte(jsonAttr), &attributes); err != nil {
 		return attributes, err
 	}
@@ -83,7 +86,7 @@ func (m *Attributes) GetAttributes() (echo.Map, error) {
 }
 
 // AddAttributes godoc
-func (m *Attributes) AddAttributes(attr echo.Map) error {
+func (m *Attributes) AddAttributes(attr JSON) error {
 	for name, value := range attr {
 		m.SetAttribute(name, value)
 	}
@@ -133,7 +136,7 @@ func (m *Attributes) parseAttributes() (err error) {
 		return
 	}
 
-	var data echo.Map = echo.Map{}
+	var data JSON = JSON{}
 	m.RawAttributes = data
 
 	val, err := m.Attributes.Value()
@@ -151,6 +154,60 @@ func (m *Attributes) parseAttributes() (err error) {
 
 	return
 }
+
+type JSON map[string]interface{}
+
+func MarshalJSON(b JSON) graphql.Marshaler {
+	return graphql.WriterFunc(func(w io.Writer) {
+		byteData, err := json.Marshal(b)
+		if err != nil {
+			log.Printf("FAIL WHILE MARSHAL JSON %v\n", string(byteData))
+		}
+		_, err = w.Write(byteData)
+		if err != nil {
+			log.Printf("FAIL WHILE WRITE DATA %v\n", string(byteData))
+		}
+	})
+}
+
+func UnmarshalJSON(v interface{}) (JSON, error) {
+	byteData, err := json.Marshal(v)
+	if err != nil {
+		return JSON{}, fmt.Errorf("FAIL WHILE MARSHAL SCHEME")
+	}
+	tmp := make(map[string]interface{})
+	err = json.Unmarshal(byteData, &tmp)
+	if err != nil {
+		return JSON{}, fmt.Errorf("FAIL WHILE UNMARSHAL SCHEME")
+	}
+	return tmp, nil
+}
+
+// func MarshalAttributes(b Attributes) graphql.Marshaler {
+// 	return gqlgen.WriterFunc(func(w io.Writer) {
+// 		byteData, err := json.Marshal(b)
+// 		if err != nil {
+// 			log.Printf("FAIL WHILE MARSHAL JSON %v\n", string(byteData))
+// 		}
+// 		_, err = w.Write(byteData)
+// 		if err != nil {
+// 			log.Printf("FAIL WHILE WRITE DATA %v\n", string(byteData))
+// 		}
+// 	})
+// }
+
+// func UnmarshalAttributes(v interface{}) (Attributes, error) {
+// 	byteData, err := json.Marshal(v)
+// 	if err != nil {
+// 		return Attributes{}, fmt.Errorf("FAIL WHILE MARSHAL SCHEME")
+// 	}
+// 	tmp := Attributes{}
+// 	err = json.Unmarshal(byteData, &tmp)
+// 	if err != nil {
+// 		return Attributes{}, fmt.Errorf("FAIL WHILE UNMARSHAL SCHEME")
+// 	}
+// 	return tmp, nil
+// }
 
 // if nil == m.Attributes {
 // 	m.Attributes = datatypes.JSON([]byte(`{"test":"row"}`))

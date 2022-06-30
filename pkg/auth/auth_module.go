@@ -60,6 +60,7 @@ func (p AuthModule) Boot(w *nest.Kernel) error {
 
 	api := w.Secure()
 	api.Use(JwtMiddleware(authConfig))
+	api.Use(Middleware())
 
 	return nil
 }

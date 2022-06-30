@@ -1,6 +1,7 @@
 package nest
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -76,6 +77,8 @@ func New(m ...di.Option) *Kernel {
 	utils.NoErrorOrFatal(container.Provide(func() *Kernel {
 		return w
 	}))
+
+	utils.NoErrorOrFatal(w.Boot())
 
 	return w
 }
@@ -278,8 +281,16 @@ func (w *Kernel) Serve() error {
 	return w.Start(fmt.Sprintf(":%v", config.HTTP.Port))
 }
 
-// start godoc
-func (w *Kernel) start() {
+var isBooted = false
+
+// Boot godoc
+func (w *Kernel) Boot() error {
+	if isBooted {
+		return errors.New("Already booted")
+	}
+
+	isBooted = true
+
 	// Set custom validator
 	var v *validator.Validate
 	w.ResolveFn(&v)
@@ -292,8 +303,15 @@ func (w *Kernel) start() {
 	// TODO: refactor
 	// Custom
 	if err := w.Invoke(w.boot); err != nil {
-		w.Logger.Fatal(err)
+		return err
 	}
+
+	return nil
+}
+
+// start godoc
+func (w *Kernel) start() {
+	// w.Boot()
 
 	if err := w.Invoke(w.router); err != nil {
 		w.Logger.Fatal(err)
