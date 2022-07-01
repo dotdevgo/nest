@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"dotdev/nest/cmd/api/config"
+	"dotdev/nest/examples/api/config"
 	"dotdev/nest/pkg/auth"
 	"dotdev/nest/pkg/mailer"
 	"dotdev/nest/pkg/nest"
@@ -27,7 +27,7 @@ func main() {
 		// authcmd.NewRouter(),
 	)
 
-	// e.Use(middleware.Logger())
+	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
