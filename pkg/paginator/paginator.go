@@ -25,6 +25,11 @@ type Paginator[T any] interface {
 	Paginate(interface{}) (*Result[T], error)
 }
 
+type Params struct {
+	Offset *int `json:"offset"`
+	Limit  *int `json:"limit"`
+}
+
 // paginator defines a paginator.
 type paginator[T any] struct {
 	db     *gorm.DB

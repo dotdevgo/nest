@@ -104,6 +104,8 @@ func (m *Attributes) SetAttribute(name string, value any) error {
 	attr[name] = value
 	m.RawAttributes = attr
 
+	// m.Attributes[name] = value
+
 	return nil
 }
 

@@ -13,8 +13,8 @@ func New() di.Option {
 		di.Provide(func() *controller.AuthController {
 			return &controller.AuthController{}
 		}, di.As(new(nest.Controller))),
-		di.Provide(func() *controller.UserController {
-			return &controller.UserController{}
-		}, di.As(new(nest.Controller))),
+		// di.Provide(func() *controller.UserController {
+		// 	return &controller.UserController{}
+		// }, di.As(new(nest.Controller))),
 	)
 }
