@@ -170,12 +170,16 @@ func (c AuthService) Restore(input IdentityDto) error {
 
 // OAuth godoc
 func (c AuthService) OAuth(gothUser goth.User) (OAuth, error) {
-	oauth := OAuth{
-		UniqueID: gothUser.UserID,
-		Provider: gothUser.Provider,
-	}
-	result := c.Crud.DB().Preload(clause.Associations).First(&oauth)
+	oauth := OAuth{}
+
+	result := c.Crud.DB().Preload(clause.Associations).
+		Where("unique_id = ? AND provider = ?", gothUser.UserID, gothUser.Provider).
+		First(&oauth)
+
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		oauth.Provider = gothUser.Provider
+		oauth.UniqueID = gothUser.UserID
+
 		password := utils.RandomStr(nil)
 		pass, err := c.hashPassword(password)
 		if err != nil {
@@ -186,15 +190,18 @@ func (c AuthService) OAuth(gothUser goth.User) (OAuth, error) {
 		email := gothUser.Email
 		if nil != err {
 			// TODO: config domain variable
-			email = fmt.Sprintf("%s@%s.4squad.net", oauth.UniqueID, oauth.Provider)
+			email = fmt.Sprintf("%s-%s@4squad.net", oauth.UniqueID, oauth.Provider)
 		}
 
 		u := user.User{
-			Username:    gothUser.NickName,
+			Username:    gothUser.UserID,
 			DisplayName: fmt.Sprintf("%s (%s)", gothUser.NickName, gothUser.Name),
 			Email:       email,
 			Password:    pass,
 		}
+
+		// oauthAttribute := fmt.Sprintf("oauth_%s", oauth.Provider)
+		// u.SetAttribute(oauthAttribute, oauth.UniqueID)
 
 		oauth.User = &u
 		if err := c.Crud.DB().Create(&u).Error; err != nil {
@@ -204,14 +211,6 @@ func (c AuthService) OAuth(gothUser goth.User) (OAuth, error) {
 		if err := c.Crud.DB().Create(&oauth).Error; err != nil {
 			return oauth, err
 		}
-	}
-
-	oauthAttribute := fmt.Sprintf("oauth_%s", oauth.Provider)
-	oauth.User.SetAttribute(oauthAttribute, oauth.UniqueID)
-	// oauth.User.SetAttribute("oauth_avatar", gothUser.AvatarURL)
-
-	if err := c.Crud.DB().Save(oauth.User).Error; err != nil {
-		return oauth, err
 	}
 
 	return oauth, nil

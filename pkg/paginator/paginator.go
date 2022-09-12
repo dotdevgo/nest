@@ -16,7 +16,7 @@ import (
 
 // DefaultLimit defines the default limit for paginated queries. This is a
 // variable so that users can configure it at runtime.
-var DefaultLimit = 10
+var DefaultLimit = 3
 
 // Paginator defines the interface for a paginator.
 type Paginator[T any] interface {
@@ -58,9 +58,10 @@ type Result[T any] struct {
 
 // New create a new value of the Paginator type. It expects a gorm DB handle
 // and pagination options.
-//     var v []SomeModel
-//     p := gorm-paginator.New(db, gorm-paginator.WithPage(2))
-//     res, err := p.Paginate(&v)
+//
+//	var v []SomeModel
+//	p := gorm-paginator.New(db, gorm-paginator.WithPage(2))
+//	res, err := p.Paginate(&v)
 func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
 	tx := db.Session(&gorm.Session{})
 	p := &paginator[any]{
@@ -87,8 +88,9 @@ func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
 }
 
 // Paginate is a convenience wrapper for the paginator.
-//     var v []SomeModel
-//     res, err := gorm-paginator.Paginate(db, &v, gorm-paginator.WithPage(2))
+//
+//	var v []SomeModel
+//	res, err := gorm-paginator.Paginate(db, &v, gorm-paginator.WithPage(2))
 func Paginate[T any](
 	db *gorm.DB,
 	value interface{},

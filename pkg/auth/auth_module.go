@@ -7,6 +7,7 @@ import (
 
 	"github.com/joeshaw/envdecode"
 	"github.com/markbates/goth"
+	"github.com/markbates/goth/providers/discord"
 	"github.com/markbates/goth/providers/steam"
 	"gorm.io/gorm"
 
@@ -105,11 +106,20 @@ func (p AuthModule) RegisterAuthProviders(w *nest.Kernel) {
 	var authConfig AuthConfig
 	w.ResolveFn(&authConfig)
 
+	callbackUrl := fmt.Sprintf("%s/auth/callback", w.Config.HTTP.Hostname)
+
 	// TODO: refactor
 	var arr []goth.Provider
 	if authConfig.SteamApiKey != "" {
-		arr = append(arr, steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/auth/callback/steam", w.Config.HTTP.Hostname)))
+		steamProvider := steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/steam", callbackUrl))
+		arr = append(arr, steamProvider)
 		w.Logger.Info("[Auth] Register provider: \"steam\"")
+	}
+
+	if authConfig.DiscordAppId != "" {
+		discordProvider := discord.New(authConfig.DiscordAppId, authConfig.DiscordSecret, fmt.Sprintf("%s/discord", callbackUrl))
+		arr = append(arr, discordProvider)
+		w.Logger.Info("[Auth] Register provider: \"discord\"")
 	}
 
 	goth.UseProviders(arr...)

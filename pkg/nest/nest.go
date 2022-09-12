@@ -321,7 +321,7 @@ func (w *Kernel) start() {
 	// w.Boot()
 
 	if err := w.Invoke(w.router); err != nil {
-		w.Logger.Fatal(err)
+		w.Logger.Fatal(err.Error())
 	}
 }
 
