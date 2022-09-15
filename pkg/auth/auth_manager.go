@@ -26,8 +26,8 @@ const (
 	AttributeConfirmToken = "confirmToken"
 )
 
-// AuthService godoc
-type AuthService struct {
+// AuthManager godoc
+type AuthManager struct {
 	di.Inject
 	*bus.Bus
 	AuthConfig
@@ -36,7 +36,7 @@ type AuthService struct {
 }
 
 // Validate godoc
-func (c AuthService) Validate(input SignInDto) (user.User, error) {
+func (c AuthManager) Validate(input SignInDto) (user.User, error) {
 	u, err := c.Crud.FindByIdentity(input.Identity)
 	if err != nil {
 		return u, err
@@ -54,7 +54,7 @@ func (c AuthService) Validate(input SignInDto) (user.User, error) {
 }
 
 // NewToken godoc
-func (c AuthService) NewToken(u user.User) (string, error) {
+func (c AuthManager) NewToken(u user.User) (string, error) {
 	claims := NewJwtClaims(u.ID)
 
 	// Create token with claims
@@ -70,7 +70,7 @@ func (c AuthService) NewToken(u user.User) (string, error) {
 }
 
 // ChangePassword godoc
-func (c AuthService) ChangePassword(u user.User, input ChangePasswordDto) error {
+func (c AuthManager) ChangePassword(u user.User, input ChangePasswordDto) error {
 	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
 		return ErrorInvalidPassword
 	}
@@ -90,7 +90,7 @@ func (c AuthService) ChangePassword(u user.User, input ChangePasswordDto) error 
 }
 
 // SignUp godoc
-func (c AuthService) SignUp(input SignUpDto) (user.User, error) {
+func (c AuthManager) SignUp(input SignUpDto) (user.User, error) {
 	var u user.User
 	utils.Copy(&u, &input)
 
@@ -119,7 +119,7 @@ func (c AuthService) SignUp(input SignUpDto) (user.User, error) {
 }
 
 // Confirm godoc
-func (c AuthService) Confirm(token string) error {
+func (c AuthManager) Confirm(token string) error {
 	var u user.User
 
 	result := c.Crud.Stmt().
@@ -145,7 +145,7 @@ func (c AuthService) Confirm(token string) error {
 }
 
 // Restore godoc
-func (c AuthService) Restore(input IdentityDto) error {
+func (c AuthManager) Restore(input IdentityDto) error {
 	u, err := c.Crud.FindByIdentity(input.Identity)
 	if err != nil {
 		return err
@@ -169,7 +169,7 @@ func (c AuthService) Restore(input IdentityDto) error {
 }
 
 // OAuth godoc
-func (c AuthService) OAuth(gothUser goth.User) (OAuth, error) {
+func (c AuthManager) OAuth(gothUser goth.User) (OAuth, error) {
 	oauth := OAuth{}
 
 	result := c.Crud.DB().Preload(clause.Associations).
@@ -217,7 +217,7 @@ func (c AuthService) OAuth(gothUser goth.User) (OAuth, error) {
 }
 
 // ResetToken godoc
-func (c AuthService) ResetToken(u user.User, token string) error {
+func (c AuthManager) ResetToken(u user.User, token string) error {
 	if u.IsDisabled {
 		return ErrorUserDisabled
 	}
@@ -249,7 +249,7 @@ func (c AuthService) ResetToken(u user.User, token string) error {
 }
 
 // Save godoc
-func (c AuthService) Save(u *user.User, input user.UserDto) error {
+func (c AuthManager) Save(u *user.User, input user.UserDto) error {
 	if nil != input.RawAttributes {
 		u.AddAttributes(input.RawAttributes)
 	}
@@ -294,7 +294,7 @@ func (c AuthService) Save(u *user.User, input user.UserDto) error {
 }
 
 // hashPassword godoc
-func (c AuthService) hashPassword(pass string) (password []byte, err error) {
+func (c AuthManager) hashPassword(pass string) (password []byte, err error) {
 	password, err = bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
 		return password, err

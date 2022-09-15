@@ -33,7 +33,7 @@ type AuthController struct {
 	kernel.Controller
 	nest.Config
 	Crud *user.UserCrud
-	Auth *auth.AuthService
+	Auth *auth.AuthManager
 }
 
 func (c AuthController) Router(w *nest.Kernel) {

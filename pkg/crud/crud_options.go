@@ -15,6 +15,13 @@ func WithScope(funcs ...func(*gorm.DB) *gorm.DB) Option {
 	}
 }
 
+// WithSelect godoc
+func WithSelect(query interface{}, args ...interface{}) Option {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Select(query, args...)
+	}
+}
+
 // WithPreload godoc
 func WithPreload(model string, args ...interface{}) Option {
 	return func(db *gorm.DB) *gorm.DB {

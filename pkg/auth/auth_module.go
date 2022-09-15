@@ -31,8 +31,8 @@ func New() di.Option {
 		di.Invoke(func(db *gorm.DB) error {
 			return db.AutoMigrate(&OAuth{})
 		}),
-		di.Provide(func() *AuthService {
-			return &AuthService{}
+		di.Provide(func() *AuthManager {
+			return &AuthManager{}
 		}),
 		di.Provide(func() *AuthHooks {
 			return &AuthHooks{}
