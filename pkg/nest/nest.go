@@ -36,6 +36,7 @@ type (
 	// ApiGroup godoc
 	// ApiGroup interface{}
 	// ApiGroup godoc
+
 	SecureGroup interface{}
 	// ContainerHandlerFunc godoc
 	ContainerHandlerFunc func(Context) interface{}
@@ -129,36 +130,36 @@ func (w *Kernel) Secure() *Group {
 	return e
 }
 
-// Invoke calls the function fn. It parses function parameters. Looks for it in a container.
+// InvokeFn Invoke calls the function fn. It parses function parameters. Looks for it in a container.
 // And invokes function with them. See Invocation for details.
-func (c *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
-	if err := c.Invoke(invocation, options...); err != nil {
-		c.Logger.Panic(err)
+func (w *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
+	if err := w.Invoke(invocation, options...); err != nil {
+		w.Logger.Panic(err)
 	}
 }
 
-// Provide provides to container reliable way to build type. The constructor will be invoked lazily on-demand.
+// ProvideFn Provide provides to container reliable way to build type. The constructor will be invoked lazily on-demand.
 // For more information about constructors see Constructor interface. ProvideOption can add additional behavior to
 // the process of type resolving.
-func (c *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
-	if err := c.Provide(constructor, options...); err != nil {
-		c.Logger.Panic(err)
+func (w *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
+	if err := w.Provide(constructor, options...); err != nil {
+		w.Logger.Panic(err)
 	}
 }
 
-// Resolve resolves type and fills target pointer.
+// ResolveFn Resolve resolves type and fills target pointer.
 //
 //	var server *http.Server
 //	if err := container.Resolve(&server); err != nil {
 //		// handle error
 //	}
-func (c *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
-	if err := c.Resolve(ptr, options...); err != nil {
-		c.Logger.Panicf("%s", err)
+func (w *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
+	if err := w.Resolve(ptr, options...); err != nil {
+		w.Logger.Panicf("%s", err)
 	}
 }
 
-// Handler Wrap route with DI args
+// HandlerFn Wrap route with DI args
 func (w *Kernel) HandlerFn(handlerFunc ContainerHandlerFunc) HandlerFunc {
 	return func(c Context) error {
 		//cc := &context{c, w.Container}
@@ -250,8 +251,8 @@ func (w *Kernel) Match(methods []string, path string, handler HandlerFunc, middl
 }
 
 // Group creates a new router group with prefix and optional group-level middleware.
-func (e *Kernel) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
-	g = &Group{prefix: prefix, echo: e}
+func (w *Kernel) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
+	g = &Group{prefix: prefix, echo: w}
 	g.Use(m...)
 	return
 }
@@ -292,7 +293,7 @@ func (w *Kernel) Serve() error {
 // Boot godoc
 func (w *Kernel) Boot() error {
 	if isBooted {
-		return errors.New("Already booted")
+		return errors.New("is booted")
 	}
 
 	isBooted = true
@@ -303,9 +304,11 @@ func (w *Kernel) Boot() error {
 	w.ResolveFn(&v)
 	w.Validator = &EchoValidator{validator: v}
 
-	w.Provide(func() echo.Validator {
+	if err := w.Provide(func() echo.Validator {
 		return w.Validator
-	})
+	}); err != nil {
+		return err
+	}
 
 	// TODO: refactor
 	// Custom
@@ -318,10 +321,8 @@ func (w *Kernel) Boot() error {
 
 // start godoc
 func (w *Kernel) start() {
-	// w.Boot()
-
 	if err := w.Invoke(w.router); err != nil {
-		w.Logger.Fatal(err.Error())
+		w.Logger.Warn(err.Error())
 	}
 }
 

@@ -191,7 +191,7 @@ func (c AuthController) ResetToken(ctx nest.Context) error {
 
 // Me godoc
 func (c AuthController) Me(ctx nest.Context) error {
-	cc := auth.NewContext(ctx)
+	cc := auth.Context(ctx)
 	u := cc.User()
 	if u == nil {
 		return nest.NewHTTPError(http.StatusBadRequest)
@@ -202,7 +202,7 @@ func (c AuthController) Me(ctx nest.Context) error {
 
 // ChangePassword godoc
 func (c AuthController) ChangePassword(ctx nest.Context) error {
-	cc := auth.NewContext(ctx)
+	cc := auth.Context(ctx)
 	u := cc.User()
 	if u == nil {
 		return nest.NewHTTPError(http.StatusBadRequest)
@@ -223,7 +223,7 @@ func (c AuthController) ChangePassword(ctx nest.Context) error {
 
 // Update godoc
 func (c AuthController) Update(ctx nest.Context) error {
-	cc := auth.NewContext(ctx)
+	cc := auth.Context(ctx)
 	u := cc.User()
 	if u == nil {
 		return nest.NewHTTPError(http.StatusBadRequest)

@@ -26,7 +26,7 @@ func (cv *EchoValidator) Validate(i interface{}) error {
 	return nil
 }
 
-// NewError godoc
+// NewValidatorError godoc
 func NewValidatorError(ctx Context, err error) error {
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {

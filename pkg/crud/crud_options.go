@@ -29,8 +29,8 @@ func WithPreload(model string, args ...interface{}) Option {
 	}
 }
 
-// WithContext godoc
-func WithContext(ctx context.Context) Option {
+// WithDbContext godoc
+func WithDbContext(ctx context.Context) Option {
 	return func(db *gorm.DB) *gorm.DB {
 		return db.WithContext(ctx)
 	}

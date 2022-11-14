@@ -6,7 +6,7 @@ import (
 	"github.com/goava/di"
 )
 
-// NewHermes godoc
+// New godoc
 func New(h *hermes.Hermes) di.Option {
 	return di.Options(
 		di.Provide(func() *hermes.Hermes {

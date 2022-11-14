@@ -37,8 +37,8 @@ func (c AuthContext) User() *user.User {
 	return &u
 }
 
-// NewContext godoc
-func NewContext(ctx nest.Context) *AuthContext {
+// Context godoc
+func Context(ctx nest.Context) *AuthContext {
 	cc := &AuthContext{Context: ctx}
 	return cc
 }

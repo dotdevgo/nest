@@ -40,19 +40,18 @@ func New() di.Option {
 		di.Provide(func() *AuthMailer {
 			return &AuthMailer{}
 		}),
-		di.Provide(func() *AuthModule {
-			return &AuthModule{}
+		di.Provide(func() *module {
+			return &module{}
 		}, di.As(new(nest.ContainerModule))),
 	)
 }
 
-// AuthModule godoc
-type AuthModule struct {
+type module struct {
 	nest.ContainerModule
 }
 
 // Boot godoc
-func (p AuthModule) Boot(w *nest.Kernel) error {
+func (p module) Boot(w *nest.Kernel) error {
 	p.RegisterTopics(w)
 	p.RegisterAuthProviders(w)
 
@@ -67,7 +66,7 @@ func (p AuthModule) Boot(w *nest.Kernel) error {
 }
 
 // RegisterTopics godoc
-func (p AuthModule) RegisterTopics(w *nest.Kernel) {
+func (p module) RegisterTopics(w *nest.Kernel) {
 	var b *bus.Bus
 	w.ResolveFn(&b)
 
@@ -102,7 +101,7 @@ func (p AuthModule) RegisterTopics(w *nest.Kernel) {
 }
 
 // RegisterAuthProviders godoc
-func (p AuthModule) RegisterAuthProviders(w *nest.Kernel) {
+func (p module) RegisterAuthProviders(w *nest.Kernel) {
 	var authConfig AuthConfig
 	w.ResolveFn(&authConfig)
 

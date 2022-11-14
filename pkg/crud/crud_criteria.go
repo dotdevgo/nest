@@ -1,12 +1,8 @@
 package crud
 
 import (
-	"fmt"
-	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
-	"github.com/psampaz/slice"
 	"gorm.io/gorm"
 )
 
@@ -24,28 +20,6 @@ type (
 	Criteria    []CriteriaOption
 )
 
-// ScopeOrderBy godoc
-func ScopeOrderBy(column string, order string) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		return db.Order(fmt.Sprintf("%s %s", column, strings.ToUpper(order)))
-	}
-}
-
-// ScopeById godoc
-func ScopeById(result interface{}, id interface{}) func(db *gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		table := GetTableName(db, result)
-		str, ok := id.(string)
-		if ok {
-			_, err := uuid.Parse(str)
-			if err == nil {
-				return db.Where(table+".id = ?", id)
-			}
-		}
-		return db.Where(table+".pk = ?", id)
-	}
-}
-
 // WithCriteria godoc
 func WithCriteria(criteria Criteria) Option {
 	return func(db *gorm.DB) *gorm.DB {
@@ -58,22 +32,22 @@ func WithCriteria(criteria Criteria) Option {
 }
 
 // WithRequest godoc
-func WithRequest(r *http.Request) Option {
-	var criteria = Criteria{}
-
-	for name, val := range r.URL.Query() {
-		if slice.ContainsString(excludeNames, name) {
-			continue
-		}
-
-		criteria = append(
-			criteria,
-			convertQueryParamToCriteria(name, strings.Join(val, "")),
-		)
-	}
-
-	return WithCriteria(criteria)
-}
+//func WithRequest(r *http.Request) Option {
+//	var criteria = Criteria{}
+//
+//	for name, val := range r.URL.Query() {
+//		if slice.ContainsString(excludeNames, name) {
+//			continue
+//		}
+//
+//		criteria = append(
+//			criteria,
+//			convertQueryParamToCriteria(name, strings.Join(val, "")),
+//		)
+//	}
+//
+//	return WithCriteria(criteria)
+//}
 
 // Apply godoc
 func (c *CriteriaOption) Apply(db *gorm.DB) *gorm.DB {

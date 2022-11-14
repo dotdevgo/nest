@@ -1,5 +1,5 @@
 package crud
 
-type Context[In any] struct {
-	Input In
-}
+//type Context[In any] struct {
+//	Input In
+//}

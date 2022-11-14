@@ -33,7 +33,7 @@ func (s *Crud[T]) IsValid(ctx nest.Context, input interface{}) error {
 	return nil
 }
 
-// Save godoc
+// Flush godoc
 func (s *Crud[T]) Flush(data T) error {
 	if data.GetPk() > 0 || data.GetID() != "" {
 		return s.Tx().Save(data).Error

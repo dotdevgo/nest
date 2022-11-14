@@ -13,15 +13,14 @@ import (
 func I18n() di.Option {
 	return di.Options(
 		di.Provide(func() *i18n.Bundle {
-			var bundle *i18n.Bundle
-			bundle = i18n.NewBundle(language.English)
+			var bundle = i18n.NewBundle(language.English)
 			bundle.RegisterUnmarshalFunc("toml", toml.Unmarshal)
 			bundle.RegisterUnmarshalFunc("json", json.Unmarshal)
 
 			return bundle
 		}),
 		di.Provide(func(bundle *i18n.Bundle) *i18n.Localizer {
-			var localizer *i18n.Localizer = i18n.NewLocalizer(bundle)
+			var localizer = i18n.NewLocalizer(bundle)
 			return localizer
 		}),
 	)

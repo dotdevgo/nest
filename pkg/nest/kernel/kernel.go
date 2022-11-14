@@ -7,7 +7,7 @@ import (
 	"github.com/goava/di"
 )
 
-// Provider godoc
+// New godoc
 func New() di.Option {
 	nest.LoadEnv()
 
