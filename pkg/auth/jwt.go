@@ -30,16 +30,3 @@ func JwtMiddleware(config AuthConfig) echo.MiddlewareFunc {
 		},
 	})
 }
-
-// JwtClaims godoc
-// type JwtClaims struct {
-// 	Identity string `json:"identity"`
-// 	jwt.StandardClaims
-// }
-
-// return &JwtClaims{
-// 	username,
-// 	jwt.StandardClaims{
-// 		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
-// 	},
-// }

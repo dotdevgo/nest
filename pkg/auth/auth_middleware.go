@@ -11,10 +11,9 @@ import (
 func Middleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			cc := NewContext(ctx.(nest.Context))
-			u := cc.User()
+			c := Context(ctx.(nest.Context))
 
-			if u != nil {
+			if c.User() != nil {
 				authCtx := context.WithValue(ctx.Request().Context(), UserCtxKey, u)
 				ctx.SetRequest(ctx.Request().WithContext(authCtx))
 			}

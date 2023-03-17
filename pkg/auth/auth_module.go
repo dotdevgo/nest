@@ -42,12 +42,12 @@ func New() di.Option {
 		}),
 		di.Provide(func() *module {
 			return &module{}
-		}, di.As(new(nest.ContainerModule))),
+		}, di.As(new(nest.Extension))),
 	)
 }
 
 type module struct {
-	nest.ContainerModule
+	nest.Extension
 }
 
 // Boot godoc

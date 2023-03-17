@@ -71,9 +71,6 @@ func (h AuthHooks) ResetToken(ctx context.Context, e bus.Event) {
 		return
 	}
 
-	u := event.User
-	// logger.Log("AuthHooks: OnResetToken %v", u.ID)
-
 	go func() {
 		template := h.AuthMailer.ResetToken(event)
 		m, err := h.Mailer.NewEmail(template)
@@ -81,7 +78,7 @@ func (h AuthHooks) ResetToken(ctx context.Context, e bus.Event) {
 			return
 		}
 
-		m.To = []string{u.Email}
+		m.To = []string{event.User.Email}
 		m.Subject = "Password has been reset"
 
 		if err := h.Mailer.Send(m); err != nil {
