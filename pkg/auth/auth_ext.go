@@ -42,17 +42,18 @@ type authExt struct {
 
 // Boot godoc
 func (p authExt) Boot(w *nest.Kernel) error {
+	w.InvokeFn(p.RegisterMiddleware)
 	w.InvokeFn(p.RegisterTopics)
 	w.InvokeFn(p.RegisterAuthProviders)
 
-	var authConfig AuthConfig
-	w.ResolveFn(&authConfig)
+	return nil
+}
 
+// RegisterMiddleware godoc
+func (p authExt) RegisterMiddleware(w *nest.Kernel, authConfig AuthConfig) {
 	api := w.Secure()
 	api.Use(JwtMiddleware(authConfig))
 	api.Use(Middleware())
-
-	return nil
 }
 
 // RegisterTopics godoc
@@ -86,19 +87,17 @@ func (p authExt) RegisterTopics(w *nest.Kernel, b *bus.Bus, h *AuthHooks) {
 
 // RegisterAuthProviders godoc
 func (p authExt) RegisterAuthProviders(w *nest.Kernel, authConfig AuthConfig) {
-	// var authConfig AuthConfig
-	// w.ResolveFn(&authConfig)
+	var providers []goth.Provider
 
 	callbackUri := fmt.Sprintf("%s/auth/callback", w.Config.HTTP.Hostname)
 
-	var providers []goth.Provider
 	if authConfig.SteamApiKey != "" {
 		steamProvider := steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/steam", callbackUri))
 		providers = append(providers, steamProvider)
-		w.Logger.Info(fmt.Sprintf("AUTH: Provider loaded ==> steam (%s)", authConfig.SteamApiKey))
+		w.Logger.Info("AUTH: Provider loaded ==> steam", authConfig.SteamApiKey)
 	}
 
-	if authConfig.DiscordAppId != "" {
+	if authConfig.DiscordSecret != "" {
 		discordProvider := discord.New(authConfig.DiscordAppId, authConfig.DiscordSecret, fmt.Sprintf("%s/discord", callbackUri))
 		providers = append(providers, discordProvider)
 		w.Logger.Info("AUTH: Provider loaded ==> discord")
