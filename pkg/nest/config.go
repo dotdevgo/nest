@@ -151,5 +151,5 @@ func LoadEnv() {
 		return
 	}
 
-	logger.Log("Loaded env file ==> .env")
+	logger.Log("==> Loaded .env file")
 }

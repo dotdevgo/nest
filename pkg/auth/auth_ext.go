@@ -95,13 +95,13 @@ func (p authExt) RegisterAuthProviders(w *nest.Kernel, authConfig AuthConfig) {
 	if authConfig.SteamApiKey != "" {
 		steamProvider := steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/steam", callbackUri))
 		providers = append(providers, steamProvider)
-		w.Logger.Info("[Auth] Register provider: \"steam\"")
+		w.Logger.Info(fmt.Sprintf("AUTH: Provider loaded ==> steam (%s)", authConfig.SteamApiKey))
 	}
 
 	if authConfig.DiscordAppId != "" {
 		discordProvider := discord.New(authConfig.DiscordAppId, authConfig.DiscordSecret, fmt.Sprintf("%s/discord", callbackUri))
 		providers = append(providers, discordProvider)
-		w.Logger.Info("[Auth] Register provider: \"discord\"")
+		w.Logger.Info("AUTH: Provider loaded ==> discord")
 	}
 
 	goth.UseProviders(providers...)
