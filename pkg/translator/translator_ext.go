@@ -9,8 +9,8 @@ import (
 	"golang.org/x/text/language"
 )
 
-// Extension godoc
-func Extension() di.Option {
+// New godoc
+func New() di.Option {
 	return di.Options(
 		di.Provide(func() *i18n.Bundle {
 			var bundle = i18n.NewBundle(language.English)
