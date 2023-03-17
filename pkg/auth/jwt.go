@@ -23,10 +23,10 @@ func JwtMiddleware(config AuthConfig) echo.MiddlewareFunc {
 	return middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.StandardClaims{},
 		SigningKey: []byte(config.JwtSecret),
-		// TODO: refactor
 		Skipper: func(ctx echo.Context) bool {
-			token := ctx.Request().Header.Get("Authorization")
-			return token == ""
+			return false
+			// token := ctx.Request().Header.Get("Authorization")
+			// return token == ""
 		},
 	})
 }

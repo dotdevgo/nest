@@ -15,7 +15,7 @@ func New() di.Option {
 		injector.Bus(),
 		injector.Config(),
 		injector.EventBus(),
-		injector.Router(),
+		// injector.Router(),
 		injector.Validator(),
 	)
 }

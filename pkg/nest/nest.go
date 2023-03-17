@@ -50,7 +50,7 @@ type (
 
 	// Extension godoc
 	Extension interface {
-		Boot(w *Kernel) error
+		OnStart(w *Kernel) error
 	}
 
 	// Controller godoc
@@ -60,6 +60,8 @@ type (
 )
 
 var isBooted = false
+
+var secureGroup SecureGroup
 
 // New Create new Nest instance
 func New(m ...di.Option) *Kernel {
@@ -75,8 +77,17 @@ func New(m ...di.Option) *Kernel {
 		return w
 	}))
 
-	// no need to boot now? done in Serve()
-	// utils.NoErrorOrFatal(w.Boot())
+	// TODO: secureGroup.use() middleware
+	//	set context variable ctx.Set("secure", true)
+	secureGroup = w.Group("")
+
+	utils.NoErrorOrFatal(container.Provide(func() SecureGroup {
+		return secureGroup
+	}))
+
+	// TODO: если не вызвать тут не работает w.Secure()
+	//	конкретно если не зарегистрировать JWTMiddleware
+	utils.NoErrorOrFatal(w.Boot())
 
 	return w
 }
@@ -128,9 +139,9 @@ func NewController(provideFn di.Constructor) di.Option {
 
 // Secure godoc
 func (w *Kernel) Secure() *Group {
-	var g SecureGroup
-	w.ResolveFn(&g)
-	e := g.(*Group)
+	// var g SecureGroup
+	// w.ResolveFn(&g)
+	e := secureGroup.(*Group)
 	return e
 }
 
@@ -282,7 +293,7 @@ func (w *Kernel) Serve(address interface{}) error {
 		return err
 	}
 
-	if err := w.Invoke(w.bootRouter); err != nil {
+	if err := w.Invoke(w.useRouter); err != nil {
 		w.Logger.Warn(err.Error())
 	}
 
@@ -304,6 +315,31 @@ func (w *Kernel) Boot() error {
 
 	isBooted = true
 
+	if err := w.Invoke(w.useValidator); err != nil {
+		return err
+	}
+
+	if err := w.Invoke(w.onStart); err != nil {
+		w.Logger.Warn(err.Error())
+	}
+
+	return nil
+}
+
+// onStart godoc
+func (w *Kernel) onStart(providers []Extension) error {
+	for _, p := range providers {
+		if err := p.OnStart(w); err != nil {
+			// w.Logger.Warn(err.Error())
+			return err
+		}
+	}
+
+	return nil
+}
+
+// useValidator godoc
+func (w *Kernel) useValidator() error {
 	// Set custom validator
 	var v *validator.Validate
 	if err := w.Resolve(&v); err == nil {
@@ -316,32 +352,17 @@ func (w *Kernel) Boot() error {
 		return err
 	}
 
-	if err := w.Invoke(w.bootExtensions); err != nil {
-		w.Logger.Warn(err.Error())
-	}
-
 	return nil
 }
 
-// bootExtensions godoc
-func (w *Kernel) bootExtensions(providers []Extension) error {
-	for _, p := range providers {
-		if err := p.Boot(w); err != nil {
-			// w.Logger.Warn(err.Error())
-			return err
-		}
-	}
-
-	return nil
-}
-
-// bootRouter godoc
-func (w *Kernel) bootRouter(controllers []Controller) {
+// useRouter godoc
+func (w *Kernel) useRouter(controllers []Controller) {
 	for _, controller := range controllers {
 		w.InvokeFn(controller.Router)
 	}
 }
 
+// loggerFn godoc
 func loggerFn() {
 	// Logger
 	logger.Init()

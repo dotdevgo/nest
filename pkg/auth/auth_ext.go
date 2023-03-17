@@ -41,23 +41,23 @@ type authExt struct {
 }
 
 // Boot godoc
-func (p authExt) Boot(w *nest.Kernel) error {
-	w.InvokeFn(p.RegisterMiddleware)
-	w.InvokeFn(p.RegisterTopics)
-	w.InvokeFn(p.RegisterAuthProviders)
+func (p authExt) OnStart(w *nest.Kernel) error {
+	w.InvokeFn(p.registerMiddleware)
+	w.InvokeFn(p.registerTopics)
+	w.InvokeFn(p.registerProviders)
 
 	return nil
 }
 
-// RegisterMiddleware godoc
-func (p authExt) RegisterMiddleware(w *nest.Kernel, authConfig AuthConfig) {
+// registerMiddleware godoc
+func (p authExt) registerMiddleware(w *nest.Kernel, authConfig AuthConfig) {
 	api := w.Secure()
 	api.Use(JwtMiddleware(authConfig))
-	api.Use(Middleware())
+	api.Use(AuthMiddleware())
 }
 
-// RegisterTopics godoc
-func (p authExt) RegisterTopics(w *nest.Kernel, b *bus.Bus, h *AuthHooks) {
+// registerTopics godoc
+func (p authExt) registerTopics(w *nest.Kernel, b *bus.Bus, h *AuthHooks) {
 	b.RegisterTopics(EventUserRestore)
 	b.RegisterHandler(EventUserRestore, bus.Handler{
 		Matcher: EventUserRestore,
@@ -85,8 +85,8 @@ func (p authExt) RegisterTopics(w *nest.Kernel, b *bus.Bus, h *AuthHooks) {
 	})
 }
 
-// RegisterAuthProviders godoc
-func (p authExt) RegisterAuthProviders(w *nest.Kernel, authConfig AuthConfig) {
+// registerProviders godoc
+func (p authExt) registerProviders(w *nest.Kernel, authConfig AuthConfig) {
 	var providers []goth.Provider
 
 	callbackUri := fmt.Sprintf("%s/auth/callback", w.Config.HTTP.Hostname)

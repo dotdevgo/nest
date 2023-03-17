@@ -7,8 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// Middleware godoc
-func Middleware() echo.MiddlewareFunc {
+// AuthMiddleware godoc
+func AuthMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			c := Context(ctx.(nest.Context))

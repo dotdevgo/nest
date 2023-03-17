@@ -26,7 +26,7 @@ type countryExt struct {
 }
 
 // Boot godoc
-func (p countryExt) Boot(w *nest.Kernel) error {
+func (p countryExt) OnStart(w *nest.Kernel) error {
 	return w.Invoke(p.load)
 }
 

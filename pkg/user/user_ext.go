@@ -35,14 +35,14 @@ type userExt struct {
 }
 
 // Boot godoc
-func (p userExt) Boot(w *nest.Kernel) error {
-	w.InvokeFn(p.RegisterValidations)
+func (p userExt) OnStart(w *nest.Kernel) error {
+	w.InvokeFn(p.registerValidations)
 
 	return nil
 }
 
-// RegisterValidations godoc
-func (p userExt) RegisterValidations(w *nest.Kernel, uv *UserValidator, v *validator.Validate) {
+// registerValidations godoc
+func (p userExt) registerValidations(w *nest.Kernel, uv *UserValidator, v *validator.Validate) {
 	utils.NoErrorOrFatal(v.RegisterValidation("uniqueEmail", uv.UniqueEmail))
 	utils.NoErrorOrFatal(v.RegisterValidation("uniqueUsername", uv.UniqueUsername))
 }
