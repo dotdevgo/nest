@@ -33,32 +33,38 @@ var (
 )
 
 type (
-	// ApiGroup godoc
 	// ApiGroup interface{}
-	// ApiGroup godoc
 
+	// SecureGroup godoc
 	SecureGroup interface{}
+
 	// ContainerHandlerFunc godoc
 	ContainerHandlerFunc func(Context) interface{}
+
 	// HandlerFunc godoc
 	HandlerFunc func(Context) error
+
 	// Kernel godoc
 	Kernel struct {
 		*di.Container
 		*echo.Echo
 		Config
 	}
+
+	// Extension godoc
+	Extension interface {
+		Boot(w *Kernel) error
+	}
+
 	// Controller godoc
 	Controller interface {
 		Router(w *Kernel)
 	}
-	// ContainerModule godoc
-	ContainerModule interface {
-		Boot(w *Kernel) error
-	}
 )
 
-// New Create new app
+var isBooted = false
+
+// New Create new Nest instance
 func New(m ...di.Option) *Kernel {
 	container, err := di.New(m...)
 	utils.NoErrorOrFatal(err)
@@ -66,20 +72,14 @@ func New(m ...di.Option) *Kernel {
 	e := NewEcho(container)
 	e.HideBanner = true
 
-	// Logger
-	// TODO: refactor
-	logger.Init()
-	logger.Logger = log.New()
-	e.Logger = logger.GetEchoLogger()
-	e.Use(logger.Hook())
-
 	w := &Kernel{Container: container, Echo: e}
 
 	utils.NoErrorOrFatal(container.Provide(func() *Kernel {
 		return w
 	}))
 
-	utils.NoErrorOrFatal(w.Boot())
+	// no need to boot now? done in Serve()
+	// utils.NoErrorOrFatal(w.Boot())
 
 	return w
 }
@@ -87,6 +87,11 @@ func New(m ...di.Option) *Kernel {
 // NewEcho godoc
 func NewEcho(container *di.Container) *echo.Echo {
 	e := echo.New()
+
+	loggerFn()
+
+	e.Logger = logger.GetEchoLogger()
+	e.Use(logger.Hook())
 
 	// Override echo.Context
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -113,14 +118,6 @@ func NewHTTPError(code int, message ...interface{}) *echo.HTTPError {
 
 	return he
 }
-
-// Api godoc
-// func (w *Kernel) ApiGroup() *Group {
-// 	var api ApiGroup
-// 	w.ResolveFn(&api)
-// 	e := api.(*Group)
-// 	return e
-// }
 
 // Secure godoc
 func (w *Kernel) Secure() *Group {
@@ -267,14 +264,10 @@ func WrapHandler(h http.Handler) HandlerFunc {
 
 // Start starts an HTTP server.
 func (w *Kernel) Start(address string) error {
-	w.start()
-
 	w.Echo.Server.Addr = address
 
 	return w.Echo.StartServer(w.Echo.Server)
 }
-
-var isBooted = false
 
 // Serve starts an HTTP server on default port.
 func (w *Kernel) Serve() error {
@@ -282,6 +275,10 @@ func (w *Kernel) Serve() error {
 		if err := w.Boot(); err != nil {
 			return err
 		}
+	}
+
+	if err := w.Invoke(w.router); err != nil {
+		w.Logger.Warn(err.Error())
 	}
 
 	var config Config
@@ -293,16 +290,16 @@ func (w *Kernel) Serve() error {
 // Boot godoc
 func (w *Kernel) Boot() error {
 	if isBooted {
-		return errors.New("is booted")
+		return errors.New("Kernel already initialized")
 	}
 
 	isBooted = true
 
-	// TODO: refactor
 	// Set custom validator
 	var v *validator.Validate
-	w.ResolveFn(&v)
-	w.Validator = &EchoValidator{validator: v}
+	if err := w.Resolve(&v); err == nil {
+		w.Validator = &EchoValidator{validator: v}
+	}
 
 	if err := w.Provide(func() echo.Validator {
 		return w.Validator
@@ -310,25 +307,17 @@ func (w *Kernel) Boot() error {
 		return err
 	}
 
-	// TODO: refactor
 	// Custom
-	if err := w.Invoke(w.boot); err != nil {
-		return err
+	if err := w.Invoke(w.bootContainer); err != nil {
+		w.Logger.Warn(err.Error())
 	}
 
 	return nil
 }
 
-// start godoc
-func (w *Kernel) start() {
-	if err := w.Invoke(w.router); err != nil {
-		w.Logger.Warn(err.Error())
-	}
-}
-
-// boot godoc
+// bootContainer godoc
 // TODO: refactor
-func (w *Kernel) boot(providers []ContainerModule) error {
+func (w *Kernel) bootContainer(providers []Extension) error {
 	for _, p := range providers {
 		if err := p.Boot(w); err != nil {
 			return err
@@ -344,6 +333,12 @@ func (w *Kernel) router(controllers []Controller) {
 	for _, controller := range controllers {
 		w.InvokeFn(controller.Router)
 	}
+}
+
+func loggerFn() {
+	// Logger
+	logger.Init()
+	logger.Logger = log.New()
 }
 
 // // TODO: move injector

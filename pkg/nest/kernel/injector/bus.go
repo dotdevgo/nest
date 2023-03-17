@@ -8,8 +8,8 @@ import (
 	"github.com/mustafaturan/bus/v3"
 )
 
-// NewBus godoc
-func NewBus() di.Option {
+// Bus godoc
+func Bus() di.Option {
 	return di.Options(
 		di.Provide(func() *bus.Bus {
 			// configure id generator (it doesn't have to be monoton)

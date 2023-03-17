@@ -12,11 +12,10 @@ func New() di.Option {
 	nest.LoadEnv()
 
 	return di.Options(
+		injector.Bus(),
 		injector.Config(),
 		injector.EventBus(),
-		injector.NewBus(),
+		injector.Router(),
 		injector.Validator(),
-		injector.I18n(),
-		di.Provide(injector.NewSecureGroup),
 	)
 }
