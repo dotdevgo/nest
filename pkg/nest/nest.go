@@ -53,9 +53,14 @@ type (
 		OnStart(w *Kernel) error
 	}
 
-	// Controller godoc
-	Controller interface {
+	// AbstractController godoc
+	AbstractController interface {
 		Router(w *Kernel)
+	}
+
+	// Controller godoc
+	Controller struct {
+		di.Inject
 	}
 )
 
@@ -134,7 +139,7 @@ func NewExtension(provideFn di.Constructor) di.Option {
 
 // NewController godoc
 func NewController(provideFn di.Constructor) di.Option {
-	return di.Provide(provideFn, di.As(new(Controller)))
+	return di.Provide(provideFn, di.As(new(AbstractController)))
 }
 
 // Secure godoc
@@ -356,7 +361,7 @@ func (w *Kernel) useValidator() error {
 }
 
 // useRouter godoc
-func (w *Kernel) useRouter(controllers []Controller) {
+func (w *Kernel) useRouter(controllers []AbstractController) {
 	for _, controller := range controllers {
 		w.InvokeFn(controller.Router)
 	}
