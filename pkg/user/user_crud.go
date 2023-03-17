@@ -12,17 +12,11 @@ type UserCrud struct {
 type UserList []*User
 type UserPaginator *paginator.Result[*UserList]
 
-// func (UserPaginator) IsPaginatorResult() {}
-
 // Paginate godoc
 func (s UserCrud) Paginate(result interface{}, pagination []paginator.Option, options ...crud.Option) (UserPaginator, error) {
 	var stmt = s.Stmt(options...)
 
 	return paginator.Paginate[*UserList](stmt, result, pagination...)
-	// data, err := paginator.Paginate[*UserList](stmt, result, pagination...)
-	// rows := *data
-	// // rows, ok := data.(UserPaginator)
-	// return rows, err
 }
 
 // FindByIdentity godoc
@@ -34,7 +28,7 @@ func (c UserCrud) FindByIdentity(identity string) (User, error) {
 		return u, err
 	}
 
-	if 0 == u.Pk {
+	if u.Pk == 0 {
 		return u, ErrorInvalidIdentity
 	}
 
