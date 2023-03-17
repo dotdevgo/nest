@@ -35,5 +35,5 @@ func main() {
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
-	e.Logger.Fatal(e.Serve())
+	e.Logger.Fatal(e.Serve(":1323"))
 }

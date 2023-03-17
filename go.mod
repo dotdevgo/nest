@@ -23,7 +23,6 @@ require (
 	github.com/mustafaturan/bus/v3 v3.0.3
 	github.com/mustafaturan/monoton/v2 v2.0.2
 	github.com/nicksnyder/go-i18n/v2 v2.2.0
-	github.com/psampaz/slice v0.2.0
 	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
 	golang.org/x/text v0.3.7

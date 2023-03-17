@@ -10,11 +10,8 @@ import (
 // New godoc
 func New() di.Option {
 	return di.Options(
-		di.Provide(func() *controller.AuthController {
+		nest.NewController(func() *controller.AuthController {
 			return &controller.AuthController{}
-		}, di.As(new(nest.Controller))),
-		// di.Provide(func() *controller.UserController {
-		// 	return &controller.UserController{}
-		// }, di.As(new(nest.Controller))),
+		}),
 	)
 }

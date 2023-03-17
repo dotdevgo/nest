@@ -53,8 +53,7 @@ func (c AuthController) Router(w *nest.Kernel) {
 
 // OAuth godoc
 func (c AuthController) OAuth(ctx nest.Context) error {
-	req := ctx.Request()
-	res := ctx.Response()
+	req, res := ctx.Request(), ctx.Response()
 
 	// https://groups.google.com/g/golang-nuts/c/Dur6uGUEKKk
 	values := req.URL.Query()
@@ -83,6 +82,7 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 		}
 
 		cookie := &http.Cookie{
+			// TODO: config variable
 			Name:     "APP_SSO_TOKEN",
 			Value:    token,
 			Path:     "/",
@@ -94,6 +94,7 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 		ctx.SetCookie(cookie)
 
 		redirectUrl := fmt.Sprintf("%s/auth/oauth", c.Config.HTTP.Origin)
+
 		return ctx.Redirect(http.StatusMovedPermanently, redirectUrl)
 	}
 
