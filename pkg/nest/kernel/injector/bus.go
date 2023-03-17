@@ -29,9 +29,6 @@ func Bus() di.Option {
 				panic(err)
 			}
 
-			// maybe register topics in here
-			// b.RegisterTopics("order.received", "order.fulfilled")
-
 			return b
 		}),
 	)

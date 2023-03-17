@@ -1,7 +1,6 @@
 package nest
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -138,7 +137,7 @@ var isEnvLoaded = false
 
 // LoadEnv godoc
 func LoadEnv() {
-	if isEnvLoaded == true {
+	if isEnvLoaded {
 		return
 	}
 
@@ -148,9 +147,9 @@ func LoadEnv() {
 	utils.NoErrorOrFatal(err)
 
 	if err := godotenv.Load(dir + "/.env"); err != nil {
-		logger.Error(fmt.Sprintf("[App] Invalid env file: \".env\""))
+		logger.Error("Invalid env file ==> .env")
 		return
 	}
 
-	logger.Log(fmt.Sprintf("[App] Loaded env file: \".env\""))
+	logger.Log("Loaded env file ==> .env")
 }

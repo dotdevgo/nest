@@ -1,7 +1,6 @@
 package nest
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -33,8 +32,6 @@ var (
 )
 
 type (
-	// ApiGroup interface{}
-
 	// SecureGroup godoc
 	SecureGroup interface{}
 
@@ -119,6 +116,16 @@ func NewHTTPError(code int, message ...interface{}) *echo.HTTPError {
 	return he
 }
 
+// NewExtension godoc
+func NewExtension(provideFn di.Constructor) di.Option {
+	return di.Provide(provideFn, di.As(new(Extension)))
+}
+
+// NewController godoc
+func NewController(provideFn di.Constructor) di.Option {
+	return di.Provide(provideFn, di.As(new(Controller)))
+}
+
 // Secure godoc
 func (w *Kernel) Secure() *Group {
 	var g SecureGroup
@@ -131,7 +138,7 @@ func (w *Kernel) Secure() *Group {
 // And invokes function with them. See Invocation for details.
 func (w *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
 	if err := w.Invoke(invocation, options...); err != nil {
-		w.Logger.Panic(err)
+		w.Logger.Panic(err.Error())
 	}
 }
 
@@ -140,7 +147,7 @@ func (w *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) 
 // the process of type resolving.
 func (w *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
 	if err := w.Provide(constructor, options...); err != nil {
-		w.Logger.Panic(err)
+		w.Logger.Panic(err.Error())
 	}
 }
 
@@ -270,27 +277,29 @@ func (w *Kernel) Start(address string) error {
 }
 
 // Serve starts an HTTP server on default port.
-func (w *Kernel) Serve() error {
-	if !isBooted {
-		if err := w.Boot(); err != nil {
-			return err
-		}
+func (w *Kernel) Serve(address interface{}) error {
+	if err := w.Boot(); err != nil {
+		return err
 	}
 
-	if err := w.Invoke(w.router); err != nil {
+	if err := w.Invoke(w.bootRouter); err != nil {
 		w.Logger.Warn(err.Error())
 	}
 
 	var config Config
 	w.ResolveFn(&config)
 
-	return w.Start(fmt.Sprintf(":%v", config.HTTP.Port))
+	if address == nil || address == "" {
+		address = fmt.Sprintf(":%v", config.HTTP.Port)
+	}
+
+	return w.Start(address.(string))
 }
 
 // Boot godoc
 func (w *Kernel) Boot() error {
 	if isBooted {
-		return errors.New("Kernel already initialized")
+		return nil
 	}
 
 	isBooted = true
@@ -307,19 +316,18 @@ func (w *Kernel) Boot() error {
 		return err
 	}
 
-	// Custom
-	if err := w.Invoke(w.bootContainer); err != nil {
+	if err := w.Invoke(w.bootExtensions); err != nil {
 		w.Logger.Warn(err.Error())
 	}
 
 	return nil
 }
 
-// bootContainer godoc
-// TODO: refactor
-func (w *Kernel) bootContainer(providers []Extension) error {
+// bootExtensions godoc
+func (w *Kernel) bootExtensions(providers []Extension) error {
 	for _, p := range providers {
 		if err := p.Boot(w); err != nil {
+			// w.Logger.Warn(err.Error())
 			return err
 		}
 	}
@@ -327,9 +335,8 @@ func (w *Kernel) bootContainer(providers []Extension) error {
 	return nil
 }
 
-// router godoc
-// TODO: refactor
-func (w *Kernel) router(controllers []Controller) {
+// bootRouter godoc
+func (w *Kernel) bootRouter(controllers []Controller) {
 	for _, controller := range controllers {
 		w.InvokeFn(controller.Router)
 	}
@@ -340,10 +347,3 @@ func loggerFn() {
 	logger.Init()
 	logger.Logger = log.New()
 }
-
-// // TODO: move injector
-// config, err := GetConfig()
-// utils.NoErrorOrFatal(err)
-// container.Provide(func() *Config {
-// 	return &config
-// })
