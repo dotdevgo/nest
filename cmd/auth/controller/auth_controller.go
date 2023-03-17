@@ -8,7 +8,6 @@ import (
 
 	"dotdev/nest/pkg/auth"
 	"dotdev/nest/pkg/nest"
-	"dotdev/nest/pkg/nest/kernel"
 	"dotdev/nest/pkg/user"
 
 	"github.com/labstack/echo/v4"
@@ -30,7 +29,7 @@ const (
 )
 
 type AuthController struct {
-	kernel.Controller
+	nest.Controller
 	nest.Config
 	Crud *user.UserCrud
 	Auth *auth.AuthManager
