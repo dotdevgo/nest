@@ -43,7 +43,7 @@ func (c Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 // Send godoc
 func (c Mailer) Send(m *email.Email) error {
 	config := c.Config.Mail
-	if "" == config.Hostname {
+	if config.Hostname == "" {
 		logger.Log("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)
 		return nil
 	}
