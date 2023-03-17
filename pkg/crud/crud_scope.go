@@ -2,9 +2,10 @@ package crud
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"strings"
 )
 
 // ScopeOrderBy godoc
@@ -15,16 +16,18 @@ func ScopeOrderBy(column string, order string) func(db *gorm.DB) *gorm.DB {
 }
 
 // ScopeById godoc
-func ScopeById(result interface{}, id interface{}) func(db *gorm.DB) *gorm.DB {
+func ScopeById[T any](result T, id interface{}) func(db *gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		table := GetTableName(db, result)
-		str, ok := id.(string)
+
+		uid, ok := id.(string)
 		if ok {
-			_, err := uuid.Parse(str)
+			_, err := uuid.Parse(uid)
 			if err == nil {
 				return db.Where(table+".id = ?", id)
 			}
 		}
+
 		return db.Where(table+".pk = ?", id)
 	}
 }

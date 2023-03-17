@@ -49,8 +49,8 @@ func (s *Crud[T]) Find(result T, id interface{}, options ...Option) error {
 	return stmt.Scopes(ScopeById(result, id)).First(result).Error
 }
 
-// GetMany godoc
-func (s *Crud[T]) GetMany(result interface{}, options ...Option) error {
+// FindAll godoc
+func (s *Crud[T]) FindAll(result interface{}, options ...Option) error {
 	var stmt = s.Stmt(options...)
 
 	return stmt.Find(result).Error
