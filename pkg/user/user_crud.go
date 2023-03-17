@@ -35,6 +35,13 @@ func (c UserCrud) FindByIdentity(identity string) (User, error) {
 	return u, nil
 }
 
+// newUserCrud godoc
+func newUserCrud(c *crud.Crud[*User]) *UserCrud {
+	return &UserCrud{
+		Crud: c,
+	}
+}
+
 // // UnmarshalGQL implements the graphql.Unmarshaler interface
 // func (list *UserList) UnmarshalGQL(v interface{}) error {
 // 	data, ok := v.(string)

@@ -17,45 +17,32 @@ func New() di.Option {
 			return db.AutoMigrate(&User{})
 		}),
 		di.Provide(crud.NewService[*User]),
-		di.Provide(NewUserCrud),
+		di.Provide(newUserCrud),
 		di.Provide(func() *UserValidator {
 			return &UserValidator{}
 		}),
 		di.Provide(func() *UserFactory {
 			return &UserFactory{}
 		}),
-		di.Provide(func() *module {
-			return &module{}
-		}, di.As(new(nest.Extension))),
+		nest.NewExtension(func() *userExt {
+			return &userExt{}
+		}),
 	)
 }
 
-// NewUserCrud godoc
-func NewUserCrud(c *crud.Crud[*User]) *UserCrud {
-	return &UserCrud{
-		Crud: c,
-	}
-}
-
-type module struct {
+type userExt struct {
 	nest.Extension
 }
 
 // Boot godoc
-func (p module) Boot(w *nest.Kernel) error {
-	p.RegisterValidations(w)
+func (p userExt) Boot(w *nest.Kernel) error {
+	w.InvokeFn(p.RegisterValidations)
 
 	return nil
 }
 
 // RegisterValidations godoc
-func (p module) RegisterValidations(w *nest.Kernel) {
-	var uv *UserValidator
-	w.ResolveFn(&uv)
-
-	var v *validator.Validate
-	w.ResolveFn(&v)
-
+func (p userExt) RegisterValidations(w *nest.Kernel, uv *UserValidator, v *validator.Validate) {
 	utils.NoErrorOrFatal(v.RegisterValidation("uniqueEmail", uv.UniqueEmail))
 	utils.NoErrorOrFatal(v.RegisterValidation("uniqueUsername", uv.UniqueUsername))
 }
