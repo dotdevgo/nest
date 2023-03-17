@@ -12,8 +12,8 @@ func Middleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			c := Context(ctx.(nest.Context))
-
-			if c.User() != nil {
+			u := c.User()
+			if u != nil {
 				authCtx := context.WithValue(ctx.Request().Context(), UserCtxKey, u)
 				ctx.SetRequest(ctx.Request().WithContext(authCtx))
 			}

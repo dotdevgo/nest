@@ -1,5 +1,11 @@
 package auth
 
+import (
+	"dotdev/nest/pkg/logger"
+
+	"github.com/joeshaw/envdecode"
+)
+
 type (
 	// AuthConfig stores the auth configuration
 	AuthConfig struct {
@@ -11,3 +17,14 @@ type (
 		DiscordSecret string `env:"DISCORD_SECRET"`
 	}
 )
+
+// NewAuthConfig godoc
+func NewAuthConfig() AuthConfig {
+	var cfg AuthConfig
+
+	if err := envdecode.StrictDecode(&cfg); err != nil {
+		logger.Error(err)
+	}
+
+	return cfg
+}

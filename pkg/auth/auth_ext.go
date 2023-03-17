@@ -3,9 +3,6 @@ package auth
 import (
 	"fmt"
 
-	"dotdev/nest/pkg/logger"
-
-	"github.com/joeshaw/envdecode"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/discord"
 	"github.com/markbates/goth/providers/steam"
@@ -20,14 +17,7 @@ import (
 // New godoc
 func New() di.Option {
 	return di.Options(
-		di.Provide(func() AuthConfig {
-			var cfg AuthConfig
-			if err := envdecode.StrictDecode(&cfg); err != nil {
-				logger.Error(err)
-			}
-			// utils.NoErrorOrFatal(err)
-			return cfg
-		}),
+		di.Provide(NewAuthConfig),
 		di.Invoke(func(db *gorm.DB) error {
 			return db.AutoMigrate(&OAuth{})
 		}),
@@ -40,20 +30,20 @@ func New() di.Option {
 		di.Provide(func() *AuthMailer {
 			return &AuthMailer{}
 		}),
-		di.Provide(func() *module {
-			return &module{}
-		}, di.As(new(nest.Extension))),
+		nest.NewExtension(func() *authExt {
+			return &authExt{}
+		}),
 	)
 }
 
-type module struct {
+type authExt struct {
 	nest.Extension
 }
 
 // Boot godoc
-func (p module) Boot(w *nest.Kernel) error {
-	p.RegisterTopics(w)
-	p.RegisterAuthProviders(w)
+func (p authExt) Boot(w *nest.Kernel) error {
+	w.InvokeFn(p.RegisterTopics)
+	w.InvokeFn(p.RegisterAuthProviders)
 
 	var authConfig AuthConfig
 	w.ResolveFn(&authConfig)
@@ -66,13 +56,7 @@ func (p module) Boot(w *nest.Kernel) error {
 }
 
 // RegisterTopics godoc
-func (p module) RegisterTopics(w *nest.Kernel) {
-	var b *bus.Bus
-	w.ResolveFn(&b)
-
-	var h *AuthHooks
-	w.ResolveFn(&h)
-
+func (p authExt) RegisterTopics(w *nest.Kernel, b *bus.Bus, h *AuthHooks) {
 	b.RegisterTopics(EventUserRestore)
 	b.RegisterHandler(EventUserRestore, bus.Handler{
 		Matcher: EventUserRestore,
@@ -101,25 +85,24 @@ func (p module) RegisterTopics(w *nest.Kernel) {
 }
 
 // RegisterAuthProviders godoc
-func (p module) RegisterAuthProviders(w *nest.Kernel) {
-	var authConfig AuthConfig
-	w.ResolveFn(&authConfig)
+func (p authExt) RegisterAuthProviders(w *nest.Kernel, authConfig AuthConfig) {
+	// var authConfig AuthConfig
+	// w.ResolveFn(&authConfig)
 
-	callbackUrl := fmt.Sprintf("%s/auth/callback", w.Config.HTTP.Hostname)
+	callbackUri := fmt.Sprintf("%s/auth/callback", w.Config.HTTP.Hostname)
 
-	// TODO: refactor
-	var arr []goth.Provider
+	var providers []goth.Provider
 	if authConfig.SteamApiKey != "" {
-		steamProvider := steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/steam", callbackUrl))
-		arr = append(arr, steamProvider)
+		steamProvider := steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/steam", callbackUri))
+		providers = append(providers, steamProvider)
 		w.Logger.Info("[Auth] Register provider: \"steam\"")
 	}
 
 	if authConfig.DiscordAppId != "" {
-		discordProvider := discord.New(authConfig.DiscordAppId, authConfig.DiscordSecret, fmt.Sprintf("%s/discord", callbackUrl))
-		arr = append(arr, discordProvider)
+		discordProvider := discord.New(authConfig.DiscordAppId, authConfig.DiscordSecret, fmt.Sprintf("%s/discord", callbackUri))
+		providers = append(providers, discordProvider)
 		w.Logger.Info("[Auth] Register provider: \"discord\"")
 	}
 
-	goth.UseProviders(arr...)
+	goth.UseProviders(providers...)
 }
