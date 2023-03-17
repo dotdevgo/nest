@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	DBTableCountry = "countries"
+	DBTableCountries = "countries"
 )
 
 type Country struct {

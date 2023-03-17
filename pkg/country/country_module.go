@@ -16,13 +16,13 @@ func New() di.Option {
 		}),
 		di.Provide(func() *CountryModule {
 			return &CountryModule{}
-		}, di.As(new(nest.ContainerModule))),
+		}, di.As(new(nest.Extension))),
 	)
 }
 
 // CountryModule godoc
 type CountryModule struct {
-	nest.ContainerModule
+	nest.Extension
 }
 
 // Boot godoc
