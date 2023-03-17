@@ -14,42 +14,46 @@ func New() di.Option {
 		di.Invoke(func(db *gorm.DB) error {
 			return db.AutoMigrate(&Country{})
 		}),
-		di.Provide(func() *CountryModule {
-			return &CountryModule{}
-		}, di.As(new(nest.Extension))),
+		nest.NewExtension(func() *countryExt {
+			return &countryExt{}
+		}),
 	)
 }
 
-// CountryModule godoc
-type CountryModule struct {
+// countryExt godoc
+type countryExt struct {
 	nest.Extension
 }
 
 // Boot godoc
-func (CountryModule) Boot(w *nest.Kernel) error {
-	var db *gorm.DB
-	w.ResolveFn(&db)
+func (p countryExt) Boot(w *nest.Kernel) error {
+	return w.Invoke(p.load)
+}
 
+// load Load countries
+func (countryExt) load(w *nest.Kernel, db *gorm.DB) error {
 	var countries []Country
 	if err := db.Model(&Country{}).Find(&countries).Error; err != nil {
 		return err
 	}
 
-	w.Logger.Infof("[App] Countries: %v", len(countries))
-
-	if 0 == len(countries) {
+	if len(countries) == 0 {
 		for _, c := range cn.All() {
 			var cntry Country
 			cntry.Code = c.Info().Alpha2
 			cntry.Name = c.Info().Name
 			countries = append(countries, cntry)
 
-			w.Logger.Printf("Insert Country: %s %s", cntry.Code, cntry.Name)
+			w.Logger.Printf("Add Country ==> %s %s", cntry.Code, cntry.Name)
 		}
 
 		if err := db.CreateInBatches(&countries, 64).Error; err != nil {
 			return err
 		}
+
+		w.Logger.Infof("==> Loaded %v countries", len(cn.All()))
+	} else {
+		w.Logger.Infof("==> Loaded %v countries", len(countries))
 	}
 
 	return nil
