@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	authcmd "dotdev/nest/cmd/auth"
 	"dotdev/nest/examples/api/config"
 	"dotdev/nest/pkg/auth"
 	"dotdev/nest/pkg/mailer"
@@ -24,7 +25,7 @@ func main() {
 		mailer.New(config.Hermes()),
 		user.New(),
 		auth.New(),
-		// authcmd.NewRouter(),
+		authcmd.New(),
 	)
 
 	e.Use(middleware.Logger())
