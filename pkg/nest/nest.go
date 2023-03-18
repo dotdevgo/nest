@@ -69,8 +69,8 @@ var isBooted = false
 var secureGroup SecureGroup
 
 // New Create new Nest instance
-func New(m ...di.Option) *Kernel {
-	container, err := di.New(m...)
+func New(providers ...di.Option) *Kernel {
+	container, err := di.New(providers...)
 	utils.NoErrorOrFatal(err)
 
 	e := NewEcho(container)

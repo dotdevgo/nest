@@ -7,7 +7,7 @@ import (
 )
 
 // Exclude fields from request query params
-var excludeNames = []string{"page", "limit", "order"}
+// var excludeNames = []string{"page", "limit", "order"}
 
 type (
 	CriteriaOption struct {
@@ -16,12 +16,14 @@ type (
 		Value    interface{}
 		Expr     string
 	}
+
 	CriteriaMap map[string]CriteriaOption
-	Criteria    []CriteriaOption
+
+	CriteriaList []CriteriaOption
 )
 
 // WithCriteria godoc
-func WithCriteria(criteria Criteria) Option {
+func WithCriteria(criteria CriteriaList) Option {
 	return func(db *gorm.DB) *gorm.DB {
 		for _, item := range criteria {
 			db = item.Apply(db)
