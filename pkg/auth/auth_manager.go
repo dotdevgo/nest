@@ -11,12 +11,12 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
+	"dotdev/nest/pkg/nest"
 	"dotdev/nest/pkg/user"
 	"dotdev/nest/pkg/utils"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/goava/di"
-	"github.com/labstack/echo/v4"
 	"github.com/markbates/goth"
 	"github.com/mustafaturan/bus/v3"
 )
@@ -32,7 +32,7 @@ type AuthManager struct {
 	*bus.Bus
 	AuthConfig
 	Crud      *user.UserCrud
-	Validator echo.Validator
+	Validator nest.Validator
 }
 
 // Validate godoc

@@ -15,8 +15,7 @@ type Crud[T IModel] struct {
 
 // NewService godoc
 func NewService[T IModel](db *gorm.DB) *Crud[T] {
-	s := &Crud[T]{db: db}
-	return s
+	return &Crud[T]{db: db}
 	// .Session(&gorm.Session{NewDB: true})
 }
 

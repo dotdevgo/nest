@@ -53,6 +53,11 @@ type (
 		OnStart(w *Kernel) error
 	}
 
+	// Validator is the interface that wraps the Validate function.
+	Validator interface {
+		Validate(i interface{}) error
+	}
+
 	// AbstractController godoc
 	AbstractController interface {
 		Router(w *Kernel)
@@ -352,6 +357,12 @@ func (w *Kernel) useValidator() error {
 	}
 
 	if err := w.Provide(func() echo.Validator {
+		return w.Validator
+	}); err != nil {
+		return err
+	}
+
+	if err := w.Provide(func() Validator {
 		return w.Validator
 	}); err != nil {
 		return err
