@@ -101,7 +101,7 @@ func Paginate[T any](
 
 // Paginate implements the Paginator interface.
 func (p *paginator[T]) Paginate(value interface{}) (*Result[T], error) {
-	db := p.prepareDB()
+	db := p.createQuery()
 
 	c := make(chan countResult, 1)
 
@@ -117,8 +117,8 @@ func (p *paginator[T]) Paginate(value interface{}) (*Result[T], error) {
 	return p.result(value, <-c)
 }
 
-// prepareDB prepares the statement by adding the order clauses.
-func (p *paginator[T]) prepareDB() *gorm.DB {
+// createQuery prepares the statement by adding the order clauses.
+func (p *paginator[T]) createQuery() *gorm.DB {
 	db := p.db
 
 	for _, o := range p.order {
