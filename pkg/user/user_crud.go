@@ -3,8 +3,6 @@ package user
 import (
 	"dotdev/nest/pkg/crud"
 	"dotdev/nest/pkg/paginator"
-
-	"gorm.io/datatypes"
 )
 
 type UserCrud struct {
@@ -22,34 +20,34 @@ func (s UserCrud) Paginate(result interface{}, pagination []paginator.Option, op
 }
 
 // LoadUser godoc
-func (c UserCrud) LoadUser(identifier string) (*User, error) {
-	var u *User
+func (c UserCrud) LoadUser(identity string) (*User, error) {
+	var u User
 
-	result := c.Stmt(ScopeByIdentity(identifier)).First(&u)
-	if err := result.Error; err != nil {
-		return u, err
+	result := c.Stmt(ScopeByIdentity(identity)).First(&u)
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
 	if u.Pk == 0 {
-		return u, ErrorInvalidIdentity
+		return nil, ErrorInvalidIdentity
 	}
 
-	return u, nil
+	return &u, nil
 }
 
-func (c UserCrud) FinByConfirmToken(token string) *User {
-	var u *User
+// func (c UserCrud) FinByConfirmToken(token string) *User {
+// 	var u *User
 
-	result := c.Crud.Stmt().
-		Find(&u, datatypes.JSONQuery("attributes").
-			Equals(token, "confirmToken"))
+// 	result := c.Crud.Stmt().
+// 		Find(&u, datatypes.JSONQuery("attributes").
+// 			Equals(token, "confirmToken"))
 
-	if result.Error != nil || u.Pk <= 0 {
-		return nil
-	}
+// 	if result.Error != nil || u.Pk <= 0 {
+// 		return nil
+// 	}
 
-	return u
-}
+// 	return u
+// }
 
 // // UnmarshalGQL implements the graphql.Unmarshaler interface
 // func (list *UserList) UnmarshalGQL(v interface{}) error {

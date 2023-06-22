@@ -16,6 +16,9 @@ func New() di.Option {
 		di.Invoke(func(db *gorm.DB) error {
 			return db.AutoMigrate(&User{})
 		}),
+		di.Provide(func() *UserRepository {
+			return &UserRepository{}
+		}),
 		di.Provide(crud.NewService[*User]),
 		di.Provide(func(c *crud.Crud[*User]) *UserCrud {
 			return &UserCrud{

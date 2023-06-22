@@ -3,5 +3,5 @@ package user
 import "errors"
 
 var (
-	ErrorInvalidIdentity = errors.New("Invalid identity")
+	ErrorInvalidIdentity = errors.New("invalid identity")
 )
