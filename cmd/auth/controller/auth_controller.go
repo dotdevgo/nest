@@ -64,7 +64,7 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 			return nest.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		token, err := c.Auth.NewToken(*oauth.User)
+		token, err := c.Auth.NewToken(oauth.User)
 		if err != nil {
 			return nest.NewHTTPError(http.StatusBadRequest, err)
 		}
@@ -79,8 +79,8 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 			domain = u.Host
 		}
 
+		// TODO: config cookie name and other values.
 		cookie := &http.Cookie{
-			// TODO: config variable
 			Name:     "APP_SSO_TOKEN",
 			Value:    token,
 			Path:     "/",
@@ -89,6 +89,7 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 			Secure:   ctx.IsTLS(),
 			SameSite: http.SameSiteLaxMode,
 		}
+
 		ctx.SetCookie(cookie)
 
 		redirectUrl := fmt.Sprintf("%s/auth/oauth", c.Config.HTTP.Origin)
@@ -135,7 +136,7 @@ func (c AuthController) SignIn(ctx nest.Context) error {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	token, err := c.Auth.NewToken(*u)
+	token, err := c.Auth.NewToken(u)
 	if err != nil {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -181,7 +182,7 @@ func (c AuthController) ResetToken(ctx nest.Context) error {
 		return nest.NewHTTPError(http.StatusNotFound, err)
 	}
 
-	if err := c.Auth.ResetToken(u, ctx.Param("token")); err != nil {
+	if err := c.Auth.ResetToken(&u, ctx.Param("token")); err != nil {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
 
@@ -197,27 +198,6 @@ func (c AuthController) Me(ctx nest.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, u)
-}
-
-// ChangePassword godoc
-func (c AuthController) ChangePassword(ctx nest.Context) error {
-	cc := auth.Context(ctx)
-	u := cc.User()
-	if u == nil {
-		return nest.NewHTTPError(http.StatusBadRequest)
-	}
-
-	var input auth.ChangePasswordDto
-	if err := c.Crud.IsValid(ctx, &input); err != nil {
-		return nest.NewValidatorError(ctx, err)
-	}
-
-	err := c.Auth.ChangePassword(*u, input)
-	if err != nil {
-		return nest.NewHTTPError(http.StatusBadRequest, err)
-	}
-
-	return ctx.NoContent(http.StatusNoContent)
 }
 
 // Update godoc
@@ -241,4 +221,25 @@ func (c AuthController) Update(ctx nest.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, u)
+}
+
+// ChangePassword godoc
+func (c AuthController) ChangePassword(ctx nest.Context) error {
+	cc := auth.Context(ctx)
+	u := cc.User()
+	if u == nil {
+		return nest.NewHTTPError(http.StatusBadRequest)
+	}
+
+	var input auth.ChangePasswordDto
+	if err := c.Crud.IsValid(ctx, &input); err != nil {
+		return nest.NewValidatorError(ctx, err)
+	}
+
+	err := c.Auth.ChangePassword(u, input)
+	if err != nil {
+		return nest.NewHTTPError(http.StatusBadRequest, err)
+	}
+
+	return ctx.NoContent(http.StatusNoContent)
 }
