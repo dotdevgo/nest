@@ -29,9 +29,11 @@ const (
 type AuthManager struct {
 	di.Inject
 	*bus.Bus
-	AuthConfig
-	Crud      *user.UserCrud
 	Validator nest.Validator
+	AuthConfig
+
+	Crud *user.UserCrud
+	Repo *user.UserRepository
 }
 
 // Validate godoc
@@ -47,7 +49,7 @@ func (c AuthManager) Validate(input SignInDto) (*user.User, error) {
 
 	// TODO: util method
 	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
-		return u, ErrorInvalidPassword
+		return u, ErrorInvalidBody
 	}
 
 	return u, nil
@@ -55,24 +57,34 @@ func (c AuthManager) Validate(input SignInDto) (*user.User, error) {
 
 // NewToken godoc
 func (c AuthManager) NewToken(u *user.User) (string, error) {
+	if u.IsDisabled {
+		return "", ErrorUserDisabled
+	}
+
 	claims := NewJwtClaims(u.ID)
+	// TODO: fix JwtExpire
+	//claims.ExpiresAt = time.Now().Add(time.Duration(c.AuthConfig.JwtExpire)).Unix()
 
 	// Create token with claims
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte(c.AuthConfig.JwtSecret))
+	// Generate encoded signed and send it as response.
+	signed, err := token.SignedString([]byte(c.AuthConfig.JwtSecret))
 	if err != nil {
 		return "", err
 	}
 
-	return t, nil
+	return signed, nil
 }
 
 // ChangePassword godoc
 func (c AuthManager) ChangePassword(u *user.User, input ChangePasswordDto) error {
+	if u.IsDisabled {
+		return ErrorUserDisabled
+	}
+
 	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
-		return ErrorInvalidPassword
+		return ErrorInvalidBody
 	}
 
 	password, err := hashPassword(input.NewPassword)
@@ -82,7 +94,7 @@ func (c AuthManager) ChangePassword(u *user.User, input ChangePasswordDto) error
 
 	u.Password = password
 
-	if err := c.Crud.Flush(u); err != nil {
+	if err := c.Repo.Add(u); err != nil {
 		return err
 	}
 
@@ -91,7 +103,7 @@ func (c AuthManager) ChangePassword(u *user.User, input ChangePasswordDto) error
 
 // SignUp godoc
 func (c AuthManager) SignUp(input SignUpDto) (*user.User, error) {
-	var u *user.User
+	var u user.User
 	utils.Copy(&u, &input)
 
 	u.IsVerified = false
@@ -106,21 +118,21 @@ func (c AuthManager) SignUp(input SignUpDto) (*user.User, error) {
 
 	u.SetAttribute(AttributeConfirmToken, utils.RandomToken())
 
-	if err := c.Crud.Flush(u); err != nil {
+	if err := c.Repo.Add(&u); err != nil {
 		return nil, err
 	}
 
-	event := EventAuthGeneric{u}
+	event := EventAuthGeneric{&u}
 	if err := c.Bus.Emit(context.Background(), EventAuthSignUp, event); err != nil {
 		return nil, err
 	}
 
-	return u, nil
+	return &u, nil
 }
 
 // Confirm godoc
 func (c AuthManager) Confirm(token string) error {
-	u := c.Crud.FinByConfirmToken(token)
+	u := c.Repo.FinByConfirmToken(token)
 	if u == nil {
 		return ErrorUserDisabled
 	}
@@ -132,7 +144,7 @@ func (c AuthManager) Confirm(token string) error {
 	u.IsVerified = true
 	u.DeleteAttribute(AttributeConfirmToken)
 
-	if err := c.Crud.Flush(u); err != nil {
+	if err := c.Repo.Add(u); err != nil {
 		return err
 	}
 
@@ -157,7 +169,7 @@ func (c AuthManager) Restore(input IdentityDto) error {
 
 	u.SetAttribute(AttributeResetToken, utils.RandomToken())
 
-	if err := c.Crud.Flush(u); err != nil {
+	if err := c.Repo.Add(u); err != nil {
 		return err
 	}
 
@@ -179,7 +191,6 @@ func (c AuthManager) ResetToken(u *user.User, token string) error {
 		return ErrorInvalidToken
 	}
 
-	u.DeleteAttribute(AttributeResetToken)
 	password := utils.RandomStr(nil)
 
 	// Password
@@ -189,7 +200,10 @@ func (c AuthManager) ResetToken(u *user.User, token string) error {
 	}
 	u.Password = pass
 
-	if err := c.Crud.Flush(u); err != nil {
+	// Delete reset token
+	u.DeleteAttribute(AttributeResetToken)
+
+	if err := c.Repo.Add(u); err != nil {
 		return err
 	}
 
@@ -207,11 +221,13 @@ func (c AuthManager) Save(u *user.User, input user.UserDto) error {
 		u.SetAttributes(input.RawAttributes)
 	}
 
+	// TODO: move to UserCrud
 	u.DisplayName = ""
 	if len(input.DisplayName) > 0 {
 		u.DisplayName = input.DisplayName
 	}
 
+	// TODO: move to UserCrud
 	if len(input.Username) > 0 && u.Username != input.Username {
 		u.Username = input.Username
 	}
@@ -228,7 +244,7 @@ func (c AuthManager) Save(u *user.User, input user.UserDto) error {
 		return err
 	}
 
-	if err := c.Crud.Flush(u); err != nil {
+	if err := c.Repo.Add(u); err != nil {
 		return err
 	}
 
@@ -248,7 +264,7 @@ func (c AuthManager) Save(u *user.User, input user.UserDto) error {
 func (c AuthManager) OAuth(gothUser goth.User) (*OAuth, error) {
 	oauth := &OAuth{}
 
-	result := c.Crud.DB().Preload(clause.Associations).
+	result := c.Repo.Preload(clause.Associations).
 		Where("unique_id = ? AND provider = ?", gothUser.UserID, gothUser.Provider).
 		First(&oauth)
 
@@ -278,11 +294,11 @@ func (c AuthManager) OAuth(gothUser goth.User) (*OAuth, error) {
 		Password:    pass,
 	}
 
-	if err := c.Crud.DB().Create(oauth.User).Error; err != nil {
+	if err := c.Repo.Create(oauth.User).Error; err != nil {
 		return oauth, err
 	}
 
-	if err := c.Crud.DB().Create(&oauth).Error; err != nil {
+	if err := c.Repo.Create(&oauth).Error; err != nil {
 		return oauth, err
 	}
 

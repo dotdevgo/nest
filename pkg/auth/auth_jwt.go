@@ -20,6 +20,7 @@ func NewJwtClaims(identity string) *jwt.StandardClaims {
 
 // JwtMiddleware godoc
 func JwtMiddleware(config AuthConfig) echo.MiddlewareFunc {
+	// TODO: fix deprecated
 	return middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &jwt.StandardClaims{},
 		SigningKey: []byte(config.JwtSecret),

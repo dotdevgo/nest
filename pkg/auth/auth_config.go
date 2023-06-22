@@ -9,6 +9,7 @@ import (
 type (
 	// AuthConfig stores the auth configuration
 	AuthConfig struct {
+		JwtExpire uint   `env:"JWT_EXPIRE,default=36000"`
 		JwtSecret string `env:"JWT_SECRET,default=secret"`
 		// CallbackUrl string `env:"OAUTH_CALLBACK_URL"`
 	}
