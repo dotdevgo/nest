@@ -20,12 +20,11 @@ const (
 	RouteAuthConfirm        = "/auth/confirm/:token"
 	RouteAuthRestore        = "/auth/restore"
 	RouteAuthResetToken     = "/auth/reset/:user/:token"
+	RouteOauth              = "/auth/oauth/:provider"
+	RouteOauthCallback      = "/auth/callback/:provider"
 	RouteAuthChangePassword = "/api/auth/password"
 	RouteAuthUpdate         = "/api/auth/update"
 	RouteAuthMe             = "/api/auth/me"
-
-	RouteOauth         = "/auth/oauth/:provider"
-	RouteOauthCallback = "/auth/callback/:provider"
 )
 
 type AuthController struct {
@@ -44,7 +43,7 @@ func (c AuthController) Router(w *nest.Kernel) {
 	w.GET(RouteOauth, c.OAuth)
 	w.GET(RouteOauthCallback, c.OAuth)
 
-	api := w.Secure()
+	api := w.Api()
 	api.GET(RouteAuthMe, c.Me)
 	api.POST(RouteAuthChangePassword, c.ChangePassword)
 	api.POST(RouteAuthUpdate, c.Update)
@@ -136,7 +135,7 @@ func (c AuthController) SignIn(ctx nest.Context) error {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
 
-	token, err := c.Auth.NewToken(u)
+	token, err := c.Auth.NewToken(*u)
 	if err != nil {
 		return nest.NewHTTPError(http.StatusBadRequest, err)
 	}
@@ -230,8 +229,8 @@ func (c AuthController) Update(ctx nest.Context) error {
 	}
 
 	var input user.UserDto
-	input.Pk = u.Pk
-	input.ID = u.ID
+	// input.Pk = u.Pk
+	// input.ID = u.ID
 
 	if err := ctx.Bind(&input); err != nil {
 		return err

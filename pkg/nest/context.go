@@ -45,11 +45,11 @@ func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	}
 }
 
-// T godoc
+// T translate string
 func (c *context) T(msg *i18n.Message) (string, error) {
-	lz, ok := c.Get("localizer").(*i18n.Localizer)
+	localizer, ok := c.Get("localizer").(*i18n.Localizer)
 	if ok {
-		return lz.LocalizeMessage(msg)
+		return localizer.LocalizeMessage(msg)
 	}
 	return "", errors.New("cannot find localizer")
 }

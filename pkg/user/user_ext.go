@@ -17,7 +17,11 @@ func New() di.Option {
 			return db.AutoMigrate(&User{})
 		}),
 		di.Provide(crud.NewService[*User]),
-		di.Provide(newUserCrud),
+		di.Provide(func(c *crud.Crud[*User]) *UserCrud {
+			return &UserCrud{
+				Crud: c,
+			}
+		}),
 		di.Provide(func() *UserValidator {
 			return &UserValidator{}
 		}),
@@ -35,7 +39,7 @@ type userExt struct {
 }
 
 // Boot godoc
-func (p userExt) OnStart(w *nest.Kernel) error {
+func (p userExt) Boot(w *nest.Kernel) error {
 	w.InvokeFn(p.registerValidations)
 
 	return nil

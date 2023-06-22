@@ -3,16 +3,20 @@ package auth
 import "dotdev/nest/pkg/user"
 
 const (
-	EventUserSignUp     = "user.sign_up"
-	EventUserConfirm    = "user.confirm"
-	EventUserRestore    = "user.restore"
-	EventUserResetToken = "user.reset_token"
-	EventUserResetEmail = "user.reset_email"
+	EventAuthSignUp     = "auth.sign_up"
+	EventAuthConfirm    = "auth.confirm"
+	EventAuthRestore    = "auth.restore"
+	EventAuthResetToken = "auth.reset_token"
+	EventAuthResetEmail = "auth.reset_email"
 )
 
 type (
+	EventAuthGeneric struct {
+		User *user.User
+	}
+
 	EventResetToken struct {
-		User     user.User
+		User     *user.User
 		Password string
 	}
 )

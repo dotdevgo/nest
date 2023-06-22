@@ -3,36 +3,35 @@ package auth
 import (
 	"context"
 
-	"dotdev/nest/pkg/logger"
+	// "dotdev/nest/pkg/logger"
 	"dotdev/nest/pkg/mailer"
-	"dotdev/nest/pkg/user"
 
 	"github.com/defval/di"
 	"github.com/mustafaturan/bus/v3"
 )
 
-// AuthHooks godoc
-type AuthHooks struct {
+// AuthListener godoc
+type AuthListener struct {
 	di.Inject
 
 	*AuthMailer
 	*mailer.Mailer
 }
 
-func (h AuthHooks) SignUp(ctx context.Context, e bus.Event) {
-	u, ok := e.Data.(user.User)
+func (h AuthListener) SignUp(ctx context.Context, e bus.Event) {
+	event, ok := e.Data.(EventAuthGeneric)
 	if !ok {
 		return
 	}
 
 	go func() {
-		template := h.AuthMailer.SignUp(u)
+		template := h.AuthMailer.SignUp(*event.User)
 		m, err := h.Mailer.NewEmail(template)
 		if err != nil {
 			return
 		}
 
-		m.To = []string{u.Email}
+		m.To = []string{event.User.Email}
 		m.Subject = "Confirm your account"
 
 		if err := h.Mailer.Send(m); err != nil {
@@ -41,8 +40,8 @@ func (h AuthHooks) SignUp(ctx context.Context, e bus.Event) {
 	}()
 }
 
-func (h AuthHooks) Restore(ctx context.Context, e bus.Event) {
-	u, ok := e.Data.(user.User)
+func (h AuthListener) Restore(ctx context.Context, e bus.Event) {
+	event, ok := e.Data.(EventAuthGeneric)
 	if !ok {
 		return
 	}
@@ -50,13 +49,13 @@ func (h AuthHooks) Restore(ctx context.Context, e bus.Event) {
 	// logger.Log("AuthHooks: OnRestore %v", u.ID)
 
 	go func() {
-		template := h.AuthMailer.Restore(u)
+		template := h.AuthMailer.Restore(*event.User)
 		m, err := h.Mailer.NewEmail(template)
 		if err != nil {
 			return
 		}
 
-		m.To = []string{u.Email}
+		m.To = []string{event.User.Email}
 		m.Subject = "Reset account password"
 
 		if err := h.Mailer.Send(m); err != nil {
@@ -65,7 +64,7 @@ func (h AuthHooks) Restore(ctx context.Context, e bus.Event) {
 	}()
 }
 
-func (h AuthHooks) ResetToken(ctx context.Context, e bus.Event) {
+func (h AuthListener) ResetToken(ctx context.Context, e bus.Event) {
 	event, ok := e.Data.(EventResetToken)
 	if !ok {
 		return
@@ -87,22 +86,22 @@ func (h AuthHooks) ResetToken(ctx context.Context, e bus.Event) {
 	}()
 }
 
-func (h AuthHooks) ResetEmail(ctx context.Context, e bus.Event) {
-	u, ok := e.Data.(user.User)
+func (h AuthListener) ResetEmail(ctx context.Context, e bus.Event) {
+	event, ok := e.Data.(EventAuthGeneric)
 	if !ok {
 		return
 	}
 
-	logger.Log("AuthHooks: ChangeEmail %v", u.ID)
+	// logger.Log("AuthHooks: ChangeEmail %v", u.ID)
 
 	go func() {
-		template := h.AuthMailer.ResetEmail(u)
+		template := h.AuthMailer.ResetEmail(*event.User)
 		m, err := h.Mailer.NewEmail(template)
 		if err != nil {
 			return
 		}
 
-		m.To = []string{u.Email}
+		m.To = []string{event.User.Email}
 		m.Subject = "Confirm your new email"
 
 		if err := h.Mailer.Send(m); err != nil {

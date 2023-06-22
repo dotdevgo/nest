@@ -1,17 +1,12 @@
 package auth
 
 import (
-	"fmt"
-
-	"github.com/markbates/goth"
-	"github.com/markbates/goth/providers/discord"
-	"github.com/markbates/goth/providers/steam"
-	"gorm.io/gorm"
-
 	"dotdev/nest/pkg/nest"
 
 	"github.com/defval/di"
+	"github.com/markbates/goth"
 	"github.com/mustafaturan/bus/v3"
+	"gorm.io/gorm"
 )
 
 // New godoc
@@ -24,8 +19,8 @@ func New() di.Option {
 		di.Provide(func() *AuthManager {
 			return &AuthManager{}
 		}),
-		di.Provide(func() *AuthHooks {
-			return &AuthHooks{}
+		di.Provide(func() *AuthListener {
+			return &AuthListener{}
 		}),
 		di.Provide(func() *AuthMailer {
 			return &AuthMailer{}
@@ -41,66 +36,55 @@ type authExt struct {
 }
 
 // Boot godoc
-func (p authExt) OnStart(w *nest.Kernel) error {
-	w.InvokeFn(p.registerMiddleware)
-	w.InvokeFn(p.registerTopics)
-	w.InvokeFn(p.registerProviders)
+func (p authExt) Boot(w *nest.Kernel) error {
+	w.InvokeFn(p.RegisterMiddleware)
+	w.InvokeFn(p.RegisterTopics)
+	w.Invoke(p.RegisterProviders)
 
 	return nil
 }
 
-// registerMiddleware godoc
-func (p authExt) registerMiddleware(w *nest.Kernel, authConfig AuthConfig) {
-	api := w.Secure()
-	api.Use(JwtMiddleware(authConfig))
+// RegisterMiddleware godoc
+func (p authExt) RegisterMiddleware(w *nest.Kernel, authConfig AuthConfig) {
+	// TODO: refactor
+	api := w.Api()
 	api.Use(AuthMiddleware())
+	api.Use(JwtMiddleware(authConfig))
 }
 
-// registerTopics godoc
-func (p authExt) registerTopics(w *nest.Kernel, b *bus.Bus, h *AuthHooks) {
-	b.RegisterTopics(EventUserRestore)
-	b.RegisterHandler(EventUserRestore, bus.Handler{
-		Matcher: EventUserRestore,
+// RegisterTopics godoc
+func (p authExt) RegisterTopics(w *nest.Kernel, b *bus.Bus, h *AuthListener) {
+	b.RegisterTopics(EventAuthRestore)
+	b.RegisterHandler(EventAuthRestore, bus.Handler{
+		Matcher: EventAuthRestore,
 		Handle:  h.Restore,
 	})
 
-	b.RegisterTopics(EventUserResetToken)
-	b.RegisterHandler(EventUserResetToken, bus.Handler{
-		Matcher: EventUserResetToken,
+	b.RegisterTopics(EventAuthResetToken)
+	b.RegisterHandler(EventAuthResetToken, bus.Handler{
+		Matcher: EventAuthResetToken,
 		Handle:  h.ResetToken,
 	})
 
-	b.RegisterTopics(EventUserSignUp)
-	b.RegisterHandler(EventUserSignUp, bus.Handler{
-		Matcher: EventUserSignUp,
+	b.RegisterTopics(EventAuthSignUp)
+	b.RegisterHandler(EventAuthSignUp, bus.Handler{
+		Matcher: EventAuthSignUp,
 		Handle:  h.SignUp,
 	})
 
-	b.RegisterTopics(EventUserConfirm)
+	b.RegisterTopics(EventAuthConfirm)
 
-	b.RegisterTopics(EventUserResetEmail)
-	b.RegisterHandler(EventUserResetEmail, bus.Handler{
-		Matcher: EventUserResetEmail,
+	b.RegisterTopics(EventAuthResetEmail)
+	b.RegisterHandler(EventAuthResetEmail, bus.Handler{
+		Matcher: EventAuthResetEmail,
 		Handle:  h.ResetEmail,
 	})
 }
 
-// registerProviders godoc
-func (p authExt) registerProviders(w *nest.Kernel, authConfig AuthConfig) {
-	var providers []goth.Provider
-
-	callbackUri := fmt.Sprintf("%s/auth/callback", w.Config.HTTP.Hostname)
-
-	if authConfig.SteamApiKey != "" {
-		steamProvider := steam.New(authConfig.SteamApiKey, fmt.Sprintf("%s/steam", callbackUri))
-		providers = append(providers, steamProvider)
-		w.Logger.Info("AUTH: Provider loaded ==> steam", authConfig.SteamApiKey)
-	}
-
-	if authConfig.DiscordSecret != "" {
-		discordProvider := discord.New(authConfig.DiscordAppId, authConfig.DiscordSecret, fmt.Sprintf("%s/discord", callbackUri))
-		providers = append(providers, discordProvider)
-		w.Logger.Info("AUTH: Provider loaded ==> discord")
+// RegisterProviders godoc
+func (p authExt) RegisterProviders(w *nest.Kernel, authConfig AuthConfig, providers []goth.Provider) {
+	if nil == providers || len(providers) == 0 {
+		return
 	}
 
 	goth.UseProviders(providers...)

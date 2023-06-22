@@ -7,7 +7,6 @@ import (
 	"net/mail"
 
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 
@@ -36,7 +35,7 @@ type AuthManager struct {
 }
 
 // Validate godoc
-func (c AuthManager) Validate(input SignInDto) (user.User, error) {
+func (c AuthManager) Validate(input SignInDto) (*user.User, error) {
 	u, err := c.Crud.LoadUser(input.Identity)
 	if err != nil {
 		return u, err
@@ -46,6 +45,7 @@ func (c AuthManager) Validate(input SignInDto) (user.User, error) {
 		return u, ErrorUserDisabled
 	}
 
+	// TODO: util method
 	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
 		return u, ErrorInvalidPassword
 	}
@@ -54,7 +54,7 @@ func (c AuthManager) Validate(input SignInDto) (user.User, error) {
 }
 
 // NewToken godoc
-func (c AuthManager) NewToken(u user.User) (string, error) {
+func (c AuthManager) NewToken(u *user.User) (string, error) {
 	claims := NewJwtClaims(u.ID)
 
 	// Create token with claims
@@ -70,19 +70,19 @@ func (c AuthManager) NewToken(u user.User) (string, error) {
 }
 
 // ChangePassword godoc
-func (c AuthManager) ChangePassword(u user.User, input ChangePasswordDto) error {
+func (c AuthManager) ChangePassword(u *user.User, input ChangePasswordDto) error {
 	if err := bcrypt.CompareHashAndPassword(u.Password, []byte(input.Password)); err != nil {
 		return ErrorInvalidPassword
 	}
 
-	// Password
-	pass, err := c.hashPassword(input.NewPassword)
+	password, err := hashPassword(input.NewPassword)
 	if err != nil {
 		return err
 	}
-	u.Password = pass
 
-	if err := c.Crud.Flush(&u); err != nil {
+	u.Password = password
+
+	if err := c.Crud.Flush(u); err != nil {
 		return err
 	}
 
@@ -90,29 +90,29 @@ func (c AuthManager) ChangePassword(u user.User, input ChangePasswordDto) error 
 }
 
 // SignUp godoc
-func (c AuthManager) SignUp(input SignUpDto) (user.User, error) {
-	var u user.User
+func (c AuthManager) SignUp(input SignUpDto) (*user.User, error) {
+	var u *user.User
 	utils.Copy(&u, &input)
 
-	// Defaults
 	u.IsVerified = false
 	u.IsDisabled = false
 
-	u.SetAttribute(AttributeConfirmToken, utils.RandomToken())
-
-	// Password
-	pass, err := c.hashPassword(input.Password)
+	pass, err := hashPassword(input.Password)
 	if err != nil {
-		return u, err
+		return nil, err
 	}
+
 	u.Password = pass
 
-	if err := c.Crud.Flush(&u); err != nil {
-		return u, err
+	u.SetAttribute(AttributeConfirmToken, utils.RandomToken())
+
+	if err := c.Crud.Flush(u); err != nil {
+		return nil, err
 	}
 
-	if err := c.Bus.Emit(context.Background(), EventUserSignUp, u); err != nil {
-		return u, err
+	event := EventAuthGeneric{u}
+	if err := c.Bus.Emit(context.Background(), EventAuthSignUp, event); err != nil {
+		return nil, err
 	}
 
 	return u, nil
@@ -120,24 +120,24 @@ func (c AuthManager) SignUp(input SignUpDto) (user.User, error) {
 
 // Confirm godoc
 func (c AuthManager) Confirm(token string) error {
-	var u user.User
+	u := c.Crud.FinByConfirmToken(token)
+	if u == nil {
+		return ErrorUserDisabled
+	}
 
-	result := c.Crud.Stmt().
-		Find(&u, datatypes.JSONQuery("attributes").
-			Equals(token, AttributeConfirmToken))
-
-	if result.Error != nil || u.Pk <= 0 {
-		return errors.New("Invalid token")
+	if u.IsDisabled {
+		return ErrorUserDisabled
 	}
 
 	u.IsVerified = true
 	u.DeleteAttribute(AttributeConfirmToken)
 
-	if err := c.Crud.Flush(&u); err != nil {
+	if err := c.Crud.Flush(u); err != nil {
 		return err
 	}
 
-	if err := c.Bus.Emit(context.Background(), EventUserConfirm, &u); err != nil {
+	event := EventAuthGeneric{u}
+	if err := c.Bus.Emit(context.Background(), EventAuthConfirm, event); err != nil {
 		return err
 	}
 
@@ -157,91 +157,44 @@ func (c AuthManager) Restore(input IdentityDto) error {
 
 	u.SetAttribute(AttributeResetToken, utils.RandomToken())
 
-	if err := c.Crud.Flush(&u); err != nil {
+	if err := c.Crud.Flush(u); err != nil {
 		return err
 	}
 
-	if err := c.Bus.Emit(context.Background(), EventUserRestore, u); err != nil {
+	event := EventAuthGeneric{u}
+	if err := c.Bus.Emit(context.Background(), EventAuthRestore, event); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// OAuth godoc
-func (c AuthManager) OAuth(gothUser goth.User) (OAuth, error) {
-	oauth := OAuth{}
-
-	result := c.Crud.DB().Preload(clause.Associations).
-		Where("unique_id = ? AND provider = ?", gothUser.UserID, gothUser.Provider).
-		First(&oauth)
-
-	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-		oauth.Provider = gothUser.Provider
-		oauth.UniqueID = gothUser.UserID
-
-		password := utils.RandomStr(nil)
-		pass, err := c.hashPassword(password)
-		if err != nil {
-			return oauth, err
-		}
-
-		_, err = mail.ParseAddress(gothUser.Email)
-		email := gothUser.Email
-		if nil != err {
-			// TODO: config domain variable
-			email = fmt.Sprintf("%s-%s@4squad.net", oauth.UniqueID, oauth.Provider)
-		}
-
-		u := user.User{
-			Username:    gothUser.UserID,
-			DisplayName: fmt.Sprintf("%s (%s)", gothUser.NickName, gothUser.Name),
-			Email:       email,
-			Password:    pass,
-		}
-
-		// oauthAttribute := fmt.Sprintf("oauth_%s", oauth.Provider)
-		// u.SetAttribute(oauthAttribute, oauth.UniqueID)
-
-		oauth.User = &u
-		if err := c.Crud.DB().Create(&u).Error; err != nil {
-			return oauth, err
-		}
-
-		if err := c.Crud.DB().Create(&oauth).Error; err != nil {
-			return oauth, err
-		}
-	}
-
-	return oauth, nil
-}
-
 // ResetToken godoc
-func (c AuthManager) ResetToken(u user.User, token string) error {
+func (c AuthManager) ResetToken(u *user.User, token string) error {
 	if u.IsDisabled {
 		return ErrorUserDisabled
 	}
 
 	if token != u.GetAttribute(AttributeResetToken) {
-		return errors.New("Invalid token")
+		return ErrorInvalidToken
 	}
 
 	u.DeleteAttribute(AttributeResetToken)
 	password := utils.RandomStr(nil)
 
 	// Password
-	pass, err := c.hashPassword(password)
+	pass, err := hashPassword(password)
 	if err != nil {
 		return err
 	}
 	u.Password = pass
 
-	if err := c.Crud.Flush(&u); err != nil {
+	if err := c.Crud.Flush(u); err != nil {
 		return err
 	}
 
-	var event = EventResetToken{u, password}
-	if err := c.Bus.Emit(context.Background(), EventUserResetToken, event); err != nil {
+	event := EventResetToken{u, password}
+	if err := c.Bus.Emit(context.Background(), EventAuthResetToken, event); err != nil {
 		return err
 	}
 
@@ -279,21 +232,59 @@ func (c AuthManager) Save(u *user.User, input user.UserDto) error {
 		return err
 	}
 
-	if isEmailChanged {
-		if err := c.Bus.Emit(context.Background(), EventUserResetEmail, u); err != nil {
-			return err
-		}
+	if !isEmailChanged {
+		return nil
+	}
+
+	event := EventAuthGeneric{u}
+	if err := c.Bus.Emit(context.Background(), EventAuthResetEmail, event); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-// hashPassword godoc
-func (c AuthManager) hashPassword(pass string) (password []byte, err error) {
-	password, err = bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
-	if err != nil {
-		return password, err
+// OAuth godoc
+func (c AuthManager) OAuth(gothUser goth.User) (*OAuth, error) {
+	oauth := &OAuth{}
+
+	result := c.Crud.DB().Preload(clause.Associations).
+		Where("unique_id = ? AND provider = ?", gothUser.UserID, gothUser.Provider).
+		First(&oauth)
+
+	if !errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return oauth, nil
 	}
 
-	return password, err
+	oauth.Provider = gothUser.Provider
+	oauth.UniqueID = gothUser.UserID
+
+	pass, err := hashPassword(utils.RandomStr(nil))
+	if err != nil {
+		return oauth, err
+	}
+
+	// TODO: config domain variable
+	_, err = mail.ParseAddress(gothUser.Email)
+	email := gothUser.Email
+	if nil != err {
+		email = fmt.Sprintf("%s-%s@4squad.net", oauth.UniqueID, oauth.Provider)
+	}
+
+	oauth.User = &user.User{
+		Username:    gothUser.UserID,
+		DisplayName: fmt.Sprintf("%s (%s)", gothUser.NickName, gothUser.Name),
+		Email:       email,
+		Password:    pass,
+	}
+
+	if err := c.Crud.DB().Create(oauth.User).Error; err != nil {
+		return oauth, err
+	}
+
+	if err := c.Crud.DB().Create(&oauth).Error; err != nil {
+		return oauth, err
+	}
+
+	return oauth, errors.New("some error occured")
 }

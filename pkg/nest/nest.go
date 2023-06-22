@@ -32,8 +32,8 @@ var (
 )
 
 type (
-	// SecureGroup godoc
-	SecureGroup interface{}
+	// ApiGroup godoc
+	ApiGroup interface{}
 
 	// ContainerHandlerFunc godoc
 	ContainerHandlerFunc func(Context) interface{}
@@ -50,7 +50,7 @@ type (
 
 	// Extension godoc
 	Extension interface {
-		OnStart(w *Kernel) error
+		Boot(w *Kernel) error
 	}
 
 	// Validator is the interface that wraps the Validate function.
@@ -71,7 +71,7 @@ type (
 
 var isBooted = false
 
-var secureGroup SecureGroup
+var apiGroup ApiGroup
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
@@ -89,10 +89,10 @@ func New(providers ...di.Option) *Kernel {
 
 	// TODO: secureGroup.use() middleware
 	//	set context variable ctx.Set("secure", true)
-	secureGroup = w.Group("")
+	apiGroup = w.Group("")
 
-	utils.NoErrorOrFatal(c.Provide(func() SecureGroup {
-		return secureGroup
+	utils.NoErrorOrFatal(c.Provide(func() ApiGroup {
+		return apiGroup
 	}))
 
 	c.Apply(providers...)
@@ -149,11 +149,11 @@ func NewController(provideFn di.Constructor) di.Option {
 	return di.Provide(provideFn, di.As(new(AbstractController)))
 }
 
-// Secure godoc
-func (w *Kernel) Secure() *Group {
+// Api godoc
+func (w *Kernel) Api() *Group {
 	// var g SecureGroup
 	// w.ResolveFn(&g)
-	e := secureGroup.(*Group)
+	e := apiGroup.(*Group)
 	return e
 }
 
@@ -331,17 +331,17 @@ func (w *Kernel) Boot() error {
 		return err
 	}
 
-	if err := w.Invoke(w.onStart); err != nil {
+	if err := w.Invoke(w.onBootstrap); err != nil {
 		w.Logger.Warn(err.Error())
 	}
 
 	return nil
 }
 
-// onStart godoc
-func (w *Kernel) onStart(providers []Extension) error {
+// onBootstrap godoc
+func (w *Kernel) onBootstrap(providers []Extension) error {
 	for _, p := range providers {
-		if err := p.OnStart(w); err != nil {
+		if err := p.Boot(w); err != nil {
 			// w.Logger.Warn(err.Error())
 			return err
 		}

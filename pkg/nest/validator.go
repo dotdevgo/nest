@@ -13,7 +13,7 @@ type EchoValidator struct {
 	validator *validator.Validate
 }
 
-type ApiError struct {
+type ValidationError struct {
 	Field string `json:"field"`
 	Msg   string `json:"msg"`
 }
@@ -30,9 +30,9 @@ func (cv *EchoValidator) Validate(i interface{}) error {
 func NewValidatorError(ctx Context, err error) error {
 	var ve validator.ValidationErrors
 	if errors.As(err, &ve) {
-		errs := make([]ApiError, len(ve))
+		errs := make([]ValidationError, len(ve))
 		for i, fe := range ve {
-			errs[i] = ApiError{Field: strings.ToLower(fe.Field()), Msg: fe.Error()}
+			errs[i] = ValidationError{Field: strings.ToLower(fe.Field()), Msg: fe.Error()}
 		}
 
 		return ctx.JSON(http.StatusBadRequest, &echo.Map{"errors": errs})

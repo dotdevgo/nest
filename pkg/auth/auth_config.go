@@ -10,11 +10,7 @@ type (
 	// AuthConfig stores the auth configuration
 	AuthConfig struct {
 		JwtSecret string `env:"JWT_SECRET,default=secret"`
-		// Steam
-		SteamApiKey string `env:"STEAM_API_KEY"`
-		// Discord
-		DiscordAppId  string `env:"DISCORD_APP_ID"`
-		DiscordSecret string `env:"DISCORD_SECRET"`
+		// CallbackUrl string `env:"OAUTH_CALLBACK_URL"`
 	}
 )
 
@@ -23,7 +19,7 @@ func NewAuthConfig() AuthConfig {
 	var cfg AuthConfig
 
 	if err := envdecode.StrictDecode(&cfg); err != nil {
-		logger.Error(err)
+		logger.Panic(err)
 	}
 
 	return cfg
