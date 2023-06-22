@@ -24,13 +24,13 @@ func (c Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 
 	body, err := c.Hermes.GenerateHTML(template)
 	if err != nil {
-		logger.Log(err)
+		logger.Error(err)
 		return nil, err
 	}
 
 	text, err := c.Hermes.GeneratePlainText(template)
 	if err != nil {
-		logger.Log(err)
+		logger.Error(err)
 		return nil, err
 	}
 
@@ -44,7 +44,7 @@ func (c Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 func (c Mailer) Send(m *email.Email) error {
 	config := c.Config.Mail
 	if config.Hostname == "" {
-		logger.Log("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)
+		logger.Logf("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)
 		return nil
 	}
 
@@ -55,7 +55,7 @@ func (c Mailer) Send(m *email.Email) error {
 
 	err := m.Send(addr, auth)
 	if err != nil {
-		logger.Log(err)
+		logger.Error(err)
 	}
 
 	return err
