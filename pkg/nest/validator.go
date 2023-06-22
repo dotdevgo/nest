@@ -29,6 +29,7 @@ func (cv *EchoValidator) Validate(i interface{}) error {
 // NewValidatorError godoc
 func NewValidatorError(ctx Context, err error) error {
 	var ve validator.ValidationErrors
+
 	if errors.As(err, &ve) {
 		errs := make([]ValidationError, len(ve))
 		for i, fe := range ve {
