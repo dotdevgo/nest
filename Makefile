@@ -21,8 +21,7 @@ init:
 
 # Examples
 start-dev:
-	cd cmd/api && \
-	gow run main.go
+	gow run cmd/api/main.go
 
 # Graphql
 gqlgen:

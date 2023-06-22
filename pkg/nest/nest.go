@@ -75,15 +75,15 @@ var secureGroup SecureGroup
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
-	container, err := di.New()
+	c, err := di.New()
 	utils.NoErrorOrFatal(err)
 
-	e := NewEcho(container)
+	e := NewEcho(c)
 	e.HideBanner = true
 
-	w := &Kernel{Container: container, Echo: e}
+	w := &Kernel{Container: c, Echo: e}
 
-	utils.NoErrorOrFatal(container.Provide(func() *Kernel {
+	utils.NoErrorOrFatal(c.Provide(func() *Kernel {
 		return w
 	}))
 
@@ -91,11 +91,11 @@ func New(providers ...di.Option) *Kernel {
 	//	set context variable ctx.Set("secure", true)
 	secureGroup = w.Group("")
 
-	utils.NoErrorOrFatal(container.Provide(func() SecureGroup {
+	utils.NoErrorOrFatal(c.Provide(func() SecureGroup {
 		return secureGroup
 	}))
 
-	container.Apply(providers...)
+	c.Apply(providers...)
 
 	// TODO: если не вызвать тут не работает w.Secure()
 	//	конкретно если не зарегистрировать JWTMiddleware
