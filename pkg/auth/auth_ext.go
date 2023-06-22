@@ -10,7 +10,7 @@ import (
 
 	"dotdev/nest/pkg/nest"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"github.com/mustafaturan/bus/v3"
 )
 

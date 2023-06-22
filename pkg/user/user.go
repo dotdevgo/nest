@@ -22,13 +22,6 @@ type User struct {
 	Username    string  `json:"username" gorm:"not null;index:uniqueUsername,unique"`
 	DisplayName string  `json:"displayName"`
 	Locale      *string `json:"locale"`
-	Photo       string  `json:"photo" gorm:"null"`
-	Bio         string  `json:"bio"`
-
-	// TODO: remove
-	// CountPublications  uint32 `json:"countPublications"`
-	// CountFollowers     uint32 `json:"countFollowers"`
-	// CountSubscriptions uint32 `json:"countSubscriptions"`
 
 	IsVerified bool `json:"isVerified" gorm:"null"`
 	IsDisabled bool `json:"isDisabled" gorm:"null"`
@@ -37,41 +30,26 @@ type User struct {
 }
 
 func (u User) MarshalJSON() ([]byte, error) {
-	// displayName := u.DisplayName
-	// if displayName == nil {
-	// 	displayName = &u.Username
+	// attributes, err := u.GetAttributes()
+	// if err != nil {
+	// 	return []byte{}, err
 	// }
-
-	attributes, err := u.GetAttributes()
-	if err != nil {
-		return []byte{}, err
-	}
 
 	return json.Marshal(&struct {
 		ID          string `json:"id"`
 		Email       string `json:"email"`
 		Username    string `json:"username"`
 		DisplayName string `json:"displayName"`
-		Bio         string `json:"bio"`
-		Photo       string `json:"photo"`
-		// CountPublications  uint32  `json:"countPublications"`
-		// CountFollowers     uint32  `json:"countFollowers"`
-		// CountSubscriptions uint32  `json:"countSubscriptions"`
-		IsVerified bool      `json:"isVerified"`
-		IsDisabled bool      `json:"isDisabled"`
-		Attributes crud.JSON `json:"attributes"`
+		IsVerified  bool   `json:"isVerified"`
+		IsDisabled  bool   `json:"isDisabled"`
+		//Attributes  crud.JSON `json:"attributes"`
 	}{
 		ID:          u.ID,
 		Email:       u.Email,
 		Username:    u.Username,
 		DisplayName: u.DisplayName,
-		Bio:         u.Bio,
-		Photo:       u.Photo,
-		// CountPublications:  u.CountPublications,
-		// CountFollowers:     u.CountFollowers,
-		// CountSubscriptions: u.CountSubscriptions,
-		IsVerified: u.IsVerified,
-		IsDisabled: u.IsDisabled,
-		Attributes: attributes,
+		IsVerified:  u.IsVerified,
+		IsDisabled:  u.IsDisabled,
+		//Attributes:  attributes,
 	})
 }

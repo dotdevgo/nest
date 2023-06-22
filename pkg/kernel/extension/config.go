@@ -1,10 +1,10 @@
-package injector
+package extension
 
 import (
 	"dotdev/nest/pkg/nest"
 	"dotdev/nest/pkg/utils"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 )
 
 // Config godoc

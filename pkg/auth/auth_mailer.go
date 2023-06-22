@@ -6,7 +6,7 @@ import (
 	"dotdev/nest/pkg/nest"
 	"dotdev/nest/pkg/user"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"github.com/matcornic/hermes/v2"
 )
 

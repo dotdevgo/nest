@@ -26,7 +26,7 @@ type (
 	}
 
 	Attributes struct {
-		RawAttributes JSON           `gorm:"-" json:"attributes" form:"attributes"`
+		RawAttributes JSON           `gorm:"-" json:"-" form:"attributes"`
 		Attributes    datatypes.JSON `json:"-"`
 	}
 
@@ -77,6 +77,7 @@ func (m *Attributes) BeforeSave(tx *gorm.DB) (err error) {
 func (m *Attributes) GetAttributes() (JSON, error) {
 	// TODO: Refactor
 	jsonAttr := m.Attributes.String()
+
 	var attributes JSON
 	if err := json.Unmarshal([]byte(jsonAttr), &attributes); err != nil {
 		return attributes, err
@@ -85,8 +86,8 @@ func (m *Attributes) GetAttributes() (JSON, error) {
 	return attributes, nil
 }
 
-// AddAttributes godoc
-func (m *Attributes) AddAttributes(attr JSON) error {
+// SetAttributes godoc
+func (m *Attributes) SetAttributes(attr JSON) error {
 	for name, value := range attr {
 		m.SetAttribute(name, value)
 	}

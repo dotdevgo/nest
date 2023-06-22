@@ -20,3 +20,7 @@ type OAuth struct {
 	UniqueID string
 	Provider string
 }
+
+func (OAuth) TableName() string {
+	return "oauth"
+}

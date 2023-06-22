@@ -1,10 +1,10 @@
-package injector
+package extension
 
 import (
 	"github.com/mustafaturan/monoton/v2"
 	"github.com/mustafaturan/monoton/v2/sequencer"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"github.com/mustafaturan/bus/v3"
 )
 

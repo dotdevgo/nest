@@ -1,16 +1,16 @@
 package mailer
 
-import (
-	"github.com/matcornic/hermes/v2"
+// import (
+// "github.com/matcornic/hermes/v2"
 
-	"github.com/goava/di"
-)
+// "github.com/defval/di"
+// )
 
 // New godoc
-func New(h *hermes.Hermes) di.Option {
-	return di.Options(
-		di.Provide(func() *hermes.Hermes {
-			return h
-		}),
-	)
-}
+// func New() di.Option {
+// 	return di.Options(
+// 	// di.Provide(func(h *hermes.Hermes) *hermes.Hermes {
+// 	// 	return h
+// 	// }),
+// 	)
+// }

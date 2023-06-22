@@ -1,8 +1,8 @@
-package injector
+package extension
 
 import (
 	evbus "github.com/asaskevich/EventBus"
-	"github.com/goava/di"
+	"github.com/defval/di"
 )
 
 func EventBus() di.Option {

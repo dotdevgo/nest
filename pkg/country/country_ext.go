@@ -4,7 +4,7 @@ import (
 	"dotdev/nest/pkg/nest"
 
 	cn "github.com/biter777/countries"
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"gorm.io/gorm"
 )
 

@@ -7,8 +7,8 @@ import (
 	"dotdev/nest/pkg/logger"
 	"dotdev/nest/pkg/utils"
 
+	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
-	"github.com/goava/di"
 	"github.com/labstack/echo/v4"
 
 	// "github.com/labstack/gommon/log"
@@ -75,7 +75,7 @@ var secureGroup SecureGroup
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
-	container, err := di.New(providers...)
+	container, err := di.New()
 	utils.NoErrorOrFatal(err)
 
 	e := NewEcho(container)
@@ -94,6 +94,8 @@ func New(providers ...di.Option) *Kernel {
 	utils.NoErrorOrFatal(container.Provide(func() SecureGroup {
 		return secureGroup
 	}))
+
+	container.Apply(providers...)
 
 	// TODO: если не вызвать тут не работает w.Secure()
 	//	конкретно если не зарегистрировать JWTMiddleware

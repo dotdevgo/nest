@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
-	"github.com/goava/di"
 )
 
 type UserValidator struct {
@@ -16,16 +16,17 @@ type UserValidator struct {
 
 // UniqueUsername implements validator.CustomTypeFunc
 func (v UserValidator) UniqueUsername(fl validator.FieldLevel) bool {
-	return v.uniqueField("username", fl)
+	return v.validateUnique("username", fl)
 }
 
 // UniqueEmail implements validator.CustomTypeFunc
 func (v UserValidator) UniqueEmail(fl validator.FieldLevel) bool {
-	return v.uniqueField("email", fl)
+	return v.validateUnique("email", fl)
 }
 
-// uniqueField godoc
-func (v UserValidator) uniqueField(key string, fl validator.FieldLevel) bool {
+// validateUnique godoc
+// TODO: refactor
+func (v UserValidator) validateUnique(key string, fl validator.FieldLevel) bool {
 	data, ok := fl.Parent().Interface().(crud.Model)
 	// if !ok {
 	// 	// log.Fatalf("%v", fl.Parent().Interface())
@@ -35,6 +36,7 @@ func (v UserValidator) uniqueField(key string, fl validator.FieldLevel) bool {
 	var counter int64 = 0
 	var sql string
 	var args []any
+
 	args = append(args, fl.Field().String())
 
 	if ok && data.GetPk() > 0 {
@@ -45,7 +47,7 @@ func (v UserValidator) uniqueField(key string, fl validator.FieldLevel) bool {
 	}
 
 	log.Printf("ERROR %s %v", sql, args)
-	// sql := fmt.Sprintf("(%s.%s = ? AND %s.pk != ?)", DBTableUsers, key, DBTableUsers)
+
 	if err := v.Crud.Stmt().
 		Model(&User{}).
 		Where(sql, args...). //fl.Field().String(), data.GetPk()).

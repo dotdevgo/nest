@@ -7,7 +7,7 @@ import (
 	"dotdev/nest/pkg/mailer"
 	"dotdev/nest/pkg/user"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"github.com/mustafaturan/bus/v3"
 )
 

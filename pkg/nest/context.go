@@ -5,7 +5,7 @@ import (
 
 	"dotdev/nest/pkg/logger"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"github.com/labstack/echo/v4"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 )

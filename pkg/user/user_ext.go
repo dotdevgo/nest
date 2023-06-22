@@ -5,8 +5,8 @@ import (
 	"dotdev/nest/pkg/nest"
 	"dotdev/nest/pkg/utils"
 
+	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
-	"github.com/goava/di"
 	"gorm.io/gorm"
 )
 

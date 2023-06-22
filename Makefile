@@ -1,6 +1,7 @@
 GOPATH := $(shell go env GOPATH)
 
-.PHONY: init start-dev \
+.PHONY: init \
+		start-dev \
 		test lint gofmt godoc generate \
 		gqlgen
 
@@ -18,8 +19,14 @@ init:
 	go install github.com/phelmkamp/metatag@latest
 	go install github.com/mitranim/gow@latest
 
+# Examples
 start-dev:
-	 gow run cmd/api/main.go
+	cd cmd/api && \
+	gow run main.go
+
+# Graphql
+gqlgen:
+	cd graphql && go run github.com/99designs/gqlgen generate .
 
 # Golang
 test:
@@ -37,7 +44,3 @@ godoc:
 
 generate: gqlgen
 	go generate ./...
-
-# Graphql
-gqlgen:
-	cd graphql && go run github.com/99designs/gqlgen generate .

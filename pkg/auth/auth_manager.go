@@ -15,8 +15,8 @@ import (
 	"dotdev/nest/pkg/user"
 	"dotdev/nest/pkg/utils"
 
+	"github.com/defval/di"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/goava/di"
 	"github.com/markbates/goth"
 	"github.com/mustafaturan/bus/v3"
 )
@@ -37,7 +37,7 @@ type AuthManager struct {
 
 // Validate godoc
 func (c AuthManager) Validate(input SignInDto) (user.User, error) {
-	u, err := c.Crud.FindByIdentity(input.Identity)
+	u, err := c.Crud.LoadUser(input.Identity)
 	if err != nil {
 		return u, err
 	}
@@ -146,7 +146,7 @@ func (c AuthManager) Confirm(token string) error {
 
 // Restore godoc
 func (c AuthManager) Restore(input IdentityDto) error {
-	u, err := c.Crud.FindByIdentity(input.Identity)
+	u, err := c.Crud.LoadUser(input.Identity)
 	if err != nil {
 		return err
 	}
@@ -251,17 +251,12 @@ func (c AuthManager) ResetToken(u user.User, token string) error {
 // Save godoc
 func (c AuthManager) Save(u *user.User, input user.UserDto) error {
 	if nil != input.RawAttributes {
-		u.AddAttributes(input.RawAttributes)
+		u.SetAttributes(input.RawAttributes)
 	}
 
 	u.DisplayName = ""
 	if len(input.DisplayName) > 0 {
 		u.DisplayName = input.DisplayName
-	}
-
-	u.Bio = ""
-	if len(input.Bio) > 0 {
-		u.Bio = input.Bio
 	}
 
 	if len(input.Username) > 0 && u.Username != input.Username {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/BurntSushi/toml"
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	"golang.org/x/text/language"
 )

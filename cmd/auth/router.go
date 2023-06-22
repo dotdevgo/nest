@@ -4,7 +4,7 @@ import (
 	"dotdev/nest/cmd/auth/controller"
 	"dotdev/nest/pkg/nest"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 )
 
 // New godoc

@@ -19,8 +19,8 @@ func (s UserCrud) Paginate(result interface{}, pagination []paginator.Option, op
 	return paginator.Paginate[*UserList](stmt, result, pagination...)
 }
 
-// FindByIdentity godoc
-func (c UserCrud) FindByIdentity(identity string) (User, error) {
+// LoadUser godoc
+func (c UserCrud) LoadUser(identity string) (User, error) {
 	var u User
 
 	result := c.Stmt(ScopeByIdentity(identity)).First(&u)

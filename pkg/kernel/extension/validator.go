@@ -1,8 +1,8 @@
-package injector
+package extension
 
 import (
+	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
-	"github.com/goava/di"
 )
 
 // Validator godoc

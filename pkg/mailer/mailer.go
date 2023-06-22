@@ -7,7 +7,7 @@ import (
 	"dotdev/nest/pkg/logger"
 	"dotdev/nest/pkg/nest"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"github.com/jordan-wright/email"
 	"github.com/matcornic/hermes/v2"
 )

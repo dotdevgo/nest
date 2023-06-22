@@ -3,7 +3,7 @@ package tag
 import (
 	"dotdev/nest/pkg/crud"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"gorm.io/gorm"
 )
 

@@ -1,18 +1,18 @@
 package config
 
 import (
-	hr "github.com/matcornic/hermes/v2"
+	"github.com/matcornic/hermes/v2"
 )
 
-func Hermes() *hr.Hermes {
-	return &hr.Hermes{
+func Hermes() *hermes.Hermes {
+	return &hermes.Hermes{
 		// Optional Theme
 		// Theme: new(Default)
-		Product: hr.Product{
-			Name:      "DotDevio",
+		Product: hermes.Product{
+			Name:      "DotDev",
 			Link:      "https://dotdevio.com/",
 			Logo:      "http://www.duchess-france.org/wp-content/uploads/2016/01/gopher.png",
-			Copyright: "Copyright © 2022 DotDevio. All rights reserved",
+			Copyright: "Copyright © 2022 DotDev. All rights reserved",
 		},
 	}
 }

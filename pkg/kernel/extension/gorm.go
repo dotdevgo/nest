@@ -1,10 +1,10 @@
-package injector
+package extension
 
 import (
 	"log"
 	"os"
 
-	"github.com/goava/di"
+	"github.com/defval/di"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
