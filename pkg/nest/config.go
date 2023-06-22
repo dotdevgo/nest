@@ -147,9 +147,21 @@ func LoadEnv() {
 	utils.NoErrorOrFatal(err)
 
 	if err := godotenv.Load(dir + "/.env"); err != nil {
-		logger.Error("Invalid env file ==> .env")
+		logger.Error("Error loading .env")
+		logger.Error(err)
 		return
 	}
 
 	logger.Log("==> Loaded .env file")
+}
+
+// NewConfig godoc
+func NewConfig[T any]() T {
+	var data T
+
+	if err := envdecode.StrictDecode(&data); err != nil {
+		logger.Error(err)
+	}
+
+	return data
 }

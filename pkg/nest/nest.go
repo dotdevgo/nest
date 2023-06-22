@@ -75,6 +75,8 @@ var apiGroup ApiGroup
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
+	LoadEnv()
+
 	c, err := di.New()
 	utils.NoErrorOrFatal(err)
 
@@ -382,7 +384,7 @@ func (w *Kernel) useRouter(controllers []AbstractController) {
 
 // loggerFn godoc
 func loggerFn() {
-	// Logger
 	logger.Init()
+
 	logger.Logger = log.New()
 }
