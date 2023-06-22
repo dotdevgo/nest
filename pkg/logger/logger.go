@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/labstack/gommon/log"
@@ -10,6 +11,10 @@ import (
 // Log godoc
 func Log(v ...any) {
 	logrus.Info(v...)
+}
+
+func Logf(format string, v ...any) {
+	logrus.Info(fmt.Sprintf(format, v...))
 }
 
 // Fatal godoc
