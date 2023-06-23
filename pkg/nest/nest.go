@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"dotdev/nest/pkg/logger"
-	"dotdev/nest/pkg/utils"
 
 	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
@@ -33,7 +32,7 @@ var (
 
 type (
 	// ApiGroup godoc
-	ApiGroup interface{}
+	// ApiGroup interface{}
 
 	// ContainerHandlerFunc godoc
 	ContainerHandlerFunc func(Context) interface{}
@@ -60,7 +59,7 @@ type (
 
 	// AbstractController godoc
 	AbstractController interface {
-		Router(w *Kernel)
+		New(w *Kernel)
 	}
 
 	// Controller godoc
@@ -71,37 +70,29 @@ type (
 
 var isBooted = false
 
-var apiGroup ApiGroup
+// var apiGroup ApiGroup
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
 	LoadEnv()
 
 	c, err := di.New()
-	utils.NoErrorOrFatal(err)
+	logger.FatalOnError(err)
 
 	e := NewEcho(c)
 	e.HideBanner = true
 
 	w := &Kernel{Container: c, Echo: e}
 
-	utils.NoErrorOrFatal(c.Provide(func() *Kernel {
+	logger.FatalOnError(c.Provide(func() *Kernel {
 		return w
 	}))
 
-	// TODO: secureGroup.use() middleware
-	//	set context variable ctx.Set("secure", true)
-	apiGroup = w.Group("")
-
-	utils.NoErrorOrFatal(c.Provide(func() ApiGroup {
-		return apiGroup
+	logger.FatalOnError(c.Provide(func() *RouteGroup {
+		return NewRouteGroup(w)
 	}))
 
 	c.Apply(providers...)
-
-	// TODO: если не вызвать тут не работает w.Secure()
-	//	конкретно если не зарегистрировать JWTMiddleware
-	utils.NoErrorOrFatal(w.Boot())
 
 	return w
 }
@@ -110,7 +101,9 @@ func New(providers ...di.Option) *Kernel {
 func NewEcho(container *di.Container) *echo.Echo {
 	e := echo.New()
 
-	loggerFn()
+	// Logger
+	logger.Init()
+	logger.Logger = log.New()
 
 	e.Logger = logger.GetEchoLogger()
 	e.Use(logger.Hook())
@@ -149,14 +142,6 @@ func NewExtension(provideFn di.Constructor) di.Option {
 // NewController godoc
 func NewController(provideFn di.Constructor) di.Option {
 	return di.Provide(provideFn, di.As(new(AbstractController)))
-}
-
-// Api godoc
-func (w *Kernel) Api() *Group {
-	// var g SecureGroup
-	// w.ResolveFn(&g)
-	e := apiGroup.(*Group)
-	return e
 }
 
 // InvokeFn Invoke calls the function fn. It parses function parameters. Looks for it in a container.
@@ -378,13 +363,14 @@ func (w *Kernel) useValidator() error {
 // useRouter godoc
 func (w *Kernel) useRouter(controllers []AbstractController) {
 	for _, controller := range controllers {
-		w.InvokeFn(controller.Router)
+		w.InvokeFn(controller.New)
 	}
 }
 
-// loggerFn godoc
-func loggerFn() {
-	logger.Init()
-
-	logger.Logger = log.New()
-}
+// Api godoc
+// func (w *Kernel) Api() *Group {
+// 	// var g SecureGroup
+// 	// w.ResolveFn(&g)
+// 	e := apiGroup.(*Group)
+// 	return e
+// }

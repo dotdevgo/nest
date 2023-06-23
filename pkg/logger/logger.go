@@ -8,13 +8,24 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Log godoc
-func Log(v ...any) {
+// Log
+func Log(format string, v ...any) {
+	logrus.Info(fmt.Sprintf(format, v...))
+}
+
+// Info godoc
+func Info(v ...any) {
 	logrus.Info(v...)
 }
 
-func Logf(format string, v ...any) {
-	logrus.Info(fmt.Sprintf(format, v...))
+// Error godoc
+func Error(v ...any) {
+	log.Error(v...)
+}
+
+// Warn godoc
+func Warn(v ...any) {
+	log.Warn(v...)
 }
 
 // Fatal godoc
@@ -27,9 +38,18 @@ func Panic(v ...any) {
 	log.Panic(v...)
 }
 
-// Error godoc
-func Error(v ...any) {
-	log.Error(v...)
+// PanicOnError godoc
+func PanicOnError(err error) {
+	if err != nil {
+		Panic(err)
+	}
+}
+
+// FatalOnError godoc
+func FatalOnError(err error) {
+	if err != nil {
+		Panic(err)
+	}
 }
 
 // Init godoc

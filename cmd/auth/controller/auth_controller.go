@@ -34,7 +34,11 @@ type AuthController struct {
 	Auth *auth.AuthManager
 }
 
-func (c AuthController) Router(w *nest.Kernel) {
+func (c AuthController) New(w *nest.Kernel) {
+	w.InvokeFn(c.Router)
+}
+
+func (c AuthController) Router(w *nest.Kernel, rg *nest.RouteGroup) {
 	w.POST(RouteAuthSignup, c.SignUp)
 	w.POST(RouteAuthSignin, c.SignIn)
 	w.GET(RouteAuthConfirm, c.Confirm)
@@ -43,10 +47,10 @@ func (c AuthController) Router(w *nest.Kernel) {
 	w.GET(RouteOauth, c.OAuth)
 	w.GET(RouteOauthCallback, c.OAuth)
 
-	api := w.Api()
+	api := rg.Get("api")
 	api.GET(RouteAuthMe, c.Me)
-	api.POST(RouteAuthChangePassword, c.ChangePassword)
 	api.POST(RouteAuthUpdate, c.Update)
+	api.POST(RouteAuthChangePassword, c.ChangePassword)
 }
 
 // OAuth godoc
@@ -191,22 +195,14 @@ func (c AuthController) ResetToken(ctx nest.Context) error {
 
 // Me godoc
 func (c AuthController) Me(ctx nest.Context) error {
-	cc := auth.Context(ctx)
-	u := cc.User()
-	if u == nil {
-		return nest.NewHTTPError(http.StatusBadRequest)
-	}
+	u := auth.GetUser(ctx)
 
 	return ctx.JSON(http.StatusOK, u)
 }
 
 // Update godoc
 func (c AuthController) Update(ctx nest.Context) error {
-	cc := auth.Context(ctx)
-	u := cc.User()
-	if u == nil {
-		return nest.NewHTTPError(http.StatusBadRequest)
-	}
+	u := auth.GetUser(ctx)
 
 	var input user.UserDto
 	// input.Pk = u.Pk
@@ -225,11 +221,7 @@ func (c AuthController) Update(ctx nest.Context) error {
 
 // ChangePassword godoc
 func (c AuthController) ChangePassword(ctx nest.Context) error {
-	cc := auth.Context(ctx)
-	u := cc.User()
-	if u == nil {
-		return nest.NewHTTPError(http.StatusBadRequest)
-	}
+	u := auth.GetUser(ctx)
 
 	var input auth.ChangePasswordDto
 	if err := c.Crud.IsValid(ctx, &input); err != nil {

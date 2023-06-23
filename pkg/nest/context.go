@@ -16,7 +16,7 @@ type (
 		echo.Context
 		Resolve(ptr di.Pointer, options ...di.ResolveOption) error
 		ResolveFn(ptr di.Pointer, options ...di.ResolveOption)
-		T(msg *i18n.Message) (string, error)
+		Localize(msg *i18n.Message) (string, error)
 	}
 
 	context struct {
@@ -28,7 +28,9 @@ type (
 // Resolve godoc
 func (c *context) IsTLS() bool {
 	var config Config
+
 	c.ResolveFn(&config)
+
 	return config.HTTP.TLS.Enabled || c.Context.IsTLS()
 }
 
@@ -45,8 +47,8 @@ func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	}
 }
 
-// T translate string
-func (c *context) T(msg *i18n.Message) (string, error) {
+// Localize translate string
+func (c *context) Localize(msg *i18n.Message) (string, error) {
 	localizer, ok := c.Get("localizer").(*i18n.Localizer)
 	if ok {
 		return localizer.LocalizeMessage(msg)

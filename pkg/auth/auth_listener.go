@@ -18,6 +18,7 @@ type AuthListener struct {
 	*mailer.Mailer
 }
 
+// SignUp godoc
 func (h AuthListener) SignUp(ctx context.Context, e bus.Event) {
 	event, ok := e.Data.(EventAuthGeneric)
 	if !ok {
@@ -32,6 +33,7 @@ func (h AuthListener) SignUp(ctx context.Context, e bus.Event) {
 		}
 
 		m.To = []string{event.User.Email}
+		// TODO: localize
 		m.Subject = "Confirm your account"
 
 		if err := h.Mailer.Send(m); err != nil {
@@ -40,6 +42,7 @@ func (h AuthListener) SignUp(ctx context.Context, e bus.Event) {
 	}()
 }
 
+// Restore godoc
 func (h AuthListener) Restore(ctx context.Context, e bus.Event) {
 	event, ok := e.Data.(EventAuthGeneric)
 	if !ok {
@@ -56,6 +59,7 @@ func (h AuthListener) Restore(ctx context.Context, e bus.Event) {
 		}
 
 		m.To = []string{event.User.Email}
+		// TODO: localize
 		m.Subject = "Reset account password"
 
 		if err := h.Mailer.Send(m); err != nil {
@@ -64,6 +68,7 @@ func (h AuthListener) Restore(ctx context.Context, e bus.Event) {
 	}()
 }
 
+// ResetToken godoc
 func (h AuthListener) ResetToken(ctx context.Context, e bus.Event) {
 	event, ok := e.Data.(EventResetToken)
 	if !ok {
@@ -78,6 +83,7 @@ func (h AuthListener) ResetToken(ctx context.Context, e bus.Event) {
 		}
 
 		m.To = []string{event.User.Email}
+		// TODO: localize
 		m.Subject = "Password has been reset"
 
 		if err := h.Mailer.Send(m); err != nil {
@@ -86,6 +92,7 @@ func (h AuthListener) ResetToken(ctx context.Context, e bus.Event) {
 	}()
 }
 
+// ResetEmail godoc
 func (h AuthListener) ResetEmail(ctx context.Context, e bus.Event) {
 	event, ok := e.Data.(EventAuthGeneric)
 	if !ok {
@@ -102,6 +109,7 @@ func (h AuthListener) ResetEmail(ctx context.Context, e bus.Event) {
 		}
 
 		m.To = []string{event.User.Email}
+		// TODO: localize
 		m.Subject = "Confirm your new email"
 
 		if err := h.Mailer.Send(m); err != nil {

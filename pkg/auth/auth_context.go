@@ -6,17 +6,15 @@ import (
 	"dotdev/nest/pkg/nest"
 
 	"github.com/golang-jwt/jwt"
-
-	"context"
 )
 
-// AuthContext godoc
-type AuthContext struct {
+// фuthContext godoc
+type authContext struct {
 	nest.Context
 }
 
-// User godoc
-func (c AuthContext) User() *user.User {
+// GetUser godoc
+func (c authContext) GetUser() *user.User {
 	token, ok := c.Get("user").(*jwt.Token)
 	if !ok {
 		return nil
@@ -37,9 +35,9 @@ func (c AuthContext) User() *user.User {
 	return &u
 }
 
-// Context godoc
-func Context(ctx nest.Context) *AuthContext {
-	cc := &AuthContext{Context: ctx}
+// NewContext godoc
+func NewContext(ctx nest.Context) *authContext {
+	cc := &authContext{Context: ctx}
 	return cc
 }
 
@@ -51,8 +49,11 @@ type contextKey struct {
 	name string
 }
 
-// ForContext finds the user from the context. REQUIRES Middleware to have run.
-func ForContext(ctx context.Context) *user.User {
-	raw, _ := ctx.Value(UserCtxKey).(*user.User)
+// GetUser finds the user from the context. REQUIRES Middleware to have run.
+func GetUser(ctx nest.Context) *user.User {
+	c := ctx.Request().Context()
+
+	raw, _ := c.Value(UserCtxKey).(*user.User)
+
 	return raw
 }

@@ -45,11 +45,10 @@ func (p authExt) Boot(w *nest.Kernel) error {
 }
 
 // RegisterMiddleware godoc
-func (p authExt) RegisterMiddleware(w *nest.Kernel, authConfig AuthConfig) {
-	// TODO: refactor
-	api := w.Api()
-	api.Use(AuthMiddleware())
+func (p authExt) RegisterMiddleware(w *nest.Kernel, rg *nest.RouteGroup, authConfig AuthConfig) {
+	api := rg.Get("api")
 	api.Use(JwtMiddleware(authConfig))
+	api.Use(AuthMiddleware())
 }
 
 // RegisterTopics godoc

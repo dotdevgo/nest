@@ -44,7 +44,7 @@ func (c Mailer) NewEmail(template hermes.Email) (*email.Email, error) {
 func (c Mailer) Send(m *email.Email) error {
 	config := c.Config.Mail
 	if config.Hostname == "" {
-		logger.Logf("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)
+		logger.Log("mailer.Mailer@send: invalid Hostname \"%v\"", config.Hostname)
 		return nil
 	}
 

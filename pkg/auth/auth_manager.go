@@ -191,7 +191,7 @@ func (c AuthManager) ResetToken(u *user.User, token string) error {
 		return ErrorInvalidToken
 	}
 
-	password := utils.RandomStr(nil)
+	password := utils.RandomString(nil)
 
 	// Password
 	pass, err := hashPassword(password)
@@ -275,7 +275,7 @@ func (c AuthManager) OAuth(gothUser goth.User) (*OAuth, error) {
 	oauth.Provider = gothUser.Provider
 	oauth.UniqueID = gothUser.UserID
 
-	pass, err := hashPassword(utils.RandomStr(nil))
+	pass, err := hashPassword(utils.RandomString(nil))
 	if err != nil {
 		return oauth, err
 	}

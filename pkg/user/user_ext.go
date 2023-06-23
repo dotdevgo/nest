@@ -2,8 +2,8 @@ package user
 
 import (
 	"dotdev/nest/pkg/crud"
+	"dotdev/nest/pkg/logger"
 	"dotdev/nest/pkg/nest"
-	"dotdev/nest/pkg/utils"
 
 	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
@@ -50,6 +50,6 @@ func (p userExt) Boot(w *nest.Kernel) error {
 
 // registerValidations godoc
 func (p userExt) registerValidations(w *nest.Kernel, uv *UserValidator, v *validator.Validate) {
-	utils.NoErrorOrFatal(v.RegisterValidation("uniqueEmail", uv.UniqueEmail))
-	utils.NoErrorOrFatal(v.RegisterValidation("uniqueUsername", uv.UniqueUsername))
+	logger.FatalOnError(v.RegisterValidation("uniqueEmail", uv.UniqueEmail))
+	logger.FatalOnError(v.RegisterValidation("uniqueUsername", uv.UniqueUsername))
 }

@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"dotdev/nest/pkg/logger"
-	"dotdev/nest/pkg/utils"
 
 	"github.com/joeshaw/envdecode"
 	"github.com/joho/godotenv"
@@ -144,7 +143,7 @@ func LoadEnv() {
 	isEnvLoaded = true
 
 	dir, err := os.Getwd()
-	utils.NoErrorOrFatal(err)
+	logger.FatalOnError(err)
 
 	if err := godotenv.Load(dir + "/.env"); err != nil {
 		logger.Error("Error loading .env")
@@ -152,7 +151,7 @@ func LoadEnv() {
 		return
 	}
 
-	logger.Log("==> Loaded .env file")
+	logger.Info("==> Loaded .env file")
 }
 
 // NewConfig godoc

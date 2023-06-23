@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"dotdev/nest/pkg/nest"
+	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
@@ -11,12 +12,18 @@ import (
 func AuthMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			c := Context(ctx.(nest.Context))
-			u := c.User()
-			if u != nil {
-				authCtx := context.WithValue(ctx.Request().Context(), UserCtxKey, u)
-				ctx.SetRequest(ctx.Request().WithContext(authCtx))
+			req := ctx.Request()
+
+			authCtx := NewContext(ctx.(nest.Context))
+
+			user := authCtx.GetUser()
+
+			if user == nil {
+				return ctx.JSON(http.StatusUnauthorized, "Unauthorized")
 			}
+
+			userCtx := context.WithValue(req.Context(), UserCtxKey, user)
+			ctx.SetRequest(req.WithContext(userCtx))
 
 			return next(ctx)
 		}

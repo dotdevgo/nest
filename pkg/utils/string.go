@@ -12,12 +12,13 @@ var DefaultLength = 14
 
 const charSet = "abcdedfghijklmnopqrstABCDEFGHIJKLMNOP"
 
-// RandomStr godoc
-func RandomStr(length *int) string {
+// RandomString godoc
+func RandomString(length *int) string {
 	if nil == length {
 		length = &DefaultLength
 	}
 
+	// TODO: fix deprecation
 	rand.Seed(time.Now().Unix())
 
 	var output strings.Builder

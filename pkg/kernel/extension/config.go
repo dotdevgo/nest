@@ -1,8 +1,8 @@
 package extension
 
 import (
+	"dotdev/nest/pkg/logger"
 	"dotdev/nest/pkg/nest"
-	"dotdev/nest/pkg/utils"
 
 	"github.com/defval/di"
 )
@@ -12,7 +12,7 @@ func Config() di.Option {
 	return di.Options(
 		di.Provide(func(w *nest.Kernel) nest.Config {
 			config, err := nest.GetConfig()
-			utils.NoErrorOrFatal(err)
+			logger.FatalOnError(err)
 
 			w.Config = config
 
