@@ -42,7 +42,6 @@ func (c *context) Resolve(ptr di.Pointer, options ...di.ResolveOption) error {
 // ResolveFn godoc
 func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := c.Container.Resolve(ptr, options...); err != nil {
-		// TODO: refactor panic
 		logger.Panic(err)
 	}
 }

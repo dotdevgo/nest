@@ -122,14 +122,11 @@ type (
 	}
 )
 
+var cfg Config
+
 // GetConfig loads and returns configuration
-func GetConfig() (Config, error) {
-	LoadEnv()
-
-	var cfg Config
-	err := envdecode.StrictDecode(&cfg)
-
-	return cfg, err
+func GetConfig() Config {
+	return cfg
 }
 
 var isEnvLoaded = false
@@ -146,21 +143,22 @@ func LoadEnv() {
 	logger.FatalOnError(err)
 
 	if err := godotenv.Load(dir + "/.env"); err != nil {
-		logger.Error("Error loading .env")
-		logger.Error(err)
+		logger.Warn(err)
 		return
 	}
 
-	logger.Info("==> Loaded .env file")
+	logger.FatalOnError(envdecode.StrictDecode(&cfg))
+
+	logger.Info("==> Config loaded")
 }
 
 // NewConfig godoc
-func NewConfig[T any]() T {
-	var data T
+// func NewConfig[T any]() T {
+// 	var data T
 
-	if err := envdecode.StrictDecode(&data); err != nil {
-		logger.Error(err)
-	}
+// 	if err := envdecode.StrictDecode(&data); err != nil {
+// 		logger.Error(err)
+// 	}
 
-	return data
-}
+// 	return data
+// }

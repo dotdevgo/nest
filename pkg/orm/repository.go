@@ -7,13 +7,16 @@ import (
 	"gorm.io/gorm"
 )
 
+// Option godoc
+type Option func(db *gorm.DB) *gorm.DB
+
+// Repository godoc
 type Repository[T crud.IModel] struct {
 	di.Inject
 	*gorm.DB
 }
 
-type Option func(db *gorm.DB) *gorm.DB
-
+// CreateQueryBuilder godoc
 func (r Repository[T]) CreateQueryBuilder(options ...Option) *gorm.DB {
 	var stmt = r.Session(&gorm.Session{})
 

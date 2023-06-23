@@ -84,13 +84,25 @@ func New(providers ...di.Option) *Kernel {
 
 	w := &Kernel{Container: c, Echo: e}
 
+	/**
+	 * TODO: refactor
+	 * 	move to initialize* func
+	 */
+
 	logger.FatalOnError(c.Provide(func() *Kernel {
 		return w
 	}))
 
+	// RouteGroup
 	logger.FatalOnError(c.Provide(func() *RouteGroup {
 		return NewRouteGroup(w)
 	}))
+
+	// Config
+	w.Config = GetConfig()
+	c.Provide(func() Config {
+		return w.Config
+	})
 
 	c.Apply(providers...)
 

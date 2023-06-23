@@ -13,7 +13,6 @@ func New() di.Option {
 
 	return di.Options(
 		extension.Bus(),
-		extension.Config(),
 		extension.EventBus(),
 		extension.HealthCheck(),
 		extension.Validator(),

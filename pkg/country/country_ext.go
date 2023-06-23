@@ -2,6 +2,7 @@ package country
 
 import (
 	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/orm"
 
 	cn "github.com/biter777/countries"
 	"github.com/defval/di"
@@ -11,9 +12,7 @@ import (
 // New godoc
 func New() di.Option {
 	return di.Options(
-		di.Invoke(func(db *gorm.DB) error {
-			return db.AutoMigrate(&Country{})
-		}),
+		orm.Mirgrate(&Country{}),
 		nest.NewExtension(func() *countryExt {
 			return &countryExt{}
 		}),
@@ -37,24 +36,25 @@ func (countryExt) load(w *nest.Kernel, db *gorm.DB) error {
 		return err
 	}
 
-	if len(countries) == 0 {
-		for _, c := range cn.All() {
-			var cntry Country
-			cntry.Code = c.Info().Alpha2
-			cntry.Name = c.Info().Name
-			countries = append(countries, cntry)
-
-			w.Logger.Printf("Add Country ==> %s %s", cntry.Code, cntry.Name)
-		}
-
-		if err := db.CreateInBatches(&countries, 64).Error; err != nil {
-			return err
-		}
-
-		w.Logger.Infof("==> Loaded %v countries", len(cn.All()))
-	} else {
+	if len(countries) > 0 {
 		w.Logger.Infof("==> Loaded %v countries", len(countries))
+		return nil
 	}
+
+	for _, c := range cn.All() {
+		var cntry Country
+		cntry.Code = c.Info().Alpha2
+		cntry.Name = c.Info().Name
+		countries = append(countries, cntry)
+
+		w.Logger.Printf("Add Country ==> %s %s", cntry.Code, cntry.Name)
+	}
+
+	if err := db.CreateInBatches(&countries, 64).Error; err != nil {
+		return err
+	}
+
+	w.Logger.Infof("==> Loaded %v countries", len(cn.All()))
 
 	return nil
 }

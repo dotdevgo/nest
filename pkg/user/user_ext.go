@@ -4,18 +4,16 @@ import (
 	"dotdev/nest/pkg/crud"
 	"dotdev/nest/pkg/logger"
 	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/orm"
 
 	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
-	"gorm.io/gorm"
 )
 
 // New godoc
 func New() di.Option {
 	return di.Options(
-		di.Invoke(func(db *gorm.DB) error {
-			return db.AutoMigrate(&User{})
-		}),
+		orm.Mirgrate(&User{}),
 		di.Provide(func() *UserRepository {
 			return &UserRepository{}
 		}),
