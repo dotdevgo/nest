@@ -11,7 +11,7 @@ import (
 type Option func(db *gorm.DB) *gorm.DB
 
 // Repository godoc
-type Repository[T crud.IModel] struct {
+type Repository[T crud.Model] struct {
 	di.Inject
 	*gorm.DB
 }
@@ -29,7 +29,7 @@ func (r Repository[T]) CreateQueryBuilder(options ...Option) *gorm.DB {
 
 // Add godoc
 func (r Repository[T]) Add(data T) error {
-	if data.GetPk() > 0 || data.GetID() != "" {
+	if data.GetID() != "" {
 		return r.Save(data).Error
 	}
 

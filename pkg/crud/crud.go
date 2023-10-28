@@ -6,15 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type Crud[T IModel] struct {
+type Crud[T Model] struct {
 	db *gorm.DB
-	// tx *gorm.DB
-}
-
-// NewService godoc
-func NewService[T IModel](db *gorm.DB) *Crud[T] {
-	return &Crud[T]{db: db}
-	// .Session(&gorm.Session{NewDB: true})
 }
 
 // IsValid godoc
@@ -30,33 +23,6 @@ func (s *Crud[T]) IsValid(ctx nest.Context, input interface{}) error {
 	return nil
 }
 
-// Flush godoc
-// func (s *Crud[T]) Flush(data T) error {
-// 	if data.GetPk() > 0 || data.GetID() != "" {
-// 		return s.Tx().Save(data).Error
-// 	}
-
-// 	return s.Tx().Create(data).Error
-// }
-
-// Find godoc
-// @deprecated
-// TODO: move to repository
-func (s *Crud[T]) Find(result T, id interface{}, options ...Option) error {
-	stmt := s.Stmt(options...)
-
-	return stmt.Scopes(ScopeById(result, id)).First(result).Error
-}
-
-// FindAll godoc
-// @deprecated
-// TODO: move to repository
-func (s *Crud[T]) FindAll(result interface{}, options ...Option) error {
-	var stmt = s.Stmt(options...)
-
-	return stmt.Find(result).Error
-}
-
 // Stmt godoc
 func (s *Crud[T]) Stmt(options ...Option) *gorm.DB {
 	var stmt = s.db.Session(&gorm.Session{}) // Tx() //NewDB: true
@@ -67,6 +33,39 @@ func (s *Crud[T]) Stmt(options ...Option) *gorm.DB {
 
 	return stmt
 }
+
+// NewService godoc
+//func NewService[T Model](db *gorm.DB) *Crud[T] {
+//	return &Crud[T]{db: db}
+//	// .Session(&gorm.Session{NewDB: true})
+//}
+
+// Find godoc
+// @deprecated
+// TODO: move to repository
+//func (s *Crud[T]) Find(result T, id interface{}, options ...Option) error {
+//	stmt := s.Stmt(options...)
+//
+//	return stmt.Scopes(ScopeById(result, id)).First(result).Error
+//}
+
+// FindAll godoc
+// @deprecated
+// TODO: move to repository
+//func (s *Crud[T]) FindAll(result interface{}, options ...Option) error {
+//	var stmt = s.Stmt(options...)
+//
+//	return stmt.Find(result).Error
+//}
+
+// Flush godoc
+// func (s *Crud[T]) Flush(data T) error {
+// 	if data.GetPk() > 0 || data.GetID() != "" {
+// 		return s.Tx().Save(data).Error
+// 	}
+
+// 	return s.Tx().Create(data).Error
+// }
 
 // Tx Get current transaction
 //

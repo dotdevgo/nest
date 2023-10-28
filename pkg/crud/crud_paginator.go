@@ -1,8 +1,6 @@
 package crud
 
 import (
-	// "dotdev/nest/pkg/nest"
-	"dotdev/nest/pkg/nest"
 	"dotdev/nest/pkg/paginator"
 	"net/http"
 )
@@ -11,6 +9,7 @@ type (
 	PaginatorMeta interface {
 		// IsPaginatorMeta()
 	}
+
 	PaginatorCursor struct {
 		Offset *int    `json:"offset"` // NOT USED
 		Page   *int    `json:"page"`
@@ -27,11 +26,11 @@ func (s *Crud[T]) Paginate(result interface{}, pagination []paginator.Option, op
 }
 
 // WithNest godoc
-func WithNest(ctx nest.Context) []paginator.Option {
-	return []paginator.Option{
-		paginator.WithRequest(ctx.Request()),
-	}
-}
+//func WithNest(ctx nest.Context) []paginator.Option {
+//	return []paginator.Option{
+//		paginator.WithRequest(ctx.Request()),
+//	}
+//}
 
 // WithHttpRequest godoc
 func WithHttpRequest(req *http.Request) []paginator.Option {

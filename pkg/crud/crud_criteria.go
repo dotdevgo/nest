@@ -1,8 +1,6 @@
 package crud
 
 import (
-	"strings"
-
 	"gorm.io/gorm"
 )
 
@@ -17,39 +15,10 @@ type (
 		Expr     string
 	}
 
-	CriteriaMap map[string]CriteriaOption
+	//CriteriaMap map[string]CriteriaOption
 
-	CriteriaList []CriteriaOption
+	//CriteriaList []CriteriaOption
 )
-
-// WithCriteria godoc
-func WithCriteria(criteria CriteriaList) Option {
-	return func(db *gorm.DB) *gorm.DB {
-		for _, item := range criteria {
-			db = item.Apply(db)
-			//db.Where(item.SqlExpr())
-		}
-		return db
-	}
-}
-
-// WithRequest godoc
-//func WithRequest(r *http.Request) Option {
-//	var criteria = Criteria{}
-//
-//	for name, val := range r.URL.Query() {
-//		if slice.ContainsString(excludeNames, name) {
-//			continue
-//		}
-//
-//		criteria = append(
-//			criteria,
-//			convertQueryParamToCriteria(name, strings.Join(val, "")),
-//		)
-//	}
-//
-//	return WithCriteria(criteria)
-//}
 
 // Apply godoc
 func (c *CriteriaOption) Apply(db *gorm.DB) *gorm.DB {
@@ -84,22 +53,51 @@ func (c *CriteriaOption) Apply(db *gorm.DB) *gorm.DB {
 }
 
 // convertQueryParamToCriteria godoc
-func convertQueryParamToCriteria(name string, data string) CriteriaOption {
-	var operator = "$eq"
-	var parts = strings.Split(data, "||")
+//func convertQueryParamToCriteria(name string, data string) CriteriaOption {
+//	var operator = "$eq"
+//	var parts = strings.Split(data, "||")
+//
+//	// Operator present in value. Ex: $eq||some value
+//	if len(parts) == 2 {
+//		operator = parts[0]
+//		data = parts[1]
+//	}
+//
+//	return CriteriaOption{
+//		Field:    name,
+//		Operator: operator,
+//		Value:    data,
+//	}
+//}
 
-	// Operator present in value. Ex: $eq||some value
-	if len(parts) == 2 {
-		operator = parts[0]
-		data = parts[1]
-	}
+// WithCriteria godoc
+//func WithCriteria(criteria CriteriaList) Option {
+//	return func(db *gorm.DB) *gorm.DB {
+//		for _, item := range criteria {
+//			db = item.Apply(db)
+//			//db.Where(item.SqlExpr())
+//		}
+//		return db
+//	}
+//}
 
-	return CriteriaOption{
-		Field:    name,
-		Operator: operator,
-		Value:    data,
-	}
-}
+// WithRequest godoc
+//func WithRequest(r *http.Request) Option {
+//	var criteria = Criteria{}
+//
+//	for name, val := range r.URL.Query() {
+//		if slice.ContainsString(excludeNames, name) {
+//			continue
+//		}
+//
+//		criteria = append(
+//			criteria,
+//			convertQueryParamToCriteria(name, strings.Join(val, "")),
+//		)
+//	}
+//
+//	return WithCriteria(criteria)
+//}
 
 //func NewCriteria(data map[string]interface{}) Criteria {
 //	var criteria = Criteria{}
