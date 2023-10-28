@@ -7,7 +7,7 @@ import (
 	"github.com/defval/di"
 )
 
-// Config godoc
+// HealthCheck godoc
 func HealthCheck() di.Option {
 	return di.Options(
 		di.Invoke(func(w *nest.Kernel) {

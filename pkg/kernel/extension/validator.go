@@ -9,8 +9,7 @@ import (
 func Validator() di.Option {
 	return di.Options(
 		di.Provide(func() *validator.Validate {
-			v := validator.New()
-			return v
+			return validator.New()
 		}),
 	)
 }

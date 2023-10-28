@@ -12,8 +12,6 @@ func New() di.Option {
 	nest.LoadEnv()
 
 	return di.Options(
-		extension.Bus(),
-		extension.EventBus(),
 		extension.HealthCheck(),
 		extension.Validator(),
 	)

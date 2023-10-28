@@ -47,12 +47,25 @@ func SwitchEnvironment(env Environment) {
 type (
 	// Config stores complete configuration
 	Config struct {
-		HTTP     HTTPConfig
-		CORS     CORSConfig
 		App      AppConfig
+		CORS     CORSConfig
 		Cache    CacheConfig
+		HTTP     HTTPConfig
 		Database DatabaseConfig
-		Mail     MailConfig
+	}
+
+	// AppConfig stores application configuration
+	AppConfig struct {
+		//Name        string      `env:"APP_NAME,default=Nest"`
+		Environment Environment `env:"APP_ENV,default=local"`
+		// THIS MUST BE OVERRIDDEN ON ANY LIVE ENVIRONMENTS
+		EncryptionKey string        `env:"APP_ENCRYPTION_KEY,default=?E(G+KbPeShVmYq3t6w9z$C&F)J@McQf"`
+		Timeout       time.Duration `env:"APP_TIMEOUT,default=20s"`
+		PasswordToken struct {
+			Expiration time.Duration `env:"APP_PASSWORD_TOKEN_EXPIRATION,default=60m"`
+			Length     int           `env:"APP_PASSWORD_TOKEN_LENGTH,default=64"`
+		}
+		EmailVerificationTokenExpiration time.Duration `env:"APP_EMAIL_VERIFICATION_TOKEN_EXPIRATION,default=12h"`
 	}
 
 	// CORSConfig stores Cors configuration
@@ -62,7 +75,6 @@ type (
 
 	// HTTPConfig stores HTTP configuration
 	HTTPConfig struct {
-		Origin       string        `env:"CORS_ORIGIN"`
 		Hostname     string        `env:"HTTP_HOSTNAME"`
 		Port         uint16        `env:"HTTP_PORT,default=1333"`
 		ReadTimeout  time.Duration `env:"HTTP_READ_TIMEOUT,default=5s"`
@@ -73,20 +85,6 @@ type (
 			Certificate string `env:"HTTP_TLS_CERTIFICATE"`
 			Key         string `env:"HTTP_TLS_KEY"`
 		}
-	}
-
-	// AppConfig stores application configuration
-	AppConfig struct {
-		Name        string      `env:"APP_NAME,default=Nest"`
-		Environment Environment `env:"APP_ENV,default=local"`
-		// THIS MUST BE OVERRIDDEN ON ANY LIVE ENVIRONMENTS
-		EncryptionKey string        `env:"APP_ENCRYPTION_KEY,default=?E(G+KbPeShVmYq3t6w9z$C&F)J@McQf"`
-		Timeout       time.Duration `env:"APP_TIMEOUT,default=20s"`
-		PasswordToken struct {
-			Expiration time.Duration `env:"APP_PASSWORD_TOKEN_EXPIRATION,default=60m"`
-			Length     int           `env:"APP_PASSWORD_TOKEN_LENGTH,default=64"`
-		}
-		EmailVerificationTokenExpiration time.Duration `env:"APP_EMAIL_VERIFICATION_TOKEN_EXPIRATION,default=12h"`
 	}
 
 	// CacheConfig stores the cache configuration
@@ -111,15 +109,6 @@ type (
 		Database     string `env:"DB_NAME,default=app"`
 		TestDatabase string `env:"DB_NAME_TEST,default=app_test"`
 	}
-
-	// MailConfig stores the mail configuration
-	MailConfig struct {
-		Hostname    string `env:"MAIL_HOSTNAME"`
-		Port        uint16 `env:"MAIL_PORT,default=25"`
-		User        string `env:"MAIL_USER,default=admin"`
-		Password    string `env:"MAIL_PASSWORD,default=admin"`
-		FromAddress string `env:"MAIL_FROM_ADDRESS,default=admin@localhost"`
-	}
 )
 
 var cfg Config
@@ -132,6 +121,7 @@ func GetConfig() Config {
 var isEnvLoaded = false
 
 // LoadEnv godoc
+// TODO: refactor
 func LoadEnv() {
 	if isEnvLoaded {
 		return

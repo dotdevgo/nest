@@ -70,8 +70,6 @@ type (
 
 var isBooted = false
 
-// var apiGroup ApiGroup
-
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
 	LoadEnv()

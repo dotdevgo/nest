@@ -1,6 +1,7 @@
 package extension
 
 import (
+	"gorm.io/driver/sqlite"
 	"log"
 	"os"
 
@@ -15,7 +16,7 @@ type OrmConfig struct {
 	Gorm     *gorm.Config
 }
 
-// Orm godoc
+// OrmWithDsn Orm godoc
 func OrmWithDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
 	if nil == config {
 		config = &OrmConfig{}
@@ -46,6 +47,12 @@ func OrmWithDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
 	)
 }
 
+// Orm godoc
 func Orm() di.Option {
+	dsn := os.Getenv("DATABASE")
+	if len(dsn) == 0 {
+		return OrmWithDsn(sqlite.Open("file::memory:?cache=shared"), nil)
+	}
+
 	return OrmWithDsn(mysql.Open(os.Getenv("DATABASE")), nil)
 }

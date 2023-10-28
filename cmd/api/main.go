@@ -3,15 +3,9 @@ package main
 import (
 	"os"
 
-	"dotdev/nest/cmd/api/config"
-	authcmd "dotdev/nest/cmd/auth"
-	"dotdev/nest/pkg/auth"
 	"dotdev/nest/pkg/kernel"
 	"dotdev/nest/pkg/kernel/extension"
 	"dotdev/nest/pkg/nest"
-	"dotdev/nest/pkg/user"
-
-	"github.com/defval/di"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -22,7 +16,7 @@ import (
 
 // @title API Docs
 // @version 1.0
-// @description This is a sample server Petstore server.
+// @description This is a sample Api server.
 // @termsOfService http://dotdev.io/terms/
 
 // @contact.name API Support
@@ -38,16 +32,13 @@ func main() {
 	e := nest.New(
 		kernel.New(),
 		extension.Orm(),
-		di.Provide(config.Hermes),
-		user.New(),
-		auth.New(),
-		authcmd.New(),
 	)
 
 	e.Echo.GET("/docs/*", swagger.WrapHandler)
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowCredentials: true,
 		AllowOrigins:     []string{"http://localhost", os.Getenv("CORS_ORIGIN")},
