@@ -14,8 +14,26 @@ import (
 	"github.com/defval/di"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
+	_ "dotdev/nest/cmd/api/docs"
+
+	swagger "github.com/swaggo/echo-swagger"
 )
 
+// @title API Docs
+// @version 1.0
+// @description This is a sample server Petstore server.
+// @termsOfService http://dotdev.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.dotdev.io/support
+// @contact.email support@dotdev.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:1323
+// @BasePath /
 func main() {
 	e := nest.New(
 		kernel.New(),
@@ -25,6 +43,8 @@ func main() {
 		auth.New(),
 		authcmd.New(),
 	)
+
+	e.Echo.GET("/docs/*", swagger.WrapHandler)
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

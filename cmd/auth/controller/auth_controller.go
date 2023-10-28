@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"fmt"
+	"errors"
 	"net"
 	"net/http"
 	"net/url"
@@ -57,6 +57,11 @@ func (c AuthController) Router(w *nest.Kernel, rg *nest.RouteGroup) {
 func (c AuthController) OAuth(ctx nest.Context) error {
 	req, res := ctx.Request(), ctx.Response()
 
+	redirectUrl := ctx.Get("redirectUrl").(string)
+	if len(redirectUrl) == 0 {
+		return errors.New("invalid redirect url")
+	}
+
 	// https://groups.google.com/g/golang-nuts/c/Dur6uGUEKKk
 	values := req.URL.Query()
 	values.Add("provider", ctx.Param("provider"))
@@ -96,12 +101,11 @@ func (c AuthController) OAuth(ctx nest.Context) error {
 
 		ctx.SetCookie(cookie)
 
-		redirectUrl := fmt.Sprintf("%s/auth/oauth", c.Config.HTTP.Origin)
-
 		return ctx.Redirect(http.StatusMovedPermanently, redirectUrl)
 	}
 
 	gothic.BeginAuthHandler(res, req)
+
 	return nil
 }
 

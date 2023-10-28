@@ -280,11 +280,11 @@ func (c AuthManager) OAuth(gothUser goth.User) (*OAuth, error) {
 		return oauth, err
 	}
 
-	// TODO: config domain variable
-	_, err = mail.ParseAddress(gothUser.Email)
 	email := gothUser.Email
+
+	_, err = mail.ParseAddress(email)
 	if nil != err {
-		email = fmt.Sprintf("%s-%s@4squad.net", oauth.UniqueID, oauth.Provider)
+		email = fmt.Sprintf("%s@%s.net", oauth.UniqueID, oauth.Provider)
 	}
 
 	oauth.User = &user.User{
