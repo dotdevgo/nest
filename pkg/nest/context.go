@@ -1,13 +1,11 @@
 package nest
 
 import (
-	"errors"
-
 	"dotdev/nest/pkg/logger"
 
 	"github.com/defval/di"
 	"github.com/labstack/echo/v4"
-	"github.com/nicksnyder/go-i18n/v2/i18n"
+	// "github.com/nicksnyder/go-i18n/v2/i18n"
 )
 
 type (
@@ -16,7 +14,7 @@ type (
 		echo.Context
 		Resolve(ptr di.Pointer, options ...di.ResolveOption) error
 		ResolveFn(ptr di.Pointer, options ...di.ResolveOption)
-		Localize(msg *i18n.Message) (string, error)
+		// Localize(msg *i18n.Message) (string, error)
 	}
 
 	context struct {
@@ -47,10 +45,12 @@ func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 }
 
 // Localize translate string
-func (c *context) Localize(msg *i18n.Message) (string, error) {
-	localizer, ok := c.Get("localizer").(*i18n.Localizer)
-	if ok {
-		return localizer.LocalizeMessage(msg)
-	}
-	return "", errors.New("cannot find localizer")
-}
+// func (c *context) Localize(msg *i18n.Message) (string, error) {
+// 	localizer, ok := c.Get("localizer").(*i18n.Localizer)
+
+// 	if ok {
+// 		return localizer.LocalizeMessage(msg)
+// 	}
+
+// 	return "", errors.New("cannot find localizer")
+// }
