@@ -1,5 +1,6 @@
 GOPATH := $(shell go env GOPATH)
 
+# TODO: why this?
 init:
 	go get -u gorm.io/gorm
 	go get gorm.io/datatypes
@@ -14,7 +15,7 @@ init:
 	go install github.com/mitranim/gow@latest
 
 # Development
-watch:
+serve:
 	gow run cmd/api/main.go
 
 test:
@@ -28,7 +29,7 @@ gofmt:
 	go fmt ./...
 
 godoc:
-	godoc -http=:8820 -goroot "$(GOPATH)"
+	godoc -http=:1333 -goroot "$(GOPATH)"
 
 generate:
 	go generate ./...

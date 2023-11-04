@@ -4,14 +4,15 @@ import (
 	"os"
 
 	"dotdev/nest/pkg/kernel"
-	"dotdev/nest/pkg/kernel/extension"
 	"dotdev/nest/pkg/nest"
+	"dotdev/nest/pkg/orm"
+	"dotdev/nest/pkg/swagger"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
 	_ "dotdev/nest/cmd/api/docs"
-
-	swagger "github.com/swaggo/echo-swagger"
+	// swagger "github.com/swaggo/echo-swagger"
 )
 
 // @title API Docs
@@ -31,10 +32,9 @@ import (
 func main() {
 	e := nest.New(
 		kernel.New(),
-		extension.Orm(),
+		orm.New(),
+		swagger.New(),
 	)
-
-	e.Echo.GET("/docs/*", swagger.WrapHandler)
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())

@@ -3,7 +3,6 @@ module dotdev/nest
 go 1.21
 
 require (
-	github.com/99designs/gqlgen v0.17.33
 	github.com/Masterminds/goutils v1.1.1
 	github.com/defval/di v1.12.0
 	github.com/go-playground/validator/v10 v10.14.1
@@ -13,18 +12,15 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.11.1
 	github.com/labstack/gommon v0.4.0
-	github.com/nicksnyder/go-i18n/v2 v2.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/swaggo/echo-swagger v1.4.0
 	github.com/swaggo/swag v1.16.1
-	gorm.io/datatypes v1.2.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/sqlite v1.4.3
 	gorm.io/gorm v1.25.1
 )
 
 require (
-	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
@@ -36,7 +32,6 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.3 // indirect
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/tools v0.10.0 // indirect
