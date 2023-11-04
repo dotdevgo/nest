@@ -3,6 +3,8 @@ package crud
 import (
 	"dotdev/nest/pkg/paginator"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 type (
@@ -19,18 +21,9 @@ type (
 )
 
 // Paginate godoc
-func (s *Crud[T]) Paginate(result interface{}, pagination []paginator.Option, options ...Option) (*paginator.Result[T], error) {
-	var stmt = s.Stmt(options...)
-
+func (s *Crud[T]) Paginate(stmt *gorm.DB, result interface{}, pagination []paginator.Option) (*paginator.Result[T], error) {
 	return paginator.Paginate[T](stmt, result, pagination...)
 }
-
-// WithNest godoc
-//func WithNest(ctx nest.Context) []paginator.Option {
-//	return []paginator.Option{
-//		paginator.WithRequest(ctx.Request()),
-//	}
-//}
 
 // WithHttpRequest godoc
 func WithHttpRequest(req *http.Request) []paginator.Option {
@@ -58,6 +51,13 @@ func WithCursor(cursor *PaginatorCursor) []paginator.Option {
 
 	return pgr
 }
+
+// WithNest godoc
+//func WithNest(ctx nest.Context) []paginator.Option {
+//	return []paginator.Option{
+//		paginator.WithRequest(ctx.Request()),
+//	}
+//}
 
 //PaginatorResult struct {
 //	CurrentPage    int           `json:"currentPage"`

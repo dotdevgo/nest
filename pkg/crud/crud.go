@@ -2,12 +2,10 @@ package crud
 
 import (
 	"dotdev/nest/pkg/nest"
-
-	"gorm.io/gorm"
 )
 
 type Crud[T Model] struct {
-	db *gorm.DB
+	// db *gorm.DB
 }
 
 // IsValid godoc
@@ -24,15 +22,15 @@ func (s *Crud[T]) IsValid(ctx nest.Context, input interface{}) error {
 }
 
 // Stmt godoc
-func (s *Crud[T]) Stmt(options ...Option) *gorm.DB {
-	var stmt = s.db.Session(&gorm.Session{}) // Tx() //NewDB: true
+// func (s *Crud[T]) NewQuery(options ...Option) *gorm.DB {
+// 	var stmt = s.db.Session(&gorm.Session{}) // Tx() //NewDB: true
 
-	for _, option := range options {
-		stmt = option(stmt)
-	}
+// 	for _, option := range options {
+// 		stmt = option(stmt)
+// 	}
 
-	return stmt
-}
+// 	return stmt
+// }
 
 // NewService godoc
 //func NewService[T Model](db *gorm.DB) *Crud[T] {

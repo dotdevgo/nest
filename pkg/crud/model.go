@@ -3,9 +3,10 @@
 package crud
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type (
@@ -27,6 +28,8 @@ type (
 
 		GetID() string
 	}
+
+	CrudRepository struct{}
 )
 
 type Entity struct {
