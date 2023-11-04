@@ -16,10 +16,9 @@ type Repository[T crud.Model] struct {
 	*gorm.DB
 }
 
-// CreateQueryBuilder godoc
-func (r Repository[T]) CreateQueryBuilder(options ...Option) *gorm.DB {
+// CreateQuery godoc
+func (r Repository[T]) CreateQuery(options ...Option) *gorm.DB {
 	var stmt = r.Session(&gorm.Session{})
-
 	for _, option := range options {
 		stmt = option(stmt)
 	}
