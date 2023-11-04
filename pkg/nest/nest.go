@@ -1,6 +1,7 @@
 package nest
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -31,9 +32,6 @@ var (
 )
 
 type (
-	// ApiGroup godoc
-	// ApiGroup interface{}
-
 	// ContainerHandlerFunc godoc
 	ContainerHandlerFunc func(Context) interface{}
 
@@ -158,7 +156,7 @@ func NewController(provideFn di.Constructor) di.Option {
 // And invokes function with them. See Invocation for details.
 func (w *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) {
 	if err := w.Invoke(invocation, options...); err != nil {
-		w.Logger.Panic(err.Error())
+		w.Logger.Fatal(err.Error())
 	}
 }
 
@@ -167,7 +165,7 @@ func (w *Kernel) InvokeFn(invocation di.Invocation, options ...di.InvokeOption) 
 // the process of type resolving.
 func (w *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOption) {
 	if err := w.Provide(constructor, options...); err != nil {
-		w.Logger.Panic(err.Error())
+		w.Logger.Fatal(err.Error())
 	}
 }
 
@@ -179,7 +177,7 @@ func (w *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOpti
 //	}
 func (w *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := w.Resolve(ptr, options...); err != nil {
-		w.Logger.Panicf("%s", err)
+		w.Logger.Fatalf("%s", err)
 	}
 }
 
@@ -319,7 +317,7 @@ func (w *Kernel) Serve(address interface{}) error {
 // Boot godoc
 func (w *Kernel) Boot() error {
 	if isBooted {
-		return nil
+		return errors.New("boot called twice")
 	}
 
 	isBooted = true
@@ -328,18 +326,17 @@ func (w *Kernel) Boot() error {
 		return err
 	}
 
-	if err := w.Invoke(w.onBootstrap); err != nil {
-		w.Logger.Warn(err.Error())
+	if err := w.Invoke(w.bootstrap); err != nil {
+		w.Logger.Fatal(err.Error())
 	}
 
 	return nil
 }
 
-// onBootstrap godoc
-func (w *Kernel) onBootstrap(providers []Extension) error {
+// bootstrap godoc
+func (w *Kernel) bootstrap(providers []Extension) error {
 	for _, p := range providers {
 		if err := p.Boot(w); err != nil {
-			// w.Logger.Warn(err.Error())
 			return err
 		}
 	}
@@ -376,11 +373,3 @@ func (w *Kernel) useRouter(controllers []AbstractController) {
 		w.InvokeFn(controller.New)
 	}
 }
-
-// Api godoc
-// func (w *Kernel) Api() *Group {
-// 	// var g SecureGroup
-// 	// w.ResolveFn(&g)
-// 	e := apiGroup.(*Group)
-// 	return e
-// }

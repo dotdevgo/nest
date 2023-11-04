@@ -12,7 +12,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	_ "dotdev/nest/cmd/api/docs"
-	// swagger "github.com/swaggo/echo-swagger"
 )
 
 // @title API Docs

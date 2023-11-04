@@ -1,56 +1,44 @@
 package crud
 
 import (
+	"errors"
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
-// Exclude fields from request query params
-// var excludeNames = []string{"page", "limit", "order"}
-
 type (
-	CriteriaOption struct {
-		Field    string
+	Filter struct {
+		Name     string
 		Operator string
-		Value    interface{}
+		Value    string
 		Expr     string
 	}
-
-	//CriteriaMap map[string]CriteriaOption
-
-	//CriteriaList []CriteriaOption
 )
 
 // Apply godoc
-func (c *CriteriaOption) Apply(db *gorm.DB) *gorm.DB {
-	var sql = c.Expr
-	var value = c.Value.(string)
-	var operator = "="
-	var isNot = false
-
-	if value == "" || c.Operator == "" {
-		return db
+func (c *Filter) Apply(db *gorm.DB) (*gorm.DB, error) {
+	// TODO: better input validation
+	if c.Value == "" || c.Operator == "" {
+		return db, nil
 	}
 
 	switch c.Operator {
 	case "$cont":
-		operator = "LIKE"
-		value = "%" + value + "%"
+		sql := fmt.Sprintf("%s = ?", c.Name)
+		db = db.Where(sql, c.Value)
 	case "$necont":
-		operator = "LIKE"
-		value = "%" + value + "%"
-		isNot = true
+		sql := fmt.Sprintf("%s LIKE ?", c.Name)
+		db = db.Where(sql, "%"+c.Value+"%")
+	default:
+		return db, errors.New("invalid filter: " + c.Name)
 	}
 
-	if sql == "" {
-		sql = c.Field + " " + operator + " ?"
-	}
-
-	if isNot {
-		return db.Not(sql, value)
-	}
-
-	return db.Where(sql, value)
+	return db, nil
 }
+
+// Exclude fields from request query params
+// var excludeNames = []string{"page", "limit", "order"}
 
 // convertQueryParamToCriteria godoc
 //func convertQueryParamToCriteria(name string, data string) CriteriaOption {
