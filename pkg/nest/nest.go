@@ -47,7 +47,7 @@ type (
 
 	// Extension godoc
 	Extension interface {
-		Boot(w *Kernel) error
+		Boot(w *Kernel)
 	}
 
 	// Validator is the interface that wraps the Validate function.
@@ -327,7 +327,7 @@ func (w *Kernel) Boot() error {
 	}
 
 	if err := w.Invoke(w.bootstrap); err != nil {
-		w.Logger.Fatal(err.Error())
+		w.Logger.Warn(err.Error())
 	}
 
 	return nil
@@ -336,9 +336,10 @@ func (w *Kernel) Boot() error {
 // bootstrap godoc
 func (w *Kernel) bootstrap(providers []Extension) error {
 	for _, p := range providers {
-		if err := p.Boot(w); err != nil {
-			return err
-		}
+		p.Boot(w)
+		// if err := p.Boot(w); err != nil {
+		// 	return err
+		// }
 	}
 
 	return nil

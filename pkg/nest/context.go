@@ -2,25 +2,37 @@ package nest
 
 import (
 	"dotdev/nest/pkg/logger"
+	"errors"
+	"net/http"
 
 	"github.com/defval/di"
 	"github.com/labstack/echo/v4"
-	// "github.com/nicksnyder/go-i18n/v2/i18n"
+)
+
+var (
+	ErrorNotFound = errors.New("not found")
 )
 
 type (
 	// Context godoc
 	Context interface {
 		echo.Context
+
 		Resolve(ptr di.Pointer, options ...di.ResolveOption) error
 		ResolveFn(ptr di.Pointer, options ...di.ResolveOption)
-		// Localize(msg *i18n.Message) (string, error)
+
+		NotFound() error
+
+		Validate(input any) error
 	}
 
 	context struct {
 		echo.Context
+
 		Container *di.Container
 	}
+
+	Map map[string]interface{}
 )
 
 // Resolve godoc
@@ -44,7 +56,14 @@ func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	}
 }
 
+// NotFound godoc
+func (c *context) NotFound() error {
+	return c.JSON(http.StatusNotFound, Map{"error": ErrorNotFound.Error()})
+}
+
 // Localize translate string
+// "github.com/nicksnyder/go-i18n/v2/i18n"
+// Localize(msg *i18n.Message) (string, error)
 // func (c *context) Localize(msg *i18n.Message) (string, error) {
 // 	localizer, ok := c.Get("localizer").(*i18n.Localizer)
 

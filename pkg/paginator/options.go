@@ -1,6 +1,7 @@
 package paginator
 
 import (
+	"dotdev/nest/pkg/nest"
 	"net/http"
 	"strconv"
 	"strings"
@@ -23,9 +24,74 @@ type ParamNames struct {
 // overridden at runtime.
 var DefaultParamNames = ParamNames{"page", "limit", "order", "offset"}
 
-// WithOffset configures the offset of the paginator.
+type (
+	PaginatorMeta interface {
+		// IsPaginatorMeta()
+	}
+
+	PaginatorCursor struct {
+		Offset *int    `json:"offset"` // NOT USED
+		Page   *int    `json:"page"`
+		Limit  *int    `json:"limit"`
+		Order  *string `json:"order"`
+	}
+)
+
+// WithHttpRequest godoc
+func WithHttpRequest(req *http.Request) []Option {
+	return []Option{
+		WithRequest(req),
+	}
+}
+
+// WithCursor godoc
+func WithCursor(cursor *PaginatorCursor) []Option {
+	var pgr []Option
+
+	if cursor.Page != nil {
+		pgr = append(pgr, WithPage(*cursor.Page))
+	}
+	if cursor.Limit != nil {
+		pgr = append(pgr, WithLimit(*cursor.Limit))
+	}
+	if cursor.Order != nil {
+		pgr = append(pgr, WithOrder(*cursor.Order))
+	}
+	//else {
+	//	pgr = append(pgr, WithOrder(entity.TableFormTemplate+".created_at desc"))
+	//}
+
+	return pgr
+}
+
+// WithContext godoc
+func WithContext(ctx nest.Context) []Option {
+	return []Option{
+		WithRequest(ctx.Request()),
+	}
+}
+
+//PaginatorResult struct {
+//	CurrentPage    int           `json:"currentPage"`
+//	MaxPage        int           `json:"maxPage"`
+//	RecordsPerPage int           `json:"recordsPerPage"`
+//	TotalRecords   int64         `json:"totalRecords"`
+//	Meta           PaginatorMeta `json:"meta"`
+//	Records        interface{}   `json:"records"`
+//}
+// NewPaginatorCursor godoc
+//func NewPaginatorCursor(pg *Result) *PaginatorResult {
+//	return &PaginatorResult{
+//		CurrentPage:    pg.CurrentPage,
+//		MaxPage:        pg.MaxPage,
+//		RecordsPerPage: pg.RecordsPerPage,
+//		TotalRecords:   pg.TotalRecords,
+//	}
+//}
+
+// WithOffset configures the offset of the
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithOffset(2))
+//	gorm-Paginate(db, &v, gorm-WithOffset(2))
 func WithOffset(offset int) Option {
 	return func(p *paginator[any]) {
 		if offset > 0 {
@@ -34,9 +100,9 @@ func WithOffset(offset int) Option {
 	}
 }
 
-// WithPage configures the page of the paginator.
+// WithPage configures the page of the
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithPage(2))
+//	gorm-Paginate(db, &v, gorm-WithPage(2))
 func WithPage(page int) Option {
 	return func(p *paginator[any]) {
 		if page > 0 {
@@ -45,9 +111,9 @@ func WithPage(page int) Option {
 	}
 }
 
-// WithLimit configures the limit of the paginator.
+// WithLimit configures the limit of the
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithLimit(10))
+//	gorm-Paginate(db, &v, gorm-WithLimit(10))
 func WithLimit(limit int) Option {
 	return func(p *paginator[any]) {
 		if limit > 0 {
@@ -56,9 +122,9 @@ func WithLimit(limit int) Option {
 	}
 }
 
-// WithOrder configures the order of the paginator.
+// WithOrder configures the order of the
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithOrder("name DESC", "id"))
+//	gorm-Paginate(db, &v, gorm-WithOrder("name DESC", "id"))
 func WithOrder(order ...string) Option {
 	return func(p *paginator[any]) {
 		p.order = filterNonEmpty(order)
@@ -67,9 +133,9 @@ func WithOrder(order ...string) Option {
 
 // WithRequest configures the paginator from a *http.Request.
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithRequest(request))
+//	gorm-Paginate(db, &v, gorm-WithRequest(request))
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithRequest(request, gorm-paginator.ParamNames{
+//	gorm-Paginate(db, &v, gorm-WithRequest(request, gorm-ParamNames{
 //	    Page: "page",
 //	    Limit: "",       // Disable limit query param.
 //	    Order: "order",
@@ -110,9 +176,9 @@ func WithRequest(r *http.Request, paramNames ...ParamNames) Option {
 
 // WithRequest configures the paginator from a *http.Request.
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithRequest(request))
+//	gorm-Paginate(db, &v, gorm-WithRequest(request))
 //
-//	gorm-paginator.Paginate(db, &v, gorm-paginator.WithRequest(request, gorm-paginator.ParamNames{
+//	gorm-Paginate(db, &v, gorm-WithRequest(request, gorm-ParamNames{
 //	    Page: "page",
 //	    Limit: "",       // Disable limit query param.
 //	    Order: "order",

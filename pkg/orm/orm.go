@@ -17,8 +17,8 @@ type OrmConfig struct {
 	Gorm     *gorm.Config
 }
 
-// OrmWithDsn Orm godoc
-func OrmWithDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
+// NewDsn Orm godoc
+func NewDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
 	if nil == config {
 		config = &OrmConfig{}
 	}
@@ -52,8 +52,8 @@ func OrmWithDsn(dsn gorm.Dialector, config *OrmConfig) di.Option {
 func New() di.Option {
 	dsn := os.Getenv("DATABASE")
 	if len(dsn) == 0 {
-		return OrmWithDsn(sqlite.Open("file::memory:?cache=shared"), nil)
+		return NewDsn(sqlite.Open("file::memory:?cache=shared"), nil)
 	}
 
-	return OrmWithDsn(mysql.Open(os.Getenv("DATABASE")), nil)
+	return NewDsn(mysql.Open(os.Getenv("DATABASE")), nil)
 }

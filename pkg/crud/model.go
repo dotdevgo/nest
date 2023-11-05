@@ -5,11 +5,18 @@ package crud
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type (
+	Model interface {
+		GetID() string
+	}
+
+	Record interface {
+		IsRecord()
+	}
+
 	SoftDeleteable struct {
 		DeletedAt gorm.DeletedAt `json:"deletedAt" form:"deletedAt" gorm:"index"`
 	}
@@ -19,23 +26,12 @@ type (
 		UpdatedAt time.Time `json:"updatedAt"`
 	}
 
-	Record interface {
-		IsRecord()
-	}
-
-	Model interface {
-		// GetPk() uint64
-
-		GetID() string
-	}
-
-	CrudRepository struct{}
+	//CrudRepository struct{}
 )
 
 type Entity struct {
 	Model `gorm:"-" json:"-"`
-	ID    string `gorm:"type:varchar(255);uniqueIndex" json:"id" form:"id" gqlgen:"id"`
-	//Pk    uint64 `gorm:"primarykey" json:"-"`
+	ID    string `gorm:"type:varchar(255);primaryKey;uniqueIndex" json:"id" form:"id" gqlgen:"id"`
 }
 
 // GetID returns the value of UUID.
@@ -43,14 +39,16 @@ func (m *Entity) GetID() string {
 	return m.ID
 }
 
+// GetPk() uint64
+//Pk    uint64 `gorm:"primarykey" json:"-"`
 // BeforeCreate godoc
-func (m *Entity) BeforeCreate(tx *gorm.DB) (err error) {
-	if m.ID == "" {
-		m.ID = uuid.New().String()
-	}
+// func (m *Entity) BeforeCreate(tx *gorm.DB) (err error) {
+// 	if m.ID == "" {
+// 		m.ID = uuid.New().String()
+// 	}
 
-	return
-}
+// 	return
+// }
 
 //func (Entity) IsRecord() {}
 

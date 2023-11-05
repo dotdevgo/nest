@@ -1,25 +1,35 @@
 package crud
 
-import (
-	"dotdev/nest/pkg/nest"
-)
+// import (
+// 	"github.com/defval/di"
+// 	"gorm.io/gorm"
+// )
 
-type Crud[T Model] struct {
-	// db *gorm.DB
-}
+// Crud godoc
+// type Crud[T Model] struct {
+// 	di.Inject
+
+// 	*gorm.DB
+// }
+
+// New godoc
+// func New[T Model]() *Crud[T] {
+// 	return &Crud[T]{}
+// 	// .Session(&gorm.Session{NewDB: true})
+// }
 
 // IsValid godoc
-func (s *Crud[T]) IsValid(ctx nest.Context, input interface{}) error {
-	if err := ctx.Bind(input); err != nil {
-		return err
-	}
+// func (s *Service[T]) IsValid(ctx nest.Context, input interface{}) error {
+// 	if err := ctx.Bind(input); err != nil {
+// 		return err
+// 	}
 
-	if err := ctx.Validate(input); err != nil {
-		return err
-	}
+// 	if err := ctx.Validate(input); err != nil {
+// 		return err
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 // Stmt godoc
 // func (s *Crud[T]) NewQuery(options ...Option) *gorm.DB {
@@ -31,12 +41,6 @@ func (s *Crud[T]) IsValid(ctx nest.Context, input interface{}) error {
 
 // 	return stmt
 // }
-
-// NewService godoc
-//func NewService[T Model](db *gorm.DB) *Crud[T] {
-//	return &Crud[T]{db: db}
-//	// .Session(&gorm.Session{NewDB: true})
-//}
 
 // Find godoc
 // @deprecated
@@ -50,11 +54,11 @@ func (s *Crud[T]) IsValid(ctx nest.Context, input interface{}) error {
 // FindAll godoc
 // @deprecated
 // TODO: move to repository
-//func (s *Crud[T]) FindAll(result interface{}, options ...Option) error {
-//	var stmt = s.Stmt(options...)
-//
-//	return stmt.Find(result).Error
-//}
+// func (s *Crud[T]) FindAll(result interface{}, options ...Option) error {
+// 	var stmt = s.Stmt(options...)
+
+// 	return stmt.Find(result).Error
+// }
 
 // Flush godoc
 // func (s *Crud[T]) Flush(data T) error {

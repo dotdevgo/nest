@@ -3,15 +3,15 @@ package main
 import (
 	"os"
 
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+
+	"dotdev/nest/internal/app"
+	_ "dotdev/nest/internal/cmd/api/docs"
 	"dotdev/nest/pkg/kernel"
 	"dotdev/nest/pkg/nest"
 	"dotdev/nest/pkg/orm"
 	"dotdev/nest/pkg/swagger"
-
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-
-	_ "dotdev/nest/cmd/api/docs"
 )
 
 // @title API Docs
@@ -33,6 +33,7 @@ func main() {
 		kernel.New(),
 		orm.New(),
 		swagger.New(),
+		app.New(),
 	)
 
 	e.Use(middleware.Logger())

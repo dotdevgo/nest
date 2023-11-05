@@ -6,18 +6,33 @@ import (
 	"strings"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo/v4"
 )
 
-type EchoValidator struct {
-	validator *validator.Validate
-}
-
+// ValidationError godoc
 type ValidationError struct {
 	Field string `json:"field"`
 	Msg   string `json:"msg"`
 }
 
+// IsValid godoc
+func (ctx *context) Validate(input interface{}) error {
+	if err := ctx.Bind(input); err != nil {
+		return err
+	}
+
+	if err := ctx.Context.Validate(input); err != nil {
+		return NewValidatorError(ctx, err)
+	}
+
+	return nil
+}
+
+// EchoValidator godoc
+type EchoValidator struct {
+	validator *validator.Validate
+}
+
+// Validate godoc
 func (cv *EchoValidator) Validate(i interface{}) error {
 	if err := cv.validator.Struct(i); err != nil {
 		return err //echo.NewHTTPError(http.StatusBadRequest, err)
@@ -31,12 +46,13 @@ func NewValidatorError(ctx Context, err error) error {
 	var ve validator.ValidationErrors
 
 	if errors.As(err, &ve) {
-		errs := make([]ValidationError, len(ve))
+		validationErrors := make([]ValidationError, len(ve))
+
 		for i, fe := range ve {
-			errs[i] = ValidationError{Field: strings.ToLower(fe.Field()), Msg: fe.Error()}
+			validationErrors[i] = ValidationError{Field: strings.ToLower(fe.Field()), Msg: fe.Error()}
 		}
 
-		return ctx.JSON(http.StatusBadRequest, &echo.Map{"errors": errs})
+		return ctx.JSON(http.StatusBadRequest, &Map{"errors": validationErrors})
 	}
 
 	return NewHTTPError(http.StatusBadRequest, err.Error())
