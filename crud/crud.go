@@ -1,5 +1,20 @@
 package crud
 
+import (
+	"dotdev/nest/logger"
+
+	"github.com/gofrs/uuid/v5"
+)
+
+// NewUUID godoc
+func NewUUID() uuid.UUID {
+	id, err := uuid.NewV7()
+
+	logger.PanicOnError(err)
+
+	return id
+}
+
 // import (
 // 	"github.com/defval/di"
 // 	"gorm.io/gorm"

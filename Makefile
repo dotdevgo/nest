@@ -16,7 +16,7 @@ init:
 
 # Development
 serve:
-	gow run cmd/api/main.go
+	gow run internal/cmd/api/main.go
 
 test:
 	go test -v ./... -cover

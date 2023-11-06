@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"dotdev/nest/pkg/logger"
+	"dotdev/nest/logger"
 
 	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"

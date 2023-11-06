@@ -6,12 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"dotdev/nest/internal/app"
 	_ "dotdev/nest/internal/cmd/api/docs"
-	"dotdev/nest/pkg/kernel"
-	"dotdev/nest/pkg/nest"
-	"dotdev/nest/pkg/orm"
-	"dotdev/nest/pkg/swagger"
+	"dotdev/nest/kernel"
+	"dotdev/nest/nest"
+	"dotdev/nest/orm"
+	"dotdev/nest/swagger"
 )
 
 // @title API Docs
@@ -33,7 +32,6 @@ func main() {
 		kernel.New(),
 		orm.New(),
 		swagger.New(),
-		app.New(),
 	)
 
 	e.Use(middleware.Logger())

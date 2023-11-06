@@ -1,8 +1,8 @@
 package kernel
 
 import (
-	"dotdev/nest/pkg/kernel/extension"
-	"dotdev/nest/pkg/nest"
+	"dotdev/nest/kernel/extension"
+	"dotdev/nest/nest"
 
 	"github.com/defval/di"
 )

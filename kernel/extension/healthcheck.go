@@ -1,7 +1,7 @@
 package extension
 
 import (
-	"dotdev/nest/pkg/nest"
+	"dotdev/nest/nest"
 	"net/http"
 
 	"github.com/defval/di"

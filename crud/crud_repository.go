@@ -1,6 +1,8 @@
 package crud
 
 import (
+	"dotdev/nest/orm"
+
 	"github.com/defval/di"
 	"gorm.io/gorm"
 )
@@ -13,15 +15,27 @@ type Repository[T Model] struct {
 }
 
 // FindAll godoc
-func (s *Repository[T]) FindAll(result interface{}, options ...Option) error {
+func (s *Repository[T]) FindAll(result []T, options ...Option) error {
 	var stmt = s.CreateQuery(options...)
 
 	return stmt.Find(result).Error
 }
 
+// GetById godoc
+func (s *Repository[T]) GetById(result T) error {
+	var uuid = orm.UUIDToBinary(result.GetId())
+
+	stmt := s.First(result, "id = ?", uuid)
+	if err := stmt.Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreateQuery godoc
 func (r *Repository[T]) CreateQuery(options ...Option) *gorm.DB {
-	var stmt = r.Session(&gorm.Session{})
+	var stmt = r.Session(&gorm.Session{NewDB: true})
 	for _, option := range options {
 		stmt = option(stmt)
 	}
