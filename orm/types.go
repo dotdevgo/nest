@@ -56,3 +56,7 @@ func (b *BinaryUUID) Scan(value interface{}) error {
 func (b BinaryUUID) Value() (driver.Value, error) {
 	return uuid.UUID(b).MarshalBinary()
 }
+
+func (b BinaryUUID) IsNil() bool {
+	return b == UUIDToBinary(uuid.Nil.String())
+}

@@ -13,7 +13,7 @@ import (
 type (
 	Model interface {
 		GetId() string
-		SetId(id string) error
+		// SetId(id string) error
 	}
 
 	Record interface {
@@ -38,7 +38,7 @@ type Entity struct {
 }
 
 // GetId returns the value of UUID.
-func (m *Entity) GetId() string {
+func (m Entity) GetId() string {
 	return m.ID.String()
 }
 

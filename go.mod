@@ -1,5 +1,7 @@
 module dotdev/nest
 
+replace dotdev/stdlib => /home/ivan/repositories/github.com/golang/stdlib
+
 go 1.21
 
 require (
@@ -16,8 +18,6 @@ require (
 	github.com/psampaz/slice v0.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/swaggo/echo-swagger v1.4.0
-	github.com/swaggo/swag v1.16.1
-	github.com/twharmon/slices v0.0.4
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/sqlite v1.4.3
 	gorm.io/gorm v1.25.1
@@ -30,7 +30,6 @@ require (
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
 	github.com/go-openapi/spec v0.20.9 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
@@ -51,9 +50,9 @@ require (
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/swaggo/swag v1.16.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/net v0.13.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
-	golang.org/x/time v0.3.0 // indirect
 )

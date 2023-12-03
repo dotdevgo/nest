@@ -8,7 +8,7 @@ import (
 
 // DefaultLimit defines the default limit for paginated queries. This is a
 // variable so that users can configure it at runtime.
-var DefaultLimit = 50000
+var DefaultLimit = 1000
 
 // Paginator defines the interface for a paginator.
 type Paginator[T any] interface {
@@ -55,11 +55,8 @@ type Result[T any] struct {
 //	p := gorm-paginator.New(db, gorm-paginator.WithPage(2))
 //	res, err := p.Paginate(&v)
 func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
-	// TODO: NewDB: true?!
-	tx := db.Session(&gorm.Session{NewDB: true})
-
-	p := &paginator[any]{
-		db:     db,
+	opts := &paginator[any]{
+		db:     nil,
 		page:   1,
 		offset: 0,
 		limit:  DefaultLimit,
@@ -67,18 +64,18 @@ func New[T any](db *gorm.DB, options ...Option) Paginator[T] {
 	}
 
 	for _, option := range options {
-		option(p)
+		option(opts)
 	}
 
-	pp := &paginator[T]{
-		db:     tx,
-		page:   p.page,
-		offset: p.offset,
-		limit:  p.limit,
-		order:  p.order,
+	pager := &paginator[T]{
+		db:     db,
+		page:   opts.page,
+		offset: opts.offset,
+		limit:  opts.limit,
+		order:  opts.order,
 	}
 
-	return pp
+	return pager
 }
 
 // Paginate is a convenience wrapper for the paginator.
@@ -113,7 +110,7 @@ func (p *paginator[T]) Paginate(value interface{}) (*Result[T], error) {
 
 // createQuery prepares the statement by adding the order clauses.
 func (p *paginator[T]) createQuery() *gorm.DB {
-	db := p.db
+	db := p.db.Session(&gorm.Session{})
 
 	for _, o := range p.order {
 		db = db.Order(o)

@@ -22,15 +22,16 @@ func (s *Repository[T]) FindAll(result []T, options ...Option) error {
 }
 
 // GetById godoc
-func (s *Repository[T]) GetById(result T) error {
-	var uuid = orm.UUIDToBinary(result.GetId())
+func (s *Repository[T]) GetById(id string) (T, error) {
+	var data T
+	var uuid = orm.UUIDToBinary(id)
 
-	stmt := s.First(result, "id = ?", uuid)
+	stmt := s.First(&data, "id = ?", uuid)
 	if err := stmt.Error; err != nil {
-		return err
+		return data, err
 	}
 
-	return nil
+	return data, nil
 }
 
 // CreateQuery godoc
