@@ -1,6 +1,6 @@
 module dotdev
 
-replace dotdev/stdlib => /home/ivan/repositories/github.com/golang/stdlib
+// replace dotdev/stdlib => /home/ivan/repositories/github.com/golang/stdlib
 
 go 1.22
 
@@ -18,6 +18,7 @@ require (
 	github.com/psampaz/slice v0.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/swaggo/echo-swagger v1.4.0
+	github.com/twharmon/slices v0.0.4
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/sqlite v1.4.3
 	gorm.io/gorm v1.25.1

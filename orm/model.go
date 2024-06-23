@@ -1,12 +1,13 @@
 //go:generate metatag
 
-package crud
+package orm
 
 import (
-	"dotdev/orm"
+	"dotdev/logger"
 	"time"
 
 	"github.com/gofrs/uuid/v5"
+
 	"gorm.io/gorm"
 )
 
@@ -16,8 +17,9 @@ type (
 		// SetId(id string) error
 	}
 
-	Record interface {
-		IsRecord()
+	Entity struct {
+		Model `json:"-" gorm:"-"`
+		ID    BinaryUUID `json:"id" form:"id" gqlgen:"id" gorm:"type:binary(16);primaryKey;notNull;"`
 	}
 
 	SoftDeleteable struct {
@@ -28,14 +30,7 @@ type (
 		CreatedAt time.Time `json:"createdAt" gorm:"<-:create;"`
 		UpdatedAt time.Time `json:"updatedAt"`
 	}
-
-	//CrudRepository struct{}
 )
-
-type Entity struct {
-	Model `json:"-" gorm:"-"`
-	ID    orm.BinaryUUID `json:"id" form:"id" gqlgen:"id" gorm:"type:binary(16);primaryKey;notNull;"`
-}
 
 // GetId returns the value of UUID.
 func (m Entity) GetId() string {
@@ -49,26 +44,25 @@ func (m *Entity) SetId(id string) error {
 		return err
 	}
 
-	m.ID = orm.BinaryUUID(uuid)
+	m.ID = BinaryUUID(uuid)
 
 	return nil
 }
 
 // BeforeCreate godoc
 func (m *Entity) BeforeCreate(tx *gorm.DB) (err error) {
-	if m.ID == orm.BinaryUUID(uuid.Nil) {
-		m.ID = orm.UUIDToBinary(NewUUID().String())
+	if m.ID == BinaryUUID(uuid.Nil) {
+		m.ID = UUIDToBinary(NewUUID().String())
 	}
 
 	return
 }
 
-// GetPk() uint64
-//Pk    uint64 `gorm:"primarykey" json:"-"`
+// NewUUID godoc
+func NewUUID() uuid.UUID {
+	id, err := uuid.NewV7()
 
-//func (Entity) IsRecord() {}
+	logger.PanicOnError(err)
 
-// GetPk returns the value of ID.
-//func (m *Entity) GetPk() uint64 {
-//	return m.Pk
-//}
+	return id
+}

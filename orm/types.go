@@ -12,6 +12,8 @@ import (
 // BinaryUUID -> binary uuid wrapper over uuid.UUID
 type BinaryUUID uuid.UUID
 
+var nilUUID = UUIDToBinary(uuid.Nil.String())
+
 // ParseUUID -> parses string uuid to binary uuid
 func UUIDToBinary(id string) BinaryUUID {
 	return BinaryUUID(uuid.FromStringOrNil(id))
@@ -57,6 +59,7 @@ func (b BinaryUUID) Value() (driver.Value, error) {
 	return uuid.UUID(b).MarshalBinary()
 }
 
+// IsNil godoc
 func (b BinaryUUID) IsNil() bool {
-	return b == UUIDToBinary(uuid.Nil.String())
+	return b == nilUUID
 }

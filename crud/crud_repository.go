@@ -8,7 +8,7 @@ import (
 )
 
 // Repository godoc
-type Repository[T Model] struct {
+type Repository[T orm.Model] struct {
 	di.Inject
 
 	*gorm.DB
@@ -45,7 +45,7 @@ func (r *Repository[T]) CreateQuery(options ...Option) *gorm.DB {
 }
 
 // NewRepository godoc
-func NewRepository[T Model]() *Repository[T] {
+func NewRepository[T orm.Model]() *Repository[T] {
 	return &Repository[T]{}
 }
 
