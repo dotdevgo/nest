@@ -1,7 +1,7 @@
 package nest
 
 import (
-	"dotdev/nest/logger"
+	"dotdev/logger"
 	"errors"
 	"net/http"
 

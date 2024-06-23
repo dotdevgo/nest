@@ -1,7 +1,7 @@
 package swagger
 
 import (
-	"dotdev/nest/nest"
+	"dotdev/nest"
 
 	"github.com/defval/di"
 	swag "github.com/swaggo/echo-swagger"

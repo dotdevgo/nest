@@ -1,8 +1,8 @@
-module dotdev/nest
+module dotdev
 
 replace dotdev/stdlib => /home/ivan/repositories/github.com/golang/stdlib
 
-go 1.21
+go 1.22
 
 require (
 	github.com/Masterminds/goutils v1.1.1

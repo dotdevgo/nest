@@ -3,7 +3,7 @@
 package crud
 
 import (
-	"dotdev/nest/orm"
+	"dotdev/orm"
 	"time"
 
 	"github.com/gofrs/uuid/v5"

@@ -1,7 +1,7 @@
 package paginator
 
 import (
-	"dotdev/nest/nest"
+	"dotdev/nest"
 	"net/http"
 	"strconv"
 	"strings"

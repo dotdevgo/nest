@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"dotdev/nest/logger"
+	"dotdev/logger"
 
 	"github.com/joeshaw/envdecode"
 	"github.com/joho/godotenv"

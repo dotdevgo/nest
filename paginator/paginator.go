@@ -3,7 +3,7 @@
 package paginator
 
 import (
-	"dotdev/nest/nest"
+	"dotdev/nest"
 
 	"gorm.io/gorm"
 )

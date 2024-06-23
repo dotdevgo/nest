@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dotdev/nest/nest"
+	"dotdev/nest"
 
 	"github.com/labstack/echo/v4/middleware"
 )

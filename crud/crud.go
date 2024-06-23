@@ -1,7 +1,7 @@
 package crud
 
 import (
-	"dotdev/nest/logger"
+	"dotdev/logger"
 
 	"github.com/gofrs/uuid/v5"
 )

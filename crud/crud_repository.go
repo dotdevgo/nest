@@ -1,7 +1,7 @@
 package crud
 
 import (
-	"dotdev/nest/orm"
+	"dotdev/orm"
 
 	"github.com/defval/di"
 	"gorm.io/gorm"
