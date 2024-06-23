@@ -1,10 +1,10 @@
 package nest
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 
+	// "dotdev/nest/extension"
 	"dotdev/nest/logger"
 
 	"github.com/defval/di"
@@ -66,11 +66,17 @@ type (
 	}
 )
 
-var isBooted = false
+// var isBooted = false
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
 	LoadEnv()
+
+	// providers = append(
+	// 	providers,
+	// 	extension.HealthCheck(),
+	// 	extension.Validator(),
+	// )
 
 	c, err := di.New()
 	logger.FatalOnError(err)
@@ -84,18 +90,13 @@ func New(providers ...di.Option) *Kernel {
 	 * TODO: refactor
 	 * 	move to initialize* func
 	 */
-
 	logger.FatalOnError(c.Provide(func() *Kernel {
 		return w
 	}))
 
-	// RouteGroup
-	logger.FatalOnError(c.Provide(func() *RouteGroup {
-		return NewRouteGroup(w)
-	}))
-
 	// Config
 	w.Config = GetConfig()
+
 	c.Provide(func() Config {
 		return w.Config
 	})
@@ -296,7 +297,7 @@ func (w *Kernel) Start(address string) error {
 
 // Serve starts an HTTP server on default port.
 func (w *Kernel) Serve(address interface{}) error {
-	if err := w.Boot(); err != nil {
+	if err := w.boot(); err != nil {
 		return err
 	}
 
@@ -314,13 +315,14 @@ func (w *Kernel) Serve(address interface{}) error {
 	return w.Start(address.(string))
 }
 
-// Boot godoc
-func (w *Kernel) Boot() error {
-	if isBooted {
-		return errors.New("boot called twice")
-	}
+// boot godoc
+// TODO: refactor function name.
+func (w *Kernel) boot() error {
+	// if isBooted {
+	// 	return errors.New("boot called twice")
+	// }
 
-	isBooted = true
+	// isBooted = true
 
 	if err := w.Invoke(w.useValidator); err != nil {
 		return err

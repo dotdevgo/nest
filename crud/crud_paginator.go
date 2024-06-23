@@ -2,7 +2,7 @@ package crud
 
 // TODO: remove
 // import (
-// 	"dotdev/nest/nest"
+// 	"dotdev/nest/kernel"
 // 	"dotdev/nest/paginator"
 // 	"net/http"
 // )

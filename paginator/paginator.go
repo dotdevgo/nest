@@ -3,6 +3,8 @@
 package paginator
 
 import (
+	"dotdev/nest/nest"
+
 	"gorm.io/gorm"
 )
 
@@ -160,6 +162,7 @@ func (p *paginator[T]) result(value interface{}, c countResult) (*Result[T], err
 		CurrentPage:    p.page,
 		RecordsPerPage: p.limit,
 		MaxPage:        maxPage,
+		Meta:           nest.Map{},
 	}, nil
 }
 

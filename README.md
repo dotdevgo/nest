@@ -13,8 +13,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	_ "dotdev/nest/internal/cmd/api/docs"
+
 	"dotdev/nest/kernel"
-	"dotdev/nest/nest"
 	"dotdev/nest/orm"
 	"dotdev/nest/swagger"
 )
