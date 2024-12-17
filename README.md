@@ -22,11 +22,11 @@ import (
 // @title API Docs
 // @version 1.0
 // @description This is a sample Api server.
-// @termsOfService http://dotdev.io/terms/
+// @termsOfService https://dotdev.ltd/terms-of-service/
 
 // @contact.name API Support
-// @contact.url http://www.dotdev.io/support
-// @contact.email support@dotdev.io
+// @contact.url https://dotdev.ltd/support/
+// @contact.email me@dotdev.ltd
 
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
@@ -35,7 +35,9 @@ import (
 // @BasePath /
 func main() {
 	e := nest.New(
-		kernel.New(),
+		extension.HealthCheck(),
+		extension.Validator(),
+		events.New(),
 		orm.New(),
 		swagger.New(),
 	)
