@@ -1,4 +1,4 @@
-package extension
+package events
 
 import (
 	events "github.com/asaskevich/EventBus"

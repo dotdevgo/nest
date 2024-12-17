@@ -1,6 +1,5 @@
 GOPATH := $(shell go env GOPATH)
 
-# TODO: why this?
 init:
 	go get -u gorm.io/gorm
 	go get gorm.io/datatypes
@@ -13,10 +12,12 @@ init:
 	go get github.com/joho/godotenv
 	go install github.com/phelmkamp/metatag@latest
 	go install github.com/mitranim/gow@latest
+	go install github.com/swaggo/swag/cmd/swag@latest
+	go get -u github.com/swaggo/echo-swagger
 
 # Development
 serve:
-	gow run internal/cmd/api/main.go
+	gow run main.go
 
 test:
 	go test -v ./... -cover
@@ -33,3 +34,6 @@ godoc:
 
 generate:
 	go generate ./...
+
+swag:
+	swag init
