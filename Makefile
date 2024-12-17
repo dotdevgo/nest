@@ -14,6 +14,7 @@ init:
 	go install github.com/mitranim/gow@latest
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go get -u github.com/swaggo/echo-swagger
+	go get github.com/a-h/templ
 
 # Development
 serve:

@@ -46,6 +46,7 @@ require (
 )
 
 require (
+	github.com/a-h/templ v0.2.793 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect

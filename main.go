@@ -1,3 +1,4 @@
+// +templ generate
 package main
 
 import (
@@ -57,6 +58,8 @@ func main() {
 	w.Logger.Fatal(w.Serve(":1323"))
 }
 
+// TODO:
+// https://www.reddit.com/r/golang/comments/17d12wk/using_echo_with_ahtempl/
 func home(c nest.Context) error {
 	return c.Render(http.StatusOK, "index.html", map[string]any{
 		"Title": "DotDev",
