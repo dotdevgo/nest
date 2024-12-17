@@ -120,11 +120,9 @@ func GetConfig() Config {
 
 var isEnvLoaded = false
 
-// LoadEnv godoc
-// TODO: refactor
-func LoadEnv() {
+func loadEnvironment() error {
 	if isEnvLoaded {
-		return
+		return nil
 	}
 
 	isEnvLoaded = true
@@ -133,13 +131,19 @@ func LoadEnv() {
 	logger.FatalOnError(err)
 
 	if err := godotenv.Load(dir + "/.env"); err != nil {
-		logger.Warn(err)
-		return
+		// logger.Warn(err)
+		return err
 	}
 
-	logger.FatalOnError(envdecode.StrictDecode(&cfg))
+	if err := envdecode.StrictDecode(&cfg); err != nil {
+		return err
+	}
 
-	logger.Info("==> Config loaded")
+	// logger.FatalOnError(envdecode.StrictDecode(&cfg))
+
+	// logger.Info("==> Config loaded")
+
+	return nil
 }
 
 // NewConfig godoc

@@ -1,8 +1,10 @@
 package nest
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
+	"os"
 
 	"dotdev/logger"
 
@@ -10,7 +12,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 
-	// "github.com/labstack/gommon/log"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -46,7 +47,7 @@ type (
 
 	// Extension godoc
 	Extension interface {
-		Boot(w *Kernel)
+		Boot(w *Kernel) error
 	}
 
 	// Validator is the interface that wraps the Validate function.
@@ -65,17 +66,13 @@ type (
 	}
 )
 
-// var isBooted = false
-
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
-	LoadEnv()
-
-	// providers = append(
-	// 	providers,
-	// 	extension.HealthCheck(),
-	// 	extension.Validator(),
-	// )
+	if err := loadEnvironment(); err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			logger.FatalOnError(err)
+		}
+	}
 
 	c, err := di.New()
 	logger.FatalOnError(err)
@@ -83,7 +80,7 @@ func New(providers ...di.Option) *Kernel {
 	e := NewEcho(c)
 	e.HideBanner = true
 
-	w := &Kernel{Container: c, Echo: e}
+	w := &Kernel{Container: c, Echo: e, Config: GetConfig()}
 
 	/**
 	 * TODO: refactor
@@ -93,14 +90,13 @@ func New(providers ...di.Option) *Kernel {
 		return w
 	}))
 
-	// Config
-	w.Config = GetConfig()
-
 	c.Provide(func() Config {
 		return w.Config
 	})
 
-	c.Apply(providers...)
+	if len(providers) > 0 {
+		c.Apply(providers...)
+	}
 
 	return w
 }
@@ -150,6 +146,14 @@ func NewExtension(provideFn di.Constructor) di.Option {
 // NewController godoc
 func NewController(provideFn di.Constructor) di.Option {
 	return di.Provide(provideFn, di.As(new(AbstractController)))
+}
+
+// WrapHandler wraps `http.Handler` into `echo.HandlerFunc`.
+func WrapHandler(h http.Handler) HandlerFunc {
+	return func(c Context) error {
+		h.ServeHTTP(c.Response(), c.Request())
+		return nil
+	}
 }
 
 // InvokeFn Invoke calls the function fn. It parses function parameters. Looks for it in a container.
@@ -279,14 +283,6 @@ func (w *Kernel) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
 	return
 }
 
-// WrapHandler wraps `http.Handler` into `echo.HandlerFunc`.
-func WrapHandler(h http.Handler) HandlerFunc {
-	return func(c Context) error {
-		h.ServeHTTP(c.Response(), c.Request())
-		return nil
-	}
-}
-
 // Start starts an HTTP server.
 func (w *Kernel) Start(address string) error {
 	w.Echo.Server.Addr = address
@@ -296,12 +292,22 @@ func (w *Kernel) Start(address string) error {
 
 // Serve starts an HTTP server on default port.
 func (w *Kernel) Serve(address interface{}) error {
-	if err := w.boot(); err != nil {
-		return err
+	if err := w.Invoke(w.useValidator); err != nil {
+		if !errors.Is(err, di.ErrTypeNotExists) {
+			w.Logger.Fatal(err.Error())
+		}
+	}
+
+	if err := w.Invoke(w.boot); err != nil {
+		if !errors.Is(err, di.ErrTypeNotExists) {
+			w.Logger.Fatal(err.Error())
+		}
 	}
 
 	if err := w.Invoke(w.useRouter); err != nil {
-		w.Logger.Warn(err.Error())
+		if !errors.Is(err, di.ErrTypeNotExists) {
+			w.Logger.Fatal(err.Error())
+		}
 	}
 
 	var config Config
@@ -315,32 +321,11 @@ func (w *Kernel) Serve(address interface{}) error {
 }
 
 // boot godoc
-// TODO: refactor function name.
-func (w *Kernel) boot() error {
-	// if isBooted {
-	// 	return errors.New("boot called twice")
-	// }
-
-	// isBooted = true
-
-	if err := w.Invoke(w.useValidator); err != nil {
-		return err
-	}
-
-	if err := w.Invoke(w.bootstrap); err != nil {
-		w.Logger.Warn(err.Error())
-	}
-
-	return nil
-}
-
-// bootstrap godoc
-func (w *Kernel) bootstrap(providers []Extension) error {
+func (w *Kernel) boot(providers []Extension) error {
 	for _, p := range providers {
-		p.Boot(w)
-		// if err := p.Boot(w); err != nil {
-		// 	return err
-		// }
+		if err := p.Boot(w); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -375,3 +360,18 @@ func (w *Kernel) useRouter(controllers []AbstractController) {
 		w.InvokeFn(controller.New)
 	}
 }
+
+// boot godoc
+// TODO: refactor function name.
+// func (w *Kernel) boot() error {
+// 	// if err := w.Invoke(w.useValidator); err != nil {
+// 	// 	return err
+// 	// }
+
+// 	if err := w.Invoke(w.bootstrap); err != nil {
+// 		// w.Logger.Warn(err.Error())
+// 		return err
+// 	}
+
+// 	return nil
+// }
