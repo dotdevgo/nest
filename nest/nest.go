@@ -43,6 +43,7 @@ type (
 		*di.Container
 		*echo.Echo
 		Config
+		Renderer Renderer
 	}
 
 	// Extension godoc
@@ -82,10 +83,6 @@ func New(providers ...di.Option) *Kernel {
 
 	w := &Kernel{Container: c, Echo: e, Config: GetConfig()}
 
-	/**
-	 * TODO: refactor
-	 * 	move to initialize* func
-	 */
 	logger.FatalOnError(c.Provide(func() *Kernel {
 		return w
 	}))

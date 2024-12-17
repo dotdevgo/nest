@@ -6,11 +6,14 @@ import (
 	"dotdev/nest"
 	"dotdev/orm"
 	"dotdev/swagger"
+	"dotdev/templating"
+	"html/template"
+	"net/http"
 	"os"
 
 	_ "dotdev/docs"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
@@ -29,12 +32,15 @@ import (
 // @host localhost:1323
 // @BasePath /
 func main() {
+	templates := template.Must(template.ParseGlob("*.html"))
+
 	w := nest.New(
 		extension.HealthCheck(),
 		extension.Validator(),
 		events.New(),
 		orm.New(),
 		swagger.New(),
+		templating.New(templates),
 	)
 
 	w.Use(middleware.Logger())
@@ -46,5 +52,14 @@ func main() {
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 	}))
 
+	w.GET("/", home)
+
 	w.Logger.Fatal(w.Serve(":1323"))
+}
+
+func home(c nest.Context) error {
+	return c.Render(http.StatusOK, "index.html", map[string]any{
+		"Title": "DotDev",
+		"Desc":  "Best for building Full-Stack Applications with minimal JavaScript",
+	})
 }

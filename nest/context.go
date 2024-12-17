@@ -1,6 +1,7 @@
 package nest
 
 import (
+	"bytes"
 	"dotdev/logger"
 	"errors"
 	"net/http"
@@ -24,11 +25,15 @@ type (
 		NotFound() error
 
 		Validate(input any) error
+
+		// Render renders a template with data and sends a text/html response with status
+		// code. Renderer must be registered using `Echo.Renderer`.
+		Render(code int, name string, data interface{}) error
 	}
 
 	context struct {
 		echo.Context
-
+		//echo      *echo.Echo
 		Container *di.Container
 	}
 
@@ -59,6 +64,24 @@ func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 // NotFound godoc
 func (c *context) NotFound() error {
 	return c.JSON(http.StatusNotFound, Map{"error": ErrorNotFound.Error()})
+}
+
+// Render godoc
+func (c *context) Render(code int, name string, data interface{}) (err error) {
+	var kernel *Kernel
+	if err = c.Container.Resolve(&kernel); err != nil {
+		return err
+	}
+
+	if kernel.Renderer == nil {
+		return echo.ErrRendererNotRegistered
+	}
+
+	buf := new(bytes.Buffer)
+	if err = kernel.Renderer.Render(buf, name, data, c); err != nil {
+		return
+	}
+	return c.HTMLBlob(code, buf.Bytes())
 }
 
 // Localize translate string
