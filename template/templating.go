@@ -1,14 +1,14 @@
-package templating
+package template
 
 import (
 	"dotdev/nest"
-	"html/template"
+	html "html/template"
 
 	"github.com/defval/di"
 )
 
 // New godoc
-func New(templates *template.Template) di.Option {
+func New(templates *html.Template) di.Option {
 	return di.Options(
 		di.Provide(func() *TemplateRenderer {
 			return &TemplateRenderer{

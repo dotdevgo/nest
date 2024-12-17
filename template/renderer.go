@@ -1,14 +1,14 @@
-package templating
+package template
 
 import (
 	"dotdev/nest"
-	"html/template"
+	html "html/template"
 	"io"
 )
 
 // TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
-	templates *template.Template
+	templates *html.Template
 }
 
 // Render renders a template document

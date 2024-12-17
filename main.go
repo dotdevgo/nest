@@ -6,7 +6,7 @@ import (
 	"dotdev/nest"
 	"dotdev/orm"
 	"dotdev/swagger"
-	"dotdev/templating"
+	tpl "dotdev/template"
 	"html/template"
 	"net/http"
 	"os"
@@ -38,9 +38,9 @@ func main() {
 		extension.HealthCheck(),
 		extension.Validator(),
 		events.New(),
+		tpl.New(templates),
 		orm.New(),
 		swagger.New(),
-		templating.New(templates),
 	)
 
 	w.Use(middleware.Logger())
