@@ -19,16 +19,17 @@ type (
 	Context interface {
 		echo.Context
 
-		Resolve(ptr di.Pointer, options ...di.ResolveOption) error
-		ResolveFn(ptr di.Pointer, options ...di.ResolveOption)
-
-		NotFound() error
-
+		// Validate input
 		Validate(input any) error
-
+		// Return not found response
+		NotFound() error
 		// Render renders a template with data and sends a text/html response with status
 		// code. Renderer must be registered using `Echo.Renderer`.
 		Render(code int, name string, data interface{}) error
+		// Resolve container service with error
+		Resolve(ptr di.Pointer, options ...di.ResolveOption) error
+		// Resolve container service errorless
+		ResolveFn(ptr di.Pointer, options ...di.ResolveOption)
 	}
 
 	context struct {
@@ -47,18 +48,6 @@ func (c *context) IsTLS() bool {
 	c.ResolveFn(&config)
 
 	return config.HTTP.TLS.Enabled || c.Context.IsTLS()
-}
-
-// Resolve godoc
-func (c *context) Resolve(ptr di.Pointer, options ...di.ResolveOption) error {
-	return c.Container.Resolve(ptr, options...)
-}
-
-// ResolveFn godoc
-func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
-	if err := c.Container.Resolve(ptr, options...); err != nil {
-		logger.Panic(err)
-	}
 }
 
 // NotFound godoc
@@ -82,6 +71,18 @@ func (c *context) Render(code int, name string, data interface{}) (err error) {
 		return
 	}
 	return c.HTMLBlob(code, buf.Bytes())
+}
+
+// Resolve godoc
+func (c *context) Resolve(ptr di.Pointer, options ...di.ResolveOption) error {
+	return c.Container.Resolve(ptr, options...)
+}
+
+// ResolveFn godoc
+func (c *context) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
+	if err := c.Container.Resolve(ptr, options...); err != nil {
+		logger.Panic(err)
+	}
 }
 
 // Localize translate string

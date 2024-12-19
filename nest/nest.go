@@ -69,6 +69,10 @@ type (
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
+	// Logger
+	logger.Init()
+	logger.Logger = log.New()
+
 	if err := loadEnvironment(); err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			logger.FatalOnError(err)
@@ -78,7 +82,7 @@ func New(providers ...di.Option) *Kernel {
 	c, err := di.New()
 	logger.FatalOnError(err)
 
-	e := NewEcho(c)
+	e := createEchoInstance(c)
 	e.HideBanner = true
 
 	w := &Kernel{Container: c, Echo: e, Config: GetConfig()}
@@ -96,28 +100,6 @@ func New(providers ...di.Option) *Kernel {
 	}
 
 	return w
-}
-
-// NewEcho godoc
-func NewEcho(container *di.Container) *echo.Echo {
-	e := echo.New()
-
-	// Logger
-	logger.Init()
-	logger.Logger = log.New()
-
-	e.Logger = logger.GetEchoLogger()
-	e.Use(logger.Hook())
-
-	// Override echo.Context
-	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(ctx echo.Context) error {
-			cc := &context{ctx, container}
-			return next(cc)
-		}
-	})
-
-	return e
 }
 
 // NewHTTPError creates a new HTTPError instance.
@@ -173,9 +155,7 @@ func (w *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOpti
 // ResolveFn Resolve resolves type and fills target pointer.
 //
 //	var server *http.Server
-//	if err := container.Resolve(&server); err != nil {
-//		// handle error
-//	}
+//	container.ResolveFn(&server)
 func (w *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := w.Resolve(ptr, options...); err != nil {
 		w.Logger.Fatalf("%s", err)
@@ -326,6 +306,24 @@ func (w *Kernel) boot(providers []Extension) error {
 	}
 
 	return nil
+}
+
+// createEchoInstance godoc
+func createEchoInstance(container *di.Container) *echo.Echo {
+	e := echo.New()
+
+	e.Logger = logger.GetEchoLogger()
+	e.Use(logger.Hook())
+
+	// Override echo.Context
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			cc := &context{ctx, container}
+			return next(cc)
+		}
+	})
+
+	return e
 }
 
 // useValidator godoc

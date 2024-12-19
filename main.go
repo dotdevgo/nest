@@ -7,8 +7,8 @@ import (
 	"dotdev/nest"
 	"dotdev/orm"
 	"dotdev/swagger"
-	tpl "dotdev/template"
-	"html/template"
+	"dotdev/template"
+	html "html/template"
 	"net/http"
 	"os"
 
@@ -33,15 +33,15 @@ import (
 // @host localhost:1323
 // @BasePath /
 func main() {
-	templates := template.Must(template.ParseGlob("*.html"))
+	templates := html.Must(html.ParseGlob("*.html"))
 
 	w := nest.New(
-		extension.HealthCheck(),
-		extension.Validator(),
-		events.New(),
-		tpl.New(templates),
 		orm.New(),
+		events.New(),
 		swagger.New(),
+		template.New(templates),
+		extension.Validator(),
+		extension.HealthCheck(),
 	)
 
 	w.Use(middleware.Logger())
