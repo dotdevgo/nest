@@ -6,6 +6,7 @@ import (
 
 	"dotdev/logger"
 
+	"github.com/defval/di"
 	"github.com/joeshaw/envdecode"
 	"github.com/joho/godotenv"
 )
@@ -44,6 +45,9 @@ func SwitchEnvironment(env Environment) {
 	}
 }
 
+// DBConnectFunc defines a database connection initialization function.
+type ContainerFactoryFn func(providers ...di.Option) (*di.Container, error)
+
 type (
 	// Config stores complete configuration
 	Config struct {
@@ -52,6 +56,8 @@ type (
 		Cache    CacheConfig
 		HTTP     HTTPConfig
 		Database DatabaseConfig
+
+		ContainerFactory ContainerFactoryFn
 	}
 
 	// AppConfig stores application configuration
@@ -111,6 +117,23 @@ type (
 	}
 )
 
+// Option defines the signature of a paginator option function.
+type Option func(p *Kernel)
+
+// UseContainer godoc
+func UseContainer(container *di.Container) Option {
+	return func(w *Kernel) {
+		w.Container = container
+	}
+}
+
+// UseProvider godoc
+func UseProvider(providers ...di.Option) Option {
+	return func(w *Kernel) {
+		w.Container.Apply(providers...)
+	}
+}
+
 var cfg Config
 
 // GetConfig loads and returns configuration
@@ -120,6 +143,7 @@ func GetConfig() Config {
 
 var isEnvLoaded = false
 
+// loadEnvironment godoc
 func loadEnvironment() error {
 	if isEnvLoaded {
 		return nil

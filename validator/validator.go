@@ -1,12 +1,12 @@
-package extension
+package validator
 
 import (
 	"github.com/defval/di"
 	"github.com/go-playground/validator/v10"
 )
 
-// Validator godoc
-func Validator() di.Option {
+// New godoc
+func New() di.Option {
 	return di.Options(
 		di.Provide(func() *validator.Validate {
 			return validator.New()

@@ -69,6 +69,11 @@ type (
 
 // New Create new Nest instance
 func New(providers ...di.Option) *Kernel {
+	return NewWithConfig([]Option{}, providers...)
+}
+
+// NewWithConfig godoc
+func NewWithConfig(options []Option, providers ...di.Option) *Kernel {
 	// Logger
 	logger.Init()
 	logger.Logger = log.New()
@@ -82,21 +87,33 @@ func New(providers ...di.Option) *Kernel {
 	c, err := di.New()
 	logger.FatalOnError(err)
 
-	e := createEchoInstance(c)
+	e := createEchoInstance()
 	e.HideBanner = true
 
 	w := &Kernel{Container: c, Echo: e, Config: GetConfig()}
 
-	logger.FatalOnError(c.Provide(func() *Kernel {
+	for _, option := range options {
+		option(w)
+	}
+
+	// Override echo.Context
+	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			cc := &context{ctx, w.Container}
+			return next(cc)
+		}
+	})
+
+	logger.FatalOnError(w.Provide(func() *Kernel {
 		return w
 	}))
 
-	c.Provide(func() Config {
+	w.Provide(func() Config {
 		return w.Config
 	})
 
 	if len(providers) > 0 {
-		c.Apply(providers...)
+		w.Apply(providers...)
 	}
 
 	return w
@@ -158,7 +175,8 @@ func (w *Kernel) ProvideFn(constructor di.Constructor, options ...di.ProvideOpti
 //	container.ResolveFn(&server)
 func (w *Kernel) ResolveFn(ptr di.Pointer, options ...di.ResolveOption) {
 	if err := w.Resolve(ptr, options...); err != nil {
-		w.Logger.Fatalf("%s", err)
+		w.Logger.Panic(err.Error())
+		// w.Logger.Fatalf("%s", err)
 	}
 }
 
@@ -264,29 +282,15 @@ func (w *Kernel) Group(prefix string, m ...echo.MiddlewareFunc) (g *Group) {
 func (w *Kernel) Start(address string) error {
 	w.Echo.Server.Addr = address
 
+	if err := w.Boot(); err != nil {
+		w.Logger.Fatal(err.Error())
+	}
+
 	return w.Echo.StartServer(w.Echo.Server)
 }
 
 // Serve starts an HTTP server on default port.
 func (w *Kernel) Serve(address interface{}) error {
-	if err := w.Invoke(w.useValidator); err != nil {
-		if !errors.Is(err, di.ErrTypeNotExists) {
-			w.Logger.Fatal(err.Error())
-		}
-	}
-
-	if err := w.Invoke(w.boot); err != nil {
-		if !errors.Is(err, di.ErrTypeNotExists) {
-			w.Logger.Fatal(err.Error())
-		}
-	}
-
-	if err := w.Invoke(w.useRouter); err != nil {
-		if !errors.Is(err, di.ErrTypeNotExists) {
-			w.Logger.Fatal(err.Error())
-		}
-	}
-
 	var config Config
 	w.ResolveFn(&config)
 
@@ -295,6 +299,29 @@ func (w *Kernel) Serve(address interface{}) error {
 	}
 
 	return w.Start(address.(string))
+}
+
+// Boot HTTP server.
+func (w *Kernel) Boot() error {
+	if err := w.Invoke(w.useValidator); err != nil {
+		if !errors.Is(err, di.ErrTypeNotExists) {
+			return err
+		}
+	}
+
+	if err := w.Invoke(w.boot); err != nil {
+		if !errors.Is(err, di.ErrTypeNotExists) {
+			return err
+		}
+	}
+
+	if err := w.Invoke(w.useRouter); err != nil {
+		if !errors.Is(err, di.ErrTypeNotExists) {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // boot godoc
@@ -309,19 +336,19 @@ func (w *Kernel) boot(providers []Extension) error {
 }
 
 // createEchoInstance godoc
-func createEchoInstance(container *di.Container) *echo.Echo {
+func createEchoInstance() *echo.Echo {
 	e := echo.New()
 
 	e.Logger = logger.GetEchoLogger()
 	e.Use(logger.Hook())
 
-	// Override echo.Context
-	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(ctx echo.Context) error {
-			cc := &context{ctx, container}
-			return next(cc)
-		}
-	})
+	// // Override echo.Context
+	// e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+	// 	return func(ctx echo.Context) error {
+	// 		cc := &context{ctx, container}
+	// 		return next(cc)
+	// 	}
+	// })
 
 	return e
 }

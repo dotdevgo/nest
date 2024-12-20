@@ -3,17 +3,19 @@ package main
 
 import (
 	"dotdev/events"
-	"dotdev/extension"
+	"dotdev/logger"
 	"dotdev/nest"
 	"dotdev/orm"
 	"dotdev/swagger"
 	"dotdev/template"
+	"dotdev/validator"
 	html "html/template"
 	"net/http"
 	"os"
 
 	_ "dotdev/docs"
 
+	"github.com/defval/di"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -35,13 +37,22 @@ import (
 func main() {
 	templates := html.Must(html.ParseGlob("*.html"))
 
-	w := nest.New(
+	container, err := di.New()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	config := []nest.Option{
+		nest.UseContainer(container),
+	}
+
+	w := nest.NewWithConfig(
+		config,
 		orm.New(),
 		events.New(),
 		swagger.New(),
+		validator.New(),
 		template.New(templates),
-		extension.Validator(),
-		extension.HealthCheck(),
 	)
 
 	w.Use(middleware.Logger())

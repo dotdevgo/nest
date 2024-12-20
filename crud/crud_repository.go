@@ -14,15 +14,8 @@ type Repository[T orm.Model] struct {
 	*gorm.DB
 }
 
-// FindAll godoc
-func (s *Repository[T]) FindAll(result []T, options ...Option) error {
-	var stmt = s.CreateQuery(options...)
-
-	return stmt.Find(result).Error
-}
-
-// GetById godoc
-func (s *Repository[T]) GetById(id string) (T, error) {
+// Find godoc
+func (s *Repository[T]) Find(id string) (T, error) {
 	var data T
 	var uuid = orm.UUIDToBinary(id)
 
@@ -32,6 +25,13 @@ func (s *Repository[T]) GetById(id string) (T, error) {
 	}
 
 	return data, nil
+}
+
+// FindAll godoc
+func (s *Repository[T]) FindAll(result []T, options ...Option) error {
+	var stmt = s.CreateQuery(options...)
+
+	return stmt.Find(result).Error
 }
 
 // CreateQuery godoc
