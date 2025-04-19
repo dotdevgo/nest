@@ -5,7 +5,6 @@ import (
 	"dotdev/events"
 	"dotdev/logger"
 	"dotdev/nest"
-	"dotdev/orm"
 	"dotdev/swagger"
 	"dotdev/template"
 	"dotdev/validator"
@@ -18,6 +17,7 @@ import (
 	"github.com/defval/di"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	// "github.com/formancehq/numscript"
 )
 
 // @title DotDev Golang packages
@@ -48,7 +48,7 @@ func main() {
 
 	w := nest.NewWithConfig(
 		config,
-		orm.New(),
+		//orm.New(),
 		events.New(),
 		swagger.New(),
 		validator.New(),
@@ -77,3 +77,35 @@ func home(c nest.Context) error {
 		"Desc":  "Best for building Full-Stack Applications with minimal JavaScript",
 	})
 }
+
+// func numfn(c nest.Context) error {
+// 	vars := numscript.VariablesMap{}
+// 	store := numscript.StaticStore{
+// 		Balances: numscript.Balances{
+// 			"player:ashe": numscript.AccountBalance{
+// 				"COIN": big.NewInt(1000),
+// 			},
+// 		},
+// 	}
+
+// 	parseResult := numscript.Parse(`send [COIN 200] (
+// 		source = {
+// 			@player:rina
+// 			@player:ashe
+// 			@world
+// 		}
+// 		destination = {
+// 			50% to @player:ashe
+// 			remaining to @player:rina
+// 		}
+// 	)`)
+
+// 	result, err := parseResult.Run(c.Request().Context(), vars, store)
+// 	if err != nil {
+// 		return c.JSON(http.StatusBadRequest, nest.Map{})
+// 	}
+
+// 	return c.JSON(http.StatusOK, nest.Map{
+// 		"result": result,
+// 	})
+// }

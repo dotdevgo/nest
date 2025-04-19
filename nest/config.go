@@ -20,9 +20,6 @@ const (
 
 	// StaticDir stores the name of the directory that will serve static files
 	StaticDir = "static"
-
-	// StaticPrefix stores the URL prefix used when serving static files
-	StaticPrefix = "files"
 )
 
 type Environment string
@@ -63,15 +60,16 @@ type (
 	// AppConfig stores application configuration
 	AppConfig struct {
 		//Name        string      `env:"APP_NAME,default=Nest"`
+		Timeout time.Duration `env:"APP_TIMEOUT,default=20s"`
+
 		Environment Environment `env:"APP_ENV,default=local"`
 		// THIS MUST BE OVERRIDDEN ON ANY LIVE ENVIRONMENTS
-		EncryptionKey string        `env:"APP_ENCRYPTION_KEY,default=?E(G+KbPeShVmYq3t6w9z$C&F)J@McQf"`
-		Timeout       time.Duration `env:"APP_TIMEOUT,default=20s"`
-		PasswordToken struct {
-			Expiration time.Duration `env:"APP_PASSWORD_TOKEN_EXPIRATION,default=60m"`
-			Length     int           `env:"APP_PASSWORD_TOKEN_LENGTH,default=64"`
-		}
-		EmailVerificationTokenExpiration time.Duration `env:"APP_EMAIL_VERIFICATION_TOKEN_EXPIRATION,default=12h"`
+		EncryptionKey string `env:"APP_ENCRYPTION_KEY,default=?E(G+KbPeShVmYq3t6w9z$C&F)J@McQf"`
+		// PasswordToken struct {
+		// 	Expiration time.Duration `env:"APP_PASSWORD_TOKEN_EXPIRATION,default=60m"`
+		// 	Length     int           `env:"APP_PASSWORD_TOKEN_LENGTH,default=64"`
+		// }
+		// EmailVerificationTokenExpiration time.Duration `env:"APP_EMAIL_VERIFICATION_TOKEN_EXPIRATION,default=12h"`
 	}
 
 	// CORSConfig stores Cors configuration
@@ -100,10 +98,10 @@ type (
 		Password     string `env:"CACHE_PASSWORD"`
 		Database     int    `env:"CACHE_DB,default=0"`
 		TestDatabase int    `env:"CACHE_DB_TEST,default=1"`
-		Expiration   struct {
-			StaticFile time.Duration `env:"CACHE_EXPIRATION_STATIC_FILE,default=4380h"`
-			Page       time.Duration `env:"CACHE_EXPIRATION_PAGE,default=24h"`
-		}
+		// Expiration   struct {
+		// 	StaticFile time.Duration `env:"CACHE_EXPIRATION_STATIC_FILE,default=4380h"`
+		// 	Page       time.Duration `env:"CACHE_EXPIRATION_PAGE,default=24h"`
+		// }
 	}
 
 	// DatabaseConfig stores the database configuration
@@ -116,23 +114,6 @@ type (
 		TestDatabase string `env:"DB_NAME_TEST,default=app_test"`
 	}
 )
-
-// Option defines the signature of a paginator option function.
-type Option func(p *Kernel)
-
-// UseContainer godoc
-func UseContainer(container *di.Container) Option {
-	return func(w *Kernel) {
-		w.Container = container
-	}
-}
-
-// UseProvider godoc
-func UseProvider(providers ...di.Option) Option {
-	return func(w *Kernel) {
-		w.Container.Apply(providers...)
-	}
-}
 
 var cfg Config
 
